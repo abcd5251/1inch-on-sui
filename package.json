@@ -1,0 +1,60 @@
+{
+  "name": "se-2",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "scripts": {
+    "account": "pnpm foundry:account",
+    "account:generate": "pnpm foundry:generate",
+    "account:import": "pnpm foundry:account-import",
+    "account:reveal-pk": "pnpm --filter @se-2/foundry account:reveal-pk",
+    "chain": "pnpm foundry:chain",
+    "compile": "pnpm foundry:compile",
+    "deploy": "pnpm foundry:deploy",
+    "flatten": "pnpm foundry:flatten",
+    "fork": "pnpm foundry:fork",
+    "format": "pnpm next:format && pnpm foundry:format",
+    "foundry:account": "pnpm --filter @se-2/foundry account",
+    "foundry:account-import": "pnpm --filter @se-2/foundry account:import",
+    "foundry:chain": "pnpm --filter @se-2/foundry chain",
+    "foundry:clean": "pnpm --filter @se-2/foundry clean",
+    "foundry:compile": "pnpm --filter @se-2/foundry compile",
+    "foundry:deploy": "pnpm --filter @se-2/foundry deploy",
+    "foundry:deploy-verify": "pnpm --filter @se-2/foundry deploy:verify",
+    "foundry:flatten": "pnpm --filter @se-2/foundry flatten",
+    "foundry:fork": "pnpm --filter @se-2/foundry fork",
+    "foundry:format": "pnpm --filter @se-2/foundry format",
+    "foundry:generate": "pnpm --filter @se-2/foundry account:generate",
+    "foundry:lint": "pnpm --filter @se-2/foundry lint",
+    "foundry:test": "pnpm --filter @se-2/foundry test",
+    "foundry:verify": "pnpm --filter @se-2/foundry verify",
+    "generate": "pnpm foundry:generate",
+    "postinstall": "husky install",
+    "ipfs": "pnpm --filter @se-2/nextjs ipfs",
+    "lint": "pnpm next:lint && pnpm foundry:lint",
+    "next:build": "pnpm --filter @se-2/nextjs build",
+    "next:check-types": "pnpm --filter @se-2/nextjs check-types",
+    "next:format": "pnpm --filter @se-2/nextjs format",
+    "next:lint": "pnpm --filter @se-2/nextjs lint",
+    "next:serve": "pnpm --filter @se-2/nextjs serve",
+    "precommit": "lint-staged",
+    "start": "pnpm --filter @se-2/nextjs dev",
+    "test": "pnpm foundry:test",
+    "vercel": "pnpm --filter @se-2/nextjs vercel",
+    "vercel:login": "pnpm --filter @se-2/nextjs vercel:login",
+    "vercel:yolo": "pnpm --filter @se-2/nextjs vercel:yolo",
+    "verify": "pnpm foundry:verify"
+  },
+  "devDependencies": {
+    "husky": "~9.1.6",
+    "lint-staged": "~13.2.2"
+  },
+  "packageManager": "pnpm@9.6.0",
+  "engines": {
+    "node": ">=20.18.3"
+  }
+}
