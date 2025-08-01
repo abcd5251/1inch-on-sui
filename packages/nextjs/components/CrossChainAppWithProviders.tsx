@@ -14,7 +14,7 @@ import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
 import { SuiProviders } from "~~/services/sui/suiConfig";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 
-const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+const CrossChainApp = ({ children }: { children: React.ReactNode }) => {
   useInitializeNativeCurrencyPrice();
 
   return (
@@ -29,15 +29,21 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const queryClient = new QueryClient({
+export const crossChainQueryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
+      staleTime: 60 * 1000, // 1 minute
+      retry: 3,
     },
   },
 });
 
-export const ScaffoldEthAppWithProviders = ({ children }: { children: React.ReactNode }) => {
+/**
+ * 
+ * support Ethereum (RainbowKit + Wagmi) and Sui (Suiet Wallet Kit + Mysten dApp Kit)
+ */
+export const CrossChainAppWithProviders = ({ children }: { children: React.ReactNode }) => {
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
   const [mounted, setMounted] = useState(false);
@@ -47,19 +53,20 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   }, []);
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={crossChainQueryClient}>
+      {/* Ethereum Provider Layer */}
+      <WagmiProvider config={wagmiConfig}>
         <RainbowKitProvider
           avatar={BlockieAvatar}
           theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
-          locale="en"
         >
+          {/* Sui Provider Layer */}
           <SuiProviders>
             <ProgressBar height="3px" color="#2299dd" />
-            <ScaffoldEthApp>{children}</ScaffoldEthApp>
+            <CrossChainApp>{children}</CrossChainApp>
           </SuiProviders>
         </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+      </WagmiProvider>
+    </QueryClientProvider>
   );
 };

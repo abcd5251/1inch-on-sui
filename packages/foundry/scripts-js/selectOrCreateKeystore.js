@@ -1,6 +1,6 @@
+import { spawnSync, spawn } from "child_process";
 import { readdirSync, existsSync } from "fs";
 import { join } from "path";
-import { spawnSync, spawn } from "child_process";
 import readline from "readline";
 import { fileURLToPath } from "url";
 
