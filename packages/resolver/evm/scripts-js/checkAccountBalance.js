@@ -1,12 +1,12 @@
 import { listKeystores } from "./listKeystores.js";
 import { execSync } from "child_process";
 import dotenv from "dotenv";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
-import { toString } from "qrcode";
-import { readFileSync } from "fs";
-import { parse } from "toml";
 import { ethers } from "ethers";
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { toString } from "qrcode";
+import { parse } from "toml";
+import { fileURLToPath } from "url";
 
 const ALCHEMY_API_KEY =
   process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";

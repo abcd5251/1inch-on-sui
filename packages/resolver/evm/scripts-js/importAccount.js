@@ -1,7 +1,8 @@
 import { spawn } from "child_process";
-import { createInterface } from "readline";
 import { config } from "dotenv";
 import { stdin as input, stdout as output } from "process";
+import { createInterface } from "readline";
+
 config();
 
 /**

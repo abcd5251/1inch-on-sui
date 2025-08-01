@@ -1,10 +1,10 @@
+import { selectOrCreateKeystore } from "./selectOrCreateKeystore.js";
 import { spawnSync } from "child_process";
 import { config } from "dotenv";
-import { join, dirname } from "path";
 import { readFileSync, existsSync } from "fs";
+import { join, dirname } from "path";
 import { parse } from "toml";
 import { fileURLToPath } from "url";
-import { selectOrCreateKeystore } from "./selectOrCreateKeystore.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config();
