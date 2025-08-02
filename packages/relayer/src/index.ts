@@ -25,6 +25,9 @@ import { healthRoutes } from './routes/health.js';
 import { metricsRoutes } from './routes/metrics.js';
 import { webhookRoutes } from './routes/webhooks.js';
 
+// WebSocket setup
+import { setupWebSocket } from './websocket/index.js';
+
 // Configuration and types
 import type { MonitorConfig } from './types/events.js';
 
@@ -37,6 +40,7 @@ class EnhancedCrossChainRelayer {
   private redisService: RedisService;
   private eventMonitor: EventMonitor;
   private swapCoordinator: SwapCoordinator;
+  private wsManager: any; // WebSocket manager instance
   private isRunning = false;
 
   constructor() {
@@ -75,12 +79,30 @@ class EnhancedCrossChainRelayer {
     try {
       logger.info('🚀 Initializing Enhanced Cross-Chain Relayer...');
 
-      // Temporarily skip database and other service initialization
-      logger.info('⚠️ Running in minimal mode - database and monitoring services disabled');
+      // Initialize database
+      await this.dbManager.initialize();
+      logger.info('✅ Database initialized');
+
+      // Initialize Redis service
+      await this.redisService.connect();
+      logger.info('✅ Redis service connected');
+
+      // Initialize swap coordinator
+      this.swapCoordinator = new SwapCoordinator(this.dbManager, this.redisService);
+      await this.swapCoordinator.start();
+      logger.info('✅ Swap coordinator started');
+
+      // Setup WebSocket with swap coordinator integration
+      this.wsManager = setupWebSocket(this.app, this.swapCoordinator, this.dbManager);
+      logger.info('✅ WebSocket server setup complete');
+
+      // Setup event listeners for WebSocket notifications
+      this.setupEventListeners();
+      logger.info('✅ Event listeners configured');
       
       logger.info('✅ API routes registered');
 
-      logger.info('🎉 Enhanced Cross-Chain Relayer initialized successfully (minimal mode)');
+      logger.info('🎉 Enhanced Cross-Chain Relayer initialized successfully');
     } catch (error) {
       logger.error('❌ Failed to initialize relayer:', error);
       throw error;
@@ -119,30 +141,47 @@ class EnhancedCrossChainRelayer {
    * Setup event listeners
    */
   private setupEventListeners(): void {
-    // Monitor event listeners
-    this.eventMonitor.on('eventProcessed', (data) => {
-      logger.debug('Event processed:', data.event.type);
-      this.recordMetric('events_processed', 1, {
-        chain: data.chain,
-        eventType: data.event.type,
+    // Skip event monitor setup if not initialized
+    if (this.eventMonitor) {
+      // Monitor event listeners
+      this.eventMonitor.on('eventProcessed', (data) => {
+        logger.debug('Event processed:', data.event.type);
+        this.recordMetric('events_processed', 1, {
+          chain: data.chain,
+          eventType: data.event.type,
+        });
       });
-    });
 
-    this.eventMonitor.on('eventFailed', (data) => {
-      logger.error('Event processing failed:', data.error);
-      this.recordMetric('events_failed', 1, {
-        chain: data.chain,
-        eventType: data.event.type,
+      this.eventMonitor.on('eventFailed', (data) => {
+        logger.error('Event processing failed:', data.error);
+        this.recordMetric('events_failed', 1, {
+          chain: data.chain,
+          eventType: data.event.type,
+        });
       });
-    });
+    }
 
-    // Swap coordinator events
+    // Swap coordinator events with WebSocket notifications
     this.swapCoordinator.on('swapCreated', (swap) => {
       logger.info('New swap created:', swap.id);
       this.recordMetric('swaps_created', 1, {
         sourceChain: swap.sourceChain,
         targetChain: swap.targetChain,
       });
+      
+      // Broadcast swap creation to WebSocket clients
+      if (this.wsManager && this.wsManager.broadcastSwapCreated) {
+        this.wsManager.broadcastSwapCreated(swap);
+      }
+    });
+
+    this.swapCoordinator.on('swapStatusChanged', (swap, newStatus) => {
+      logger.info('Swap status changed:', { swapId: swap.id, newStatus });
+      
+      // Broadcast status change to WebSocket clients
+      if (this.wsManager && this.wsManager.broadcastSwapStatusChanged) {
+        this.wsManager.broadcastSwapStatusChanged(swap);
+      }
     });
 
     this.swapCoordinator.on('swapCompleted', (swap) => {
@@ -151,6 +190,11 @@ class EnhancedCrossChainRelayer {
         sourceChain: swap.sourceChain,
         targetChain: swap.targetChain,
       });
+      
+      // Broadcast completion to WebSocket clients
+      if (this.wsManager && this.wsManager.broadcastSwapUpdated) {
+        this.wsManager.broadcastSwapUpdated(swap);
+      }
     });
 
     this.swapCoordinator.on('swapFailed', (swap) => {
@@ -159,6 +203,11 @@ class EnhancedCrossChainRelayer {
         sourceChain: swap.sourceChain,
         targetChain: swap.targetChain,
       });
+      
+      // Broadcast error to WebSocket clients
+      if (this.wsManager && this.wsManager.broadcastSwapError) {
+        this.wsManager.broadcastSwapError(swap);
+      }
     });
   }
 
@@ -182,7 +231,10 @@ class EnhancedCrossChainRelayer {
       console.log('🔍 About to call listen with port:', port);
       
       // Elysia's listen method should be called like this
-      this.app.listen(port);
+      this.app.listen({
+        port,
+        hostname
+      });
       
       this.isRunning = true;
 

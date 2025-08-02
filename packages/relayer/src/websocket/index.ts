@@ -15,7 +15,7 @@ interface WebSocketClient {
   lastPing: number;
 }
 
-export function setupWebSocket(app: Elysia, relayerService: RelayerService, dbManager?: DatabaseManager): void {
+export function setupWebSocket(app: Elysia, relayerService: RelayerService, dbManager?: DatabaseManager): WebSocketManager {
   const clients = new Map<string, WebSocketClient>();
   let clientIdCounter = 0;
 
@@ -123,6 +123,9 @@ export function setupWebSocket(app: Elysia, relayerService: RelayerService, dbMa
   });
 
   logger.info('WebSocket server configured successfully');
+  
+  // Return WebSocket manager instance for external use
+  return wsManager;
 }
 
 function handleWebSocketMessage(
