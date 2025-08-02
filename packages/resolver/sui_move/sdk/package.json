@@ -1,0 +1,61 @@
+{
+  "name": "@1inch-on-sui/cross-chain-auction-sdk",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for SUI Move Cross-Chain Auction and Escrow System",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts",
+    "example": "ts-node typescript-example.ts"
+  },
+  "keywords": [
+    "sui",
+    "move",
+    "blockchain",
+    "auction",
+    "escrow",
+    "cross-chain",
+    "1inch",
+    "defi"
+  ],
+  "author": "1inch Network",
+  "license": "MIT",
+  "dependencies": {
+    "@mysten/sui.js": "^0.50.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.0.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@mysten/sui.js": ">=0.50.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1inch/1inch-on-sui.git",
+    "directory": "packages/resolver/sui_move/sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/1inch/1inch-on-sui/issues"
+  },
+  "homepage": "https://github.com/1inch/1inch-on-sui#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

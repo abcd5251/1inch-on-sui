@@ -1,0 +1,51 @@
+{
+  "network": {
+    "name": "testnet",
+    "rpc_url": "https://fullnode.testnet.sui.io:443",
+    "faucet_url": "https://discord.gg/sui",
+    "explorer_url": "https://suiexplorer.com/?network=testnet"
+  },
+  "deployment": {
+    "package_id": "",
+    "registry_id": "",
+    "admin_cap_id": "",
+    "deployed_at": "",
+    "deployer_address": "",
+    "gas_used": ""
+  },
+  "protocol": {
+    "protocol_fee_bps": 250,
+    "reveal_window_ms": 86400000,
+    "min_auction_duration_ms": 300000,
+    "max_auction_duration_ms": 604800000
+  },
+  "examples": {
+    "escrow": {
+      "amount": 1000000000,
+      "timelock_offset_ms": 86400000,
+      "metadata": "Cross-chain escrow for auction"
+    },
+    "auction": {
+      "start_price": 500000000,
+      "end_price": 100000000,
+      "duration_ms": 3600000,
+      "metadata": "Dutch auction for cross-chain asset"
+    },
+    "secrets": {
+      "example_secret": "my_secret_123",
+      "example_hash": "[0xa1, 0xb2, 0xc3, 0xd4, 0xe5, 0xf6, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20]"
+    }
+  },
+  "addresses": {
+    "clock_object": "0x6",
+    "sui_system": "0x3",
+    "sui_framework": "0x2"
+  },
+  "gas": {
+    "create_escrow": 10000000,
+    "create_auction": 10000000,
+    "place_bid": 10000000,
+    "reveal_and_release": 10000000,
+    "view_function": 1000000
+  }
+}

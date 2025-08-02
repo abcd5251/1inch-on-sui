@@ -1,0 +1,28 @@
+# SUI Move Cross-Chain Auction Python SDK Requirements
+
+# Core SUI Python SDK
+pysui>=0.65.0
+
+# Cryptography for hash generation
+cryptography>=41.0.0
+
+# HTTP client for API calls
+httpx>=0.24.0
+
+# JSON handling
+orjson>=3.9.0
+
+# Async support
+aiofiles>=23.0.0
+
+# Type hints
+typing-extensions>=4.7.0
+
+# Development dependencies (optional)
+# Uncomment for development
+# pytest>=7.4.0
+# pytest-asyncio>=0.21.0
+# black>=23.7.0
+# flake8>=6.0.0
+# mypy>=1.5.0
+# isort>=5.12.0

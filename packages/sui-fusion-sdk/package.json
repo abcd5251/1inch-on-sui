@@ -1,0 +1,77 @@
+{
+  "name": "@1inch/sui-fusion-sdk",
+  "version": "1.0.0",
+  "description": "A comprehensive TypeScript SDK for 1inch Fusion protocol on Sui blockchain",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "build:watch": "rollup -c -w",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "echo \"Linting not configured\" && exit 0",
+    "typecheck": "tsc --noEmit",
+    "example:auction": "tsx examples/dutch-auction.ts",
+    "example:demo": "tsx examples/complete-auction-demo.ts",
+    "example:resolver": "tsx examples/resolver-bot.ts",
+    "dev:resolver": "tsx --watch examples/resolver-bot.ts"
+  },
+  "keywords": [
+    "sui",
+    "blockchain",
+    "defi",
+    "fusion",
+    "1inch",
+    "swap",
+    "dex",
+    "aggregator",
+    "sdk",
+    "typescript",
+    "dutch-auction",
+    "mev-protection",
+    "resolver",
+    "auction"
+  ],
+  "author": "1inch Network",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1inch/sui-fusion-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/1inch/sui-fusion-sdk/issues"
+  },
+  "homepage": "https://github.com/1inch/sui-fusion-sdk#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "peerDependencies": {
+    "@mysten/sui": "^1.17.0"
+  },
+  "dependencies": {
+    "@mysten/dapp-kit": "^0.17.2",
+    "@mysten/sui": "^1.17.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.1.0",
+    "jest": "^30.0.5",
+    "rollup": "^4.46.2",
+    "rollup-plugin-dts": "^6.2.1",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.9.2"
+  }
+}
