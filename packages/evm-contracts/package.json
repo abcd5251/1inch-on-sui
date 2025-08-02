@@ -1,0 +1,27 @@
+{
+  "name": "@1inch-on-sui/evm-contracts",
+  "version": "1.0.0",
+  "description": "EVM smart contracts for cross-chain auctions with 1inch Fusion+",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy:sepolia": "TARGET_CHAIN=sepolia node scripts/deploy-script.js",
+    "deploy:base": "TARGET_CHAIN=baseSepolia node scripts/deploy-script.js",
+    "resolver": "node scripts/fusion-resolver-integration.js",
+    "demo": "node scripts/complete-fusion-demo.js demo",
+    "hackathon": "node scripts/complete-fusion-demo.js hackathon"
+  },
+  "dependencies": {
+    "@1inch/fusion-sdk": "^2.3.6",
+    "@1inch/limit-order-protocol": "^2.0.5",
+    "dotenv": "^17.2.1",
+    "ethers": "^6.15.0",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "hardhat": "^2.26.1"
+  }
+}

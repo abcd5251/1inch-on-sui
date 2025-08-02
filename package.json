@@ -4,7 +4,8 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "packages/evm-contracts"
     ]
   },
   "scripts": {
@@ -47,7 +48,11 @@
     "vercel": "bun --filter @se-2/nextjs vercel",
     "vercel:login": "bun --filter @se-2/nextjs vercel:login",
     "vercel:yolo": "bun --filter @se-2/nextjs vercel:yolo",
-    "verify": "bun foundry:verify"
+    "verify": "bun foundry:verify",
+    "build:evm": "bun --cwd packages/evm-contracts run compile",
+    "deploy:evm": "bun --cwd packages/evm-contracts run deploy:sepolia", 
+    "demo:evm": "bun --cwd packages/evm-contracts run hackathon",
+    "resolver:evm": "bun --cwd packages/evm-contracts run resolver"
   },
   "devDependencies": {
     "husky": "~9.1.6",
