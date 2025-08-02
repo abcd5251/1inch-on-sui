@@ -1,70 +1,53 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 
-import { AnalyticsDashboard } from "~~/components/fusion/AnalyticsDashboard";
-import { CrossChainBridgeStatus } from "~~/components/fusion/CrossChainBridgeStatus";
-import { CrossChainOperations } from "~~/components/fusion/CrossChainOperations";
-import { DutchAuctionVisualizer } from "~~/components/fusion/DutchAuctionVisualizer";
-import {
-  EnhancedOrderCreationForm,
-  EnhancedOrderCreationFormData,
-} from "~~/components/fusion/EnhancedOrderCreationForm";
-import { MarketData } from "~~/components/fusion/MarketData";
-import { MultiNetworkOrderForm } from "~~/components/fusion/MultiNetworkOrderForm";
-import { MultiNetworkOrderManager } from "~~/components/fusion/MultiNetworkOrderManager";
-import { EthereumTokenApproval } from "~~/components/fusion/EthereumTokenApproval";
-import { OrderBook } from "~~/components/fusion/OrderBook";
-import { OrderCreationForm, OrderCreationFormData } from "~~/components/fusion/OrderCreationForm";
-import { TransactionMonitor } from "~~/components/fusion/TransactionMonitor";
-import { HTLCManager } from "~~/components/htlc/HTLCManager";
-import { useCrossChainWallet } from "~~/hooks/cross-chain/useCrossChainWallet";
-
-// 定义标签页类型
-type TabType = 
+// 类型定义
+type TabType =
   | "overview"
-  | "multinetwork"
-  | "multiorders"
-  | "approval"
+  | "trading"
   | "orders"
-  | "enhanced-orders"
-  | "transactions"
-  | "crosschain"
-  | "htlc"
   | "analytics"
-  | "auction-sim"
-  | "bridge-status"
-  | "orderbook"
-  | "market";
+  | "bridge"
+  | "settings";
 
-// 定义通知类型
 type NotificationType = "success" | "error" | "warning" | "info";
 
 interface Notification {
   id: string;
   type: NotificationType;
-  title: string;
   message: string;
-  timestamp: number;
+  timestamp: Date;
+}
+
+interface QuickAction {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  action: () => void;
+  color: string;
 }
 
 /**
  * 1inch Fusion Protocol 主页面
- * 展示跨链钱包集成和基本 SDK 功能
+ * 展示现代化的管理界面布局
  */
 export default function FusionPage() {
-  const { isFullyConnected } = useCrossChainWallet();
-  const [activeTab, setActiveTab] = useState<TabType>("multinetwork");
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [isLoading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [lastActivity, setLastActivity] = useState<Date>(new Date());
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isConnected, setIsConnected] = useState(true); // 模拟连接状态
 
   // 页面加载效果
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsPageLoading(false);
-    }, 1500);
+    }, 1000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -73,9 +56,9 @@ export default function FusionPage() {
     const newNotification: Notification = {
       ...notification,
       id: Date.now().toString(),
-      timestamp: Date.now(),
+      timestamp: new Date(),
     };
-    setNotifications(prev => [...prev, newNotification]);
+    setNotifications(prev => [newNotification, ...prev].slice(0, 5));
 
     // 自动移除通知
     setTimeout(() => {
@@ -88,552 +71,515 @@ export default function FusionPage() {
     setNotifications(prev => prev.filter(notification => notification.id !== id));
   }, []);
 
+  // 快速操作
+  const quickActions: QuickAction[] = [
+    {
+      id: "new-order",
+      title: "创建订单",
+      description: "创建新的跨链交易订单",
+      icon: "➕",
+      action: () => {
+        setActiveTab("trading");
+        addNotification({ type: "info", message: "切换到交易页面" });
+      },
+      color: "bg-blue-500"
+    },
+    {
+      id: "view-analytics",
+      title: "查看分析",
+      description: "查看交易数据和统计",
+      icon: "📊",
+      action: () => {
+        setActiveTab("analytics");
+        addNotification({ type: "info", message: "切换到分析页面" });
+      },
+      color: "bg-green-500"
+    },
+    {
+      id: "bridge-status",
+      title: "桥接状态",
+      description: "检查跨链桥接状态",
+      icon: "🌉",
+      action: () => {
+        setActiveTab("bridge");
+        addNotification({ type: "info", message: "切换到桥接页面" });
+      },
+      color: "bg-purple-500"
+    },
+    {
+      id: "order-history",
+      title: "订单历史",
+      description: "查看历史订单记录",
+      icon: "📋",
+      action: () => {
+        setActiveTab("orders");
+        addNotification({ type: "info", message: "切换到订单页面" });
+      },
+      color: "bg-orange-500"
+    }
+  ];
+
   // 更新活动时间
   const updateActivity = useCallback(() => {
     setLastActivity(new Date());
   }, []);
 
-  // 处理订单创建
-  const handleOrderCreation = useCallback(async (orderData: OrderCreationFormData) => {
+  // 模拟操作
+  const handleDemoAction = useCallback((action: string) => {
     setIsLoading(true);
     updateActivity();
-    try {
-      // 模拟订单创建
-      await new Promise(resolve => setTimeout(resolve, 2000));
+    setTimeout(() => {
+      setIsLoading(false);
       addNotification({
         type: "success",
-        title: "订单创建成功",
-        message: `订单已成功创建，金额: ${orderData.makingAmount} tokens`
+        message: `${action} 操作完成！`
       });
-    } catch (error) {
-      addNotification({
-        type: "error",
-        title: "订单创建失败",
-        message: error instanceof Error ? error.message : "未知错误"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [addNotification, updateActivity]);
-
-  // 处理增强订单创建
-  const handleEnhancedOrderCreation = useCallback(async (orderData: EnhancedOrderCreationFormData) => {
-    setIsLoading(true);
-    updateActivity();
-    try {
-      // 模拟增强订单创建
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      addNotification({
-        type: "success",
-        title: "增强订单创建成功",
-        message: `增强订单已成功创建，金额: ${orderData.makingAmount} tokens`
-      });
-    } catch (error) {
-      addNotification({
-        type: "error",
-        title: "增强订单创建失败",
-        message: error instanceof Error ? error.message : "未知错误"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [addNotification, updateActivity]);
-
-  // 处理跨链交换
-  const handleCrossChainSwap = useCallback(async () => {
-    setIsLoading(true);
-    updateActivity();
-    try {
-      // 模拟跨链交换
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      addNotification({
-        type: "success",
-        title: "跨链交换成功",
-        message: "跨链交换已成功完成"
-      });
-    } catch (error) {
-      addNotification({
-        type: "error",
-        title: "跨链交换失败",
-        message: error instanceof Error ? error.message : "未知错误"
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    }, 1500);
   }, [addNotification, updateActivity]);
 
   // 页面加载状态
   if (isPageLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="loading loading-spinner loading-lg mb-4"></div>
-          <h2 className="text-2xl font-semibold mb-2">加载 Fusion Protocol</h2>
-          <p className="text-gray-600 dark:text-gray-400">正在初始化跨链协议...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">加载 Fusion Protocol</h2>
+          <p className="text-gray-600">正在初始化管理界面...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* 通知系统 */}
       <div className="fixed top-4 right-4 z-50 space-y-2">
-        {notifications.map((notification) => (
+        {notifications.map(notification => (
           <div
             key={notification.id}
-            className={`
-              alert shadow-lg max-w-sm animate-in slide-in-from-right duration-300
-              ${
-                notification.type === "success"
-                  ? "alert-success"
-                  : notification.type === "error"
-                  ? "alert-error"
-                  : notification.type === "warning"
-                  ? "alert-warning"
-                  : "alert-info"
-              }
-            `}
+            className={`p-4 rounded-xl shadow-lg max-w-sm transform transition-all duration-300 backdrop-blur-sm ${
+              notification.type === "success"
+                ? "bg-green-500/90 text-white"
+                : notification.type === "error"
+                ? "bg-red-500/90 text-white"
+                : notification.type === "warning"
+                ? "bg-yellow-500/90 text-black"
+                : "bg-blue-500/90 text-white"
+            }`}
           >
-            <div className="flex-1">
-              <h4 className="font-semibold">{notification.title}</h4>
-              <p className="text-sm opacity-90">{notification.message}</p>
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-medium">{notification.message}</p>
+                <p className="text-sm opacity-75">
+                  {notification.timestamp.toLocaleTimeString()}
+                </p>
+              </div>
+              <button
+                onClick={() => removeNotification(notification.id)}
+                className="ml-2 text-lg hover:opacity-75 transition-opacity"
+              >
+                ×
+              </button>
             </div>
-            <button
-              onClick={() => removeNotification(notification.id)}
-              className="btn btn-ghost btn-sm btn-circle"
-            >
-              ✕
-            </button>
           </div>
         ))}
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* 页面头部 */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
-              <span className="text-2xl text-white">🔄</span>
-            </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              1inch Fusion Protocol on Sui
-            </h1>
-          </div>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-4">
-            多网络去中心化交易协议 - 支持 Sui 和以太坊
-          </p>
-          
-          {/* 状态指示器 */}
-          <div className="flex items-center justify-center space-x-4 text-sm">
-            <div className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${
-                isFullyConnected ? "bg-green-500" : "bg-red-500"
-              }`}></div>
-              <span className="text-gray-600 dark:text-gray-400">
-                {isFullyConnected ? "已连接" : "未连接"}
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span className="text-gray-600 dark:text-gray-400">
-                最后活动: {lastActivity.toLocaleTimeString()}
-              </span>
+      <div className="flex h-screen">
+        {/* 侧边栏 */}
+        <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-white shadow-xl transition-all duration-300 flex flex-col`}>
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              {!sidebarCollapsed && (
+                <h1 className="text-xl font-bold text-gray-800">Fusion Protocol</h1>
+              )}
+              <button
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                {sidebarCollapsed ? '→' : '←'}
+              </button>
             </div>
           </div>
+
+          <nav className="flex-1 p-4 space-y-2">
+            {[
+              { id: 'overview', label: '概览', icon: '🏠' },
+              { id: 'trading', label: '交易', icon: '💱' },
+              { id: 'orders', label: '订单', icon: '📋' },
+              { id: 'analytics', label: '分析', icon: '📊' },
+              { id: 'bridge', label: '桥接', icon: '🌉' },
+              { id: 'settings', label: '设置', icon: '⚙️' }
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id as TabType)}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                  activeTab === item.id
+                    ? 'bg-blue-500 text-white shadow-lg'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <span className="text-lg">{item.icon}</span>
+                {!sidebarCollapsed && <span className="font-medium">{item.label}</span>}
+              </button>
+            ))}
+          </nav>
         </div>
 
-        {/* 导航标签 */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {[
-            { key: "overview", label: "概览", icon: "📊" },
-            { key: "multinetwork", label: "多网络交易", icon: "🌐" },
-            { key: "multiorders", label: "多网络订单", icon: "📱" },
-            { key: "approval", label: "代币授权", icon: "🔐" },
-            { key: "orders", label: "Sui 订单", icon: "📝" },
-            { key: "enhanced-orders", label: "增强订单", icon: "⚡" },
-            { key: "transactions", label: "交易监控", icon: "🔍" },
-            { key: "crosschain", label: "跨链操作", icon: "🌉" },
-            { key: "htlc", label: "HTLC管理", icon: "🔒" },
-            { key: "analytics", label: "数据分析", icon: "📈" },
-            { key: "auction-sim", label: "拍卖模拟", icon: "🎯" },
-            { key: "bridge-status", label: "桥接状态", icon: "🔗" },
-            { key: "orderbook", label: "订单簿", icon: "📚" },
-            { key: "market", label: "市场数据", icon: "💹" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => {
-                setActiveTab(tab.key as TabType);
-                updateActivity();
-              }}
-              className={`
-                px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2
-                ${
-                  activeTab === tab.key
-                    ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-md"
-                }
-              `}
-            >
-              <span>{tab.icon}</span>
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* 内容区域 */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg min-h-[600px]">
-          {/* Multi-Network Order Form Tab */}
-          {activeTab === "multinetwork" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">🌐</span>
-                  </span>
-                  多网络交易
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">在多个区块链网络上创建和管理订单</p>
-              </div>
-              <MultiNetworkOrderForm 
-                onSubmit={async (data) => {
-                  updateActivity();
-                  addNotification({
-                    type: "success",
-                    title: "多网络订单创建成功",
-                    message: `已在 ${data.network} 网络创建订单`
-                  });
-                }}
-              />
-            </div>
-          )}
-
-          {/* Multi-Network Order Manager Tab */}
-          {activeTab === "multiorders" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">📱</span>
-                  </span>
-                  多网络订单管理
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">管理和监控跨网络订单</p>
-              </div>
-              <MultiNetworkOrderManager 
-                onOrderSelect={(order) => {
-                  updateActivity();
-                  addNotification({
-                    type: "info",
-                    title: "订单详情",
-                    message: `查看订单 ${order.id.slice(0, 8)}... 的详细信息`
-                  });
-                }}
-              />
-            </div>
-          )}
-
-          {/* Ethereum Token Approval Tab */}
-          {activeTab === "approval" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">🔐</span>
-                  </span>
-                  以太坊代币授权
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">管理 ERC20 代币的授权设置</p>
-              </div>
-              <EthereumTokenApproval 
-                onApprovalComplete={(txHash) => {
-                  updateActivity();
-                  addNotification({
-                    type: "success",
-                    title: "授权成功",
-                    message: `代币授权交易已提交: ${txHash.slice(0, 10)}...`
-                  });
-                }}
-                onError={(error) => {
-                  addNotification({
-                    type: "error",
-                    title: "授权失败",
-                    message: error
-                  });
-                }}
-              />
-            </div>
-          )}
-
-          {/* Overview Tab */}
-          {activeTab === "overview" && (
-            <div className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                {/* 协议状态 */}
-                <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl">
-                  <h3 className="text-xl font-semibold mb-4 flex items-center">
-                    <span className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-white text-sm">📊</span>
-                    </span>
-                    协议状态
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">连接状态</span>
-                      <span className={`font-medium ${
-                        isFullyConnected ? "text-green-600" : "text-red-600"
+        {/* 主内容区域 */}
+        <div className="flex-1 overflow-auto">
+          <div className="p-8">
+            {/* 概览页面 */}
+            {activeTab === "overview" && (
+              <div className="space-y-8">
+                {/* 页面头部 */}
+                <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h1 className="text-3xl font-bold text-gray-800 mb-2">Fusion Protocol 管理中心</h1>
+                      <p className="text-gray-600">管理您的跨链交易和订单</p>
+                    </div>
+                    <div className="text-right">
+                      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                        isConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
-                        {isFullyConnected ? "已连接" : "未连接"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">活跃订单</span>
-                      <span className="font-medium text-blue-600">12</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">总交易量</span>
-                      <span className="font-medium text-purple-600">$1.2M</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">最后活动</span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">
-                        {lastActivity.toLocaleTimeString()}
-                      </span>
+                        {isConnected ? '✅ 已连接' : '❌ 未连接'}
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2">
+                        最后活动: {lastActivity.toLocaleTimeString()}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {/* 快速操作 */}
-                <div className="bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl">
-                  <h3 className="text-xl font-semibold mb-4 flex items-center">
-                    <span className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-white text-sm">⚡</span>
-                    </span>
-                    快速操作
-                  </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {quickActions.map((action) => (
+                    <button
+                      key={action.id}
+                      onClick={action.action}
+                      className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-lg transition-all duration-200 text-left group"
+                    >
+                      <div className={`w-12 h-12 ${action.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                        <span className="text-white text-xl">{action.icon}</span>
+                      </div>
+                      <h3 className="font-semibold text-gray-800 mb-2">{action.title}</h3>
+                      <p className="text-sm text-gray-600">{action.description}</p>
+                    </button>
+                  ))}
+                </div>
+
+                {/* 统计卡片 */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">总交易量</h3>
+                    <p className="text-3xl font-bold text-blue-600">$1,234,567</p>
+                    <p className="text-sm text-green-600 mt-1">↗ +12.5% 本月</p>
+                  </div>
+                  <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">活跃订单</h3>
+                    <p className="text-3xl font-bold text-purple-600">42</p>
+                    <p className="text-sm text-blue-600 mt-1">↗ +3 今日</p>
+                  </div>
+                  <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">成功率</h3>
+                    <p className="text-3xl font-bold text-green-600">98.7%</p>
+                    <p className="text-sm text-green-600 mt-1">↗ +0.2% 本周</p>
+                  </div>
+                </div>
+
+                {/* 最近活动 */}
+                <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">最近活动</h3>
                   <div className="space-y-3">
-                    <button
-                      onClick={handleCrossChainSwap}
-                      disabled={isLoading || !isFullyConnected}
-                      className="w-full btn btn-primary bg-gradient-to-r from-blue-500 to-purple-600 border-none text-white hover:from-blue-600 hover:to-purple-700"
-                    >
-                      {isLoading ? (
-                        <span className="loading loading-spinner loading-sm"></span>
-                      ) : (
-                        "🌉 跨链交换"
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setActiveTab("orders")}
-                      className="w-full btn btn-outline btn-primary"
-                    >
-                      📝 创建订单
-                    </button>
-                    <button
-                      onClick={() => setActiveTab("transactions")}
-                      className="w-full btn btn-outline btn-secondary"
-                    >
-                      🔍 查看交易
-                    </button>
+                    {[
+                      { id: 1, action: "创建跨链订单", time: "2分钟前", status: "成功" },
+                      { id: 2, action: "桥接 ETH 到 Sui", time: "15分钟前", status: "进行中" },
+                      { id: 3, action: "取消订单 #1234", time: "1小时前", status: "已完成" }
+                    ].map((activity) => (
+                      <div key={activity.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                        <div>
+                          <p className="font-medium text-gray-800">{activity.action}</p>
+                          <p className="text-sm text-gray-500">{activity.time}</p>
+                        </div>
+                        <div>
+                          <p className={`text-sm font-medium ${
+                            activity.status === "成功" ? "text-green-600" :
+                            activity.status === "进行中" ? "text-yellow-600" : "text-red-600"
+                          }`}>{activity.status}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* 连接警告 */}
-              {!isFullyConnected && (
-                <div className="alert alert-warning mb-6">
-                  <span>⚠️ 请先连接钱包以使用完整功能</span>
-                </div>
-              )}
-
-              {/* 功能介绍 */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl">
-                <h3 className="text-xl font-semibold mb-4 flex items-center">
-                  <span className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">🚀</span>
-                  </span>
-                  功能介绍
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {[
-                    { icon: "📝", title: "简单订单", desc: "创建基础交换订单" },
-                    { icon: "⚡", title: "增强订单", desc: "高级订单配置" },
-                    { icon: "🎯", title: "荷兰式拍卖", desc: "动态价格发现" },
-                    { icon: "🌉", title: "跨链交换", desc: "多链资产交换" },
-                    { icon: "🔒", title: "HTLC管理", desc: "哈希时间锁定" },
-                    { icon: "📈", title: "数据分析", desc: "实时市场数据" },
-                  ].map((feature, index) => (
-                    <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                      <div className="text-2xl mb-2">{feature.icon}</div>
-                      <h4 className="font-semibold mb-1">{feature.title}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{feature.desc}</p>
+            {/* 交易页面 */}
+            {activeTab === "trading" && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-6">多网络交易</h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-gray-700">创建新订单</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">源代币</label>
+                          <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>ETH</option>
+                            <option>USDC</option>
+                            <option>SUI</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">目标代币</label>
+                          <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>SUI</option>
+                            <option>USDC</option>
+                            <option>ETH</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">数量</label>
+                          <input 
+                            type="number" 
+                            placeholder="0.0"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                        </div>
+                        <button 
+                          onClick={() => handleDemoAction("创建订单")}
+                          disabled={isLoading}
+                          className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                        >
+                          {isLoading ? "创建中..." : "创建订单"}
+                        </button>
+                      </div>
                     </div>
-                  ))}
+                    <div className="bg-gray-50 rounded-xl p-6">
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">交易预览</h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">汇率</span>
+                          <span className="font-medium">1 ETH = 2,450 SUI</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">手续费</span>
+                          <span className="font-medium">0.1%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">预计时间</span>
+                          <span className="font-medium">2-5 分钟</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Order Creation Tab */}
-          {activeTab === "orders" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">📝</span>
-                  </span>
-                  创建订单
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">创建基础的Fusion订单</p>
+            {/* 订单页面 */}
+            {activeTab === "orders" && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-6">订单管理</h2>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="text-left py-3 px-4 font-semibold text-gray-700">订单ID</th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-700">类型</th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-700">金额</th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-700">状态</th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-700">时间</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { id: "#1234", type: "ETH → SUI", amount: "1.5 ETH", status: "完成", time: "2小时前" },
+                          { id: "#1235", type: "USDC → SUI", amount: "1000 USDC", status: "进行中", time: "30分钟前" },
+                          { id: "#1236", type: "SUI → ETH", amount: "5000 SUI", status: "待确认", time: "10分钟前" }
+                        ].map((order) => (
+                          <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
+                            <td className="py-3 px-4 font-medium text-blue-600">{order.id}</td>
+                            <td className="py-3 px-4">{order.type}</td>
+                            <td className="py-3 px-4">{order.amount}</td>
+                            <td className="py-3 px-4">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                order.status === "完成" ? "bg-green-100 text-green-800" :
+                                order.status === "进行中" ? "bg-yellow-100 text-yellow-800" :
+                                "bg-gray-100 text-gray-800"
+                              }`}>
+                                {order.status}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-gray-500">{order.time}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
-              <OrderCreationForm onSubmit={handleOrderCreation} isLoading={isLoading} />
-            </div>
-          )}
+            )}
 
-          {/* Enhanced Order Creation Tab */}
-          {activeTab === "enhanced-orders" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">⚡</span>
-                  </span>
-                  增强订单
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">创建具有高级功能的增强订单</p>
+            {/* 分析页面 */}
+            {activeTab === "analytics" && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-6">数据分析</h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">交易量趋势</h3>
+                      <div className="h-48 flex items-end justify-between space-x-2">
+                        {[40, 65, 45, 80, 55, 70, 85].map((height, index) => (
+                          <div key={index} className="bg-blue-500 rounded-t" style={{height: `${height}%`, width: '12%'}}></div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">网络分布</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Ethereum</span>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-24 bg-gray-200 rounded-full h-2">
+                              <div className="bg-blue-500 h-2 rounded-full" style={{width: '65%'}}></div>
+                            </div>
+                            <span className="text-sm font-medium">65%</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Sui</span>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-24 bg-gray-200 rounded-full h-2">
+                              <div className="bg-green-500 h-2 rounded-full" style={{width: '35%'}}></div>
+                            </div>
+                            <span className="text-sm font-medium">35%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <EnhancedOrderCreationForm onSubmit={handleEnhancedOrderCreation} isLoading={isLoading} />
-            </div>
-          )}
+            )}
 
-          {/* Transaction Monitor Tab */}
-          {activeTab === "transactions" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">🔍</span>
-                  </span>
-                  交易监控
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">监控和管理您的交易</p>
+            {/* 桥接页面 */}
+            {activeTab === "bridge" && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-6">跨链桥接</h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">桥接状态</h3>
+                      <div className="space-y-4">
+                        {[
+                          { network: "Ethereum", status: "正常", latency: "2.3s" },
+                          { network: "Sui", status: "正常", latency: "1.8s" },
+                          { network: "Polygon", status: "维护中", latency: "N/A" }
+                        ].map((bridge) => (
+                          <div key={bridge.network} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                              <p className="font-medium text-gray-800">{bridge.network}</p>
+                              <p className="text-sm text-gray-500">延迟: {bridge.latency}</p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              bridge.status === "正常" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                            }`}>
+                              {bridge.status}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">快速桥接</h3>
+                      <div className="space-y-4">
+                        <button 
+                          onClick={() => handleDemoAction("ETH 桥接")}
+                          className="w-full p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors text-left"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-blue-800">ETH → Sui</span>
+                            <span className="text-blue-600">→</span>
+                          </div>
+                        </button>
+                        <button 
+                          onClick={() => handleDemoAction("SUI 桥接")}
+                          className="w-full p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors text-left"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-green-800">SUI → ETH</span>
+                            <span className="text-green-600">→</span>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <TransactionMonitor />
-            </div>
-          )}
+            )}
 
-          {/* Cross Chain Operations Tab */}
-          {activeTab === "crosschain" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">🌉</span>
-                  </span>
-                  跨链操作
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">执行跨链资产转移和交换</p>
+            {/* 设置页面 */}
+            {activeTab === "settings" && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-6">系统设置</h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">通知设置</h3>
+                      <div className="space-y-3">
+                        {[
+                          { label: "交易完成通知", enabled: true },
+                          { label: "价格警报", enabled: false },
+                          { label: "系统维护通知", enabled: true }
+                        ].map((setting, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span className="text-gray-700">{setting.label}</span>
+                            <button 
+                              className={`w-12 h-6 rounded-full transition-colors ${
+                                setting.enabled ? 'bg-blue-500' : 'bg-gray-300'
+                              }`}
+                            >
+                              <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                                setting.enabled ? 'translate-x-6' : 'translate-x-1'
+                              }`}></div>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">安全设置</h3>
+                      <div className="space-y-3">
+                        <button 
+                          onClick={() => handleDemoAction("密码更新")}
+                          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors text-left"
+                        >
+                          更改密码
+                        </button>
+                        <button 
+                          onClick={() => handleDemoAction("双因素认证")}
+                          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors text-left"
+                        >
+                          启用双因素认证
+                        </button>
+                        <button 
+                          onClick={() => handleDemoAction("API密钥")}
+                          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors text-left"
+                        >
+                          管理 API 密钥
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <CrossChainOperations />
-            </div>
-          )}
-
-          {/* HTLC Manager Tab */}
-          {activeTab === "htlc" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">🔒</span>
-                  </span>
-                  HTLC管理
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">管理哈希时间锁定合约</p>
-              </div>
-              <HTLCManager />
-            </div>
-          )}
-
-          {/* Analytics Tab */}
-          {activeTab === "analytics" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">📈</span>
-                  </span>
-                  数据分析
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">查看协议性能和市场分析</p>
-              </div>
-              <AnalyticsDashboard />
-            </div>
-          )}
-
-          {/* Auction Simulator Tab */}
-          {activeTab === "auction-sim" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-violet-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">🎯</span>
-                  </span>
-                  拍卖模拟
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">模拟荷兰式拍卖过程</p>
-              </div>
-              <DutchAuctionVisualizer />
-            </div>
-          )}
-
-          {/* Bridge Status Tab */}
-          {activeTab === "bridge-status" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">🔗</span>
-                  </span>
-                  桥接状态
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">监控跨链桥接状态</p>
-              </div>
-              <CrossChainBridgeStatus />
-            </div>
-          )}
-
-          {/* Order Book Tab */}
-          {activeTab === "orderbook" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">📚</span>
-                  </span>
-                  订单簿
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">查看和管理订单簿</p>
-              </div>
-              <OrderBook />
-            </div>
-          )}
-
-          {/* Market Data Tab */}
-          {activeTab === "market" && (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2 flex items-center">
-                  <span className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white text-sm">💹</span>
-                  </span>
-                  市场数据
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">实时市场数据和价格信息</p>
-              </div>
-              <MarketData />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

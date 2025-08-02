@@ -28,6 +28,19 @@ export const menuLinks: HeaderMenuLink[] = [
     icon: <ArrowsRightLeftIcon className="h-4 w-4" />,
   },
   {
+    label: "Fusion Resolve",
+    href: "/fusion-reslove",
+    icon: <ArrowsRightLeftIcon className="h-4 w-4" />,
+  },
+  {
+    label: "Block Explorer",
+    href: "/blockexplorer",
+  },
+  {
+    label: "Test Wallet",
+    href: "/test-wallet",
+  },
+  {
     label: "Debug Contracts",
     href: "/debug",
     icon: <BugAntIcon className="h-4 w-4" />,
