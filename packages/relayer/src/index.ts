@@ -26,7 +26,7 @@ import { metricsRoutes } from './routes/metrics.js';
 import { webhookRoutes } from './routes/webhooks.js';
 
 // Configuration and types
-import { MonitorConfig } from './types/events.js';
+import type { MonitorConfig } from './types/events.js';
 
 /**
  * Main ElysiaJS server class
@@ -46,13 +46,13 @@ class EnhancedCrossChainRelayer {
   }
 
   /**
-   * Setup Elysia application
+   * Setup Elysia application with middleware
    */
     private setupApplication(): void {
     try {
       console.log('🔍 Setting up Elysia application...');
       
-      // Create the most basic Elysia instance without any plugins
+      // Create Elysia instance
       this.app = new Elysia({ name: 'cross-chain-relayer' });
       
       console.log('🔍 App instance created:', !!this.app);
@@ -307,7 +307,7 @@ class EnhancedCrossChainRelayer {
       database: {
         connected: true, // Database health check is handled in middleware
       },
-      redis: this.redisService ? this.redisService.isConnected() : false,
+      redis: this.redisService ? this.redisService.isConnected : false,
     };
   }
 }

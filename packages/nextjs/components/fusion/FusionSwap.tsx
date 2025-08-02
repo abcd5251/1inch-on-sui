@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { PresetEnum } from "@1inch/fusion-sdk/api";
 import { useFusion } from "~~/hooks/fusion/useFusion";
 import { useAccount } from "wagmi";
 import { notification } from "~~/utils/scaffold-eth";
 import { Address } from "~~/components/scaffold-eth";
+import { RelayerApiService } from "~~/services/relayer/RelayerApiService";
+import { useRelayerWebSocket } from "~~/hooks/useRelayerWebSocket";
+import { SwapData, SwapStatus, CreateSwapRequest } from "~~/types/swap";
 
 interface Token {
   address: string;
@@ -50,11 +53,57 @@ export const FusionSwap: React.FC = () => {
   const [amount, setAmount] = useState("");
   const [preset, setPreset] = useState<PresetEnum>(PresetEnum.fast);
   const [showPrivateKeyInput, setShowPrivateKeyInput] = useState(false);
+  
+  // Relayer integration state
+  const [currentSwap, setCurrentSwap] = useState<SwapData | null>(null);
+  const [swapHistory, setSwapHistory] = useState<SwapData[]>([]);
+  const [isCreatingSwap, setIsCreatingSwap] = useState(false);
+  const [relayerError, setRelayerError] = useState<string | null>(null);
+  
+  // Initialize Relayer API service
+  const relayerApi = new RelayerApiService();
 
   const fusion = useFusion({
     network: "ethereum",
     rpcUrl: "https://eth.llamarpc.com",
     authKey: process.env.NEXT_PUBLIC_1INCH_AUTH_KEY,
+  });
+  
+  // WebSocket connection for real-time updates
+  const { isConnected: wsConnected, subscribeToSwap, unsubscribeFromSwap } = useRelayerWebSocket({
+    onSwapCreated: (swap) => {
+      notification.success(`New swap created: ${swap.id}`);
+      setSwapHistory(prev => [swap, ...prev]);
+    },
+    onSwapUpdated: (swap) => {
+      if (currentSwap?.id === swap.id) {
+        setCurrentSwap(swap);
+      }
+      setSwapHistory(prev => prev.map(s => s.id === swap.id ? swap : s));
+    },
+    onSwapStatusChanged: (swap) => {
+      if (currentSwap?.id === swap.id) {
+        setCurrentSwap(swap);
+        notification.info(`Swap status updated: ${swap.status}`);
+      }
+      setSwapHistory(prev => prev.map(s => s.id === swap.id ? swap : s));
+    },
+    onSwapError: (swap) => {
+      if (currentSwap?.id === swap.id) {
+        setCurrentSwap(swap);
+        notification.error(`Swap error: ${swap.errorMessage || 'Unknown error'}`);
+      }
+    },
+    onConnect: () => {
+      notification.success('Connected to Relayer WebSocket');
+    },
+    onDisconnect: () => {
+      notification.warning('Disconnected from Relayer WebSocket');
+    },
+    onError: (error) => {
+      console.error('WebSocket error:', error);
+      notification.error('WebSocket connection error');
+    },
   });
 
   const handleInitialize = async () => {
@@ -95,15 +144,101 @@ export const FusionSwap: React.FC = () => {
       return;
     }
 
-    const amountWei = (parseFloat(amount) * Math.pow(10, fromToken.decimals)).toString();
-    await fusion.createOrder({
-      fromTokenAddress: fromToken.address,
-      toTokenAddress: toToken.address,
-      amount: amountWei,
-      walletAddress: address,
-      preset,
-    });
+    setIsCreatingSwap(true);
+    setRelayerError(null);
+
+    try {
+      const amountWei = (parseFloat(amount) * Math.pow(10, fromToken.decimals)).toString();
+      
+      // Create order with 1inch Fusion SDK
+      const order = await fusion.createOrder({
+        fromTokenAddress: fromToken.address,
+        toTokenAddress: toToken.address,
+        amount: amountWei,
+        walletAddress: address,
+        preset,
+      });
+
+      if (order && fusion.lastOrder) {
+        // Create swap record in Relayer backend
+        const swapRequest: CreateSwapRequest = {
+          orderId: fusion.lastOrder.orderHash,
+          maker: address,
+          makerAsset: fromToken.address,
+          takerAsset: toToken.address,
+          makerAmount: amountWei,
+          takerAmount: fusion.quote?.toTokenAmount || '0',
+          makerChain: 'ethereum',
+          takerChain: 'ethereum',
+          expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+          signature: fusion.lastOrder.signature,
+          metadata: {
+            preset,
+            fromTokenSymbol: fromToken.symbol,
+            toTokenSymbol: toToken.symbol,
+            quote: fusion.quote,
+          },
+        };
+
+        const response = await relayerApi.createSwap(swapRequest);
+        if (response.success && response.data) {
+          setCurrentSwap(response.data);
+          subscribeToSwap(response.data.id);
+          notification.success('Swap created successfully!');
+        } else {
+          throw new Error(response.error || 'Failed to create swap record');
+        }
+      }
+    } catch (error) {
+      console.error('Error creating swap:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setRelayerError(errorMessage);
+      notification.error(`Failed to create swap: ${errorMessage}`);
+    } finally {
+      setIsCreatingSwap(false);
+    }
   };
+
+  // Load swap history on component mount
+  useEffect(() => {
+    const loadSwapHistory = async () => {
+      if (address) {
+        try {
+          const response = await relayerApi.getSwaps({ maker: address, limit: 10 });
+          if (response.success && response.data) {
+            setSwapHistory(response.data.data);
+          }
+        } catch (error) {
+          console.error('Error loading swap history:', error);
+        }
+      }
+    };
+
+    loadSwapHistory();
+  }, [address]);
+
+  // Clear current swap and unsubscribe when component unmounts or swap changes
+  useEffect(() => {
+    return () => {
+      if (currentSwap) {
+        unsubscribeFromSwap(currentSwap.id);
+      }
+    };
+  }, [currentSwap?.id, unsubscribeFromSwap]);
+
+  // Clear relayer error when inputs change
+  useEffect(() => {
+    if (relayerError) {
+      setRelayerError(null);
+    }
+  }, [amount, fromToken, toToken]);
+
+  const clearCurrentSwap = useCallback(() => {
+    if (currentSwap) {
+      unsubscribeFromSwap(currentSwap.id);
+      setCurrentSwap(null);
+    }
+  }, [currentSwap, unsubscribeFromSwap]);
 
   const swapTokens = () => {
     const temp = fromToken;
@@ -168,6 +303,45 @@ export const FusionSwap: React.FC = () => {
           SDK Status: {fusion.isInitialized ? "✅ Initialized" : "❌ Not Initialized"}
         </span>
       </div>
+
+      {/* WebSocket Status */}
+      <div className={`alert ${wsConnected ? 'alert-success' : 'alert-warning'}`}>
+        <span className="text-sm">
+          Relayer Connection: {wsConnected ? "🔗 Connected" : "⚠️ Disconnected"}
+        </span>
+      </div>
+
+      {/* Current Swap Status */}
+      {currentSwap && (
+        <div className="bg-info/10 p-4 rounded-lg border border-info/20">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-medium text-info">Current Swap</h3>
+            <button
+              className="btn btn-xs btn-ghost"
+              onClick={clearCurrentSwap}
+            >
+              ✕
+            </button>
+          </div>
+          <div className="text-sm space-y-1">
+            <div>ID: {currentSwap.id}</div>
+            <div>Status: <span className={`badge ${
+              currentSwap.status === 'completed' ? 'badge-success' :
+              currentSwap.status === 'failed' ? 'badge-error' :
+              currentSwap.status === 'pending' ? 'badge-warning' :
+              'badge-info'
+            }`}>{currentSwap.status}</span></div>
+            <div>From: {currentSwap.makerAmount} {fromToken.symbol}</div>
+            <div>To: {currentSwap.takerAmount} {toToken.symbol}</div>
+            {currentSwap.txHash && (
+              <div>Tx: {currentSwap.txHash.slice(0, 10)}...{currentSwap.txHash.slice(-8)}</div>
+            )}
+            {currentSwap.errorMessage && (
+              <div className="text-error">Error: {currentSwap.errorMessage}</div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* From Token */}
       <div className="space-y-2">
@@ -273,9 +447,9 @@ export const FusionSwap: React.FC = () => {
         <button
           className="btn btn-primary w-full"
           onClick={handleCreateOrder}
-          disabled={fusion.isLoading || !fusion.isInitialized || !amount || !fromToken || !toToken || !address}
+          disabled={fusion.isLoading || isCreatingSwap || !fusion.isInitialized || !amount || !fromToken || !toToken || !address}
         >
-          {fusion.isLoading ? "Creating Order..." : "Create Swap Order"}
+          {isCreatingSwap ? "Creating Swap..." : fusion.isLoading ? "Creating Order..." : "Create Swap Order"}
         </button>
         
         {/* Quick Links */}
@@ -293,12 +467,15 @@ export const FusionSwap: React.FC = () => {
       </div>
 
       {/* Error Display */}
-      {fusion.error && (
+      {(fusion.error || relayerError) && (
         <div className="alert alert-error">
-          <span className="text-sm">{fusion.error}</span>
+          <span className="text-sm">{relayerError || fusion.error}</span>
           <button
             className="btn btn-xs btn-ghost"
-            onClick={fusion.clearError}
+            onClick={() => {
+              if (relayerError) setRelayerError(null);
+              if (fusion.error) fusion.clearError();
+            }}
           >
             ✕
           </button>
@@ -312,6 +489,39 @@ export const FusionSwap: React.FC = () => {
           <div className="text-sm space-y-1">
             <div>Order Hash: {fusion.lastOrder.orderHash}</div>
             <div>Status: {fusion.lastOrder.status}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Swap History */}
+      {swapHistory.length > 0 && (
+        <div className="bg-base-200 p-4 rounded-lg">
+          <h3 className="font-medium mb-2">Recent Swaps</h3>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {swapHistory.slice(0, 5).map((swap) => (
+              <div key={swap.id} className="bg-base-100 p-3 rounded border">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-base-content/70">#{swap.id}</span>
+                  <span className={`badge badge-xs ${
+                    swap.status === 'completed' ? 'badge-success' :
+                    swap.status === 'failed' ? 'badge-error' :
+                    swap.status === 'pending' ? 'badge-warning' :
+                    'badge-info'
+                  }`}>{swap.status}</span>
+                </div>
+                <div className="text-sm">
+                  <div>{swap.makerAmount} → {swap.takerAmount}</div>
+                  {swap.txHash && (
+                    <div className="text-xs text-base-content/60">
+                      Tx: {swap.txHash.slice(0, 8)}...{swap.txHash.slice(-6)}
+                    </div>
+                  )}
+                  <div className="text-xs text-base-content/60">
+                    {new Date(swap.createdAt).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

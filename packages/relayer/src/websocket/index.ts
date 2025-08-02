@@ -3,18 +3,24 @@ import { logger } from '../utils/logger';
 import { RelayerService } from '../services/relayer';
 import type { WebSocketMessage } from '../types/events';
 import { RelayerEvent } from '../types/events';
+import { SwapData, SwapWebSocketMessage } from '../types/swap';
+import { DatabaseManager } from '../config/database';
 
 interface WebSocketClient {
   id: string;
   ws: any;
   subscriptions: Set<string>;
+  subscribedSwaps: Set<string>;
   isAlive: boolean;
   lastPing: number;
 }
 
-export function setupWebSocket(app: Elysia, relayerService: RelayerService): void {
+export function setupWebSocket(app: Elysia, relayerService: RelayerService, dbManager?: DatabaseManager): void {
   const clients = new Map<string, WebSocketClient>();
   let clientIdCounter = 0;
+
+  // WebSocket管理器实例
+  const wsManager = new WebSocketManager(clients, dbManager);
 
   // WebSocket endpoint
   app.ws('/ws', {
@@ -28,6 +34,7 @@ export function setupWebSocket(app: Elysia, relayerService: RelayerService): voi
         id: clientId,
         ws,
         subscriptions: new Set(),
+        subscribedSwaps: new Set(),
         isAlive: true,
         lastPing: Date.now(),
       };
@@ -362,4 +369,198 @@ function findClientByWs(clients: Map<string, WebSocketClient>, ws: any): WebSock
     }
   }
   return undefined;
+}
+
+/**
+ * WebSocket管理器类
+ * 处理交换相关的WebSocket广播功能
+ */
+export class WebSocketManager {
+  private clients: Map<string, WebSocketClient>;
+  private dbManager?: DatabaseManager;
+
+  constructor(clients: Map<string, WebSocketClient>, dbManager?: DatabaseManager) {
+    this.clients = clients;
+    this.dbManager = dbManager;
+  }
+
+  /**
+   * 处理交换订阅
+   */
+  subscribeToSwap(clientId: string, swapId: string): void {
+    const client = this.clients.get(clientId);
+    if (client) {
+      client.subscribedSwaps.add(swapId);
+      logger.info(`Client ${clientId} subscribed to swap: ${swapId}`);
+      
+      // 发送确认消息
+      this.sendToClient(client, {
+        type: 'swap_subscribed',
+        data: { swapId },
+        timestamp: Date.now(),
+      });
+    }
+  }
+
+  /**
+   * 处理交换取消订阅
+   */
+  unsubscribeFromSwap(clientId: string, swapId: string): void {
+    const client = this.clients.get(clientId);
+    if (client) {
+      client.subscribedSwaps.delete(swapId);
+      logger.info(`Client ${clientId} unsubscribed from swap: ${swapId}`);
+      
+      // 发送确认消息
+      this.sendToClient(client, {
+        type: 'swap_unsubscribed',
+        data: { swapId },
+        timestamp: Date.now(),
+      });
+    }
+  }
+
+  /**
+   * 向单个客户端发送消息
+   */
+  private sendToClient(client: WebSocketClient, message: any): void {
+    try {
+      if (client.ws && client.isAlive) {
+        client.ws.send(JSON.stringify(message));
+      }
+    } catch (error) {
+      logger.error(`Error sending message to client ${client.id}:`, error);
+      client.isAlive = false;
+    }
+  }
+
+  /**
+   * 广播交换创建事件
+   */
+  broadcastSwapCreated(swap: SwapData): void {
+    const message: SwapWebSocketMessage = {
+      type: 'swap_created',
+      data: swap,
+      timestamp: Date.now(),
+    };
+    
+    this.broadcastToAll(message);
+    logger.info(`Broadcasted swap created: ${swap.id}`);
+  }
+
+  /**
+   * 广播交换更新事件
+   */
+  broadcastSwapUpdated(swap: SwapData): void {
+    const message: SwapWebSocketMessage = {
+      type: 'swap_updated',
+      data: swap,
+      timestamp: Date.now(),
+    };
+    
+    this.broadcastToSwapSubscribers(swap.id, message);
+    logger.info(`Broadcasted swap updated: ${swap.id}`);
+  }
+
+  /**
+   * 广播交换状态变化事件
+   */
+  broadcastSwapStatusChanged(swap: SwapData): void {
+    const message: SwapWebSocketMessage = {
+      type: 'swap_status_changed',
+      data: swap,
+      timestamp: Date.now(),
+    };
+    
+    this.broadcastToSwapSubscribers(swap.id, message);
+    logger.info(`Broadcasted swap status changed: ${swap.id} -> ${swap.status}`);
+  }
+
+  /**
+   * 广播交换错误事件
+   */
+  broadcastSwapError(swap: SwapData): void {
+    const message: SwapWebSocketMessage = {
+      type: 'swap_error',
+      data: swap,
+      timestamp: Date.now(),
+    };
+    
+    this.broadcastToSwapSubscribers(swap.id, message);
+    logger.error(`Broadcasted swap error: ${swap.id}`);
+  }
+
+  /**
+   * 向所有客户端广播消息
+   */
+  private broadcastToAll(message: SwapWebSocketMessage): void {
+    const messageStr = JSON.stringify(message);
+    let sentCount = 0;
+    let errorCount = 0;
+
+    for (const client of this.clients.values()) {
+      try {
+        if (client.ws && client.isAlive) {
+          client.ws.send(messageStr);
+          sentCount++;
+        }
+      } catch (error) {
+        logger.error(`Error broadcasting to client ${client.id}:`, error);
+        client.isAlive = false;
+        errorCount++;
+      }
+    }
+
+    logger.info(`Broadcast sent to ${sentCount} clients, ${errorCount} errors`);
+  }
+
+  /**
+   * 向订阅了特定交换的客户端广播消息
+   */
+  private broadcastToSwapSubscribers(swapId: string, message: SwapWebSocketMessage): void {
+    const messageStr = JSON.stringify(message);
+    let sentCount = 0;
+    let errorCount = 0;
+
+    for (const client of this.clients.values()) {
+      if (client.subscribedSwaps.has(swapId)) {
+        try {
+          if (client.ws && client.isAlive) {
+            client.ws.send(messageStr);
+            sentCount++;
+          }
+        } catch (error) {
+          logger.error(`Error sending to subscriber ${client.id}:`, error);
+          client.isAlive = false;
+          errorCount++;
+        }
+      }
+    }
+
+    logger.info(`Swap update sent to ${sentCount} subscribers for swap ${swapId}, ${errorCount} errors`);
+  }
+
+  /**
+   * 获取WebSocket统计信息
+   */
+  getStats() {
+    const totalClients = this.clients.size;
+    const aliveClients = Array.from(this.clients.values()).filter(c => c.isAlive).length;
+    const subscriptionCounts = new Map<string, number>();
+    
+    for (const client of this.clients.values()) {
+      if (client.isAlive) {
+        for (const swapId of client.subscribedSwaps) {
+          subscriptionCounts.set(swapId, (subscriptionCounts.get(swapId) || 0) + 1);
+        }
+      }
+    }
+
+    return {
+      totalClients,
+      aliveClients,
+      subscriptions: Object.fromEntries(subscriptionCounts),
+      uptime: process.uptime(),
+    };
+  }
 }

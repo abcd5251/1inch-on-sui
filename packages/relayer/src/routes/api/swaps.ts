@@ -9,6 +9,7 @@ import { swaps, eventLogs, SwapStatus } from '../../schema/index.js';
 import { logger } from '../../utils/logger.js';
 import { createPaginationResponse, PaginationQuery } from '../../utils/pagination.js';
 import { validateSwapInput } from '../../utils/validation.js';
+import { createDatabaseMiddleware } from '../../config/database.js';
 
 /**
  * Swap query parameters
@@ -96,21 +97,90 @@ const UpdateSwapStatusSchema = t.Object({
  * Swap API routes plugin
  */
 export const swapsRoutes = new Elysia({ prefix: '/swaps' })
-  .derive(() => ({
+  .use(createDatabaseMiddleware())
+  .derive(({ db }) => ({
     swapService: {
-      // Query swap list (temporarily disabled database functionality)
+      // Query swap list with database operations
       async findSwaps(query: any) {
-        return { swaps: [], total: 0 }; // Temporarily return empty data
+        try {
+          const {
+            page = 1,
+            limit = 20,
+            status,
+            maker,
+            taker,
+            sourceChain,
+            targetChain,
+            fromDate,
+            toDate,
+            sortBy = 'createdAt',
+            sortOrder = 'desc'
+          } = query;
+
+          // Build where conditions
+          const conditions = [];
+          if (status) conditions.push(eq(swaps.status, status));
+          if (maker) conditions.push(eq(swaps.maker, maker));
+          if (taker) conditions.push(eq(swaps.taker, taker));
+          if (sourceChain) conditions.push(eq(swaps.sourceChain, sourceChain));
+          if (targetChain) conditions.push(eq(swaps.targetChain, targetChain));
+          if (fromDate) conditions.push(gte(swaps.createdAt, fromDate));
+          if (toDate) conditions.push(lte(swaps.createdAt, toDate));
+
+          const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+          // Get total count
+          const totalResult = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(swaps)
+            .where(whereClause);
+          const total = totalResult[0]?.count || 0;
+
+          // Get paginated results
+          const orderByClause = sortOrder === 'asc' ? swaps[sortBy] : desc(swaps[sortBy]);
+          const results = await db
+            .select()
+            .from(swaps)
+            .where(whereClause)
+            .orderBy(orderByClause)
+            .limit(limit)
+            .offset((page - 1) * limit);
+
+          return { swaps: results, total, page, limit };
+        } catch (error) {
+          logger.error('Error finding swaps:', error);
+          throw new Error('Failed to query swaps');
+        }
       },
 
       // Query swap by ID
       async findSwapById(id: string) {
-        return null; // Temporarily return empty data
+        try {
+          const result = await db
+            .select()
+            .from(swaps)
+            .where(eq(swaps.id, id))
+            .limit(1);
+          return result[0] || null;
+        } catch (error) {
+          logger.error('Error finding swap by ID:', error);
+          throw new Error('Failed to find swap');
+        }
       },
 
       // Query swap by order ID
       async findSwapByOrderId(orderId: string) {
-        return null; // Temporarily return empty data
+        try {
+          const result = await db
+            .select()
+            .from(swaps)
+            .where(eq(swaps.orderId, orderId))
+            .limit(1);
+          return result[0] || null;
+        } catch (error) {
+          logger.error('Error finding swap by order ID:', error);
+          throw new Error('Failed to find swap by order ID');
+        }
       },
 
       // Create swap
@@ -120,40 +190,106 @@ export const swapsRoutes = new Elysia({ prefix: '/swaps' })
           throw new Error(`Validation failed: ${validation.error}`);
         }
 
-        const newSwap = {
-          id: `swap_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          ...swapData,
-          status: SwapStatus.PENDING,
-          createdAt: Math.floor(Date.now() / 1000),
-          updatedAt: Math.floor(Date.now() / 1000),
-          expiresAt: Math.floor(Date.now() / 1000) + (swapData.timeLock || 3600),
-        };
+        try {
+          const newSwap = {
+            id: `swap_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            ...swapData,
+            status: SwapStatus.PENDING,
+            createdAt: Math.floor(Date.now() / 1000),
+            updatedAt: Math.floor(Date.now() / 1000),
+            expiresAt: Math.floor(Date.now() / 1000) + (swapData.timeLock || 3600),
+          };
 
-        return newSwap; // Temporarily return mock data
+          const result = await db
+            .insert(swaps)
+            .values(newSwap)
+            .returning();
+
+          logger.info(`Created new swap: ${result[0].id}`);
+          return result[0];
+        } catch (error) {
+          logger.error('Error creating swap:', error);
+          throw new Error('Failed to create swap');
+        }
       },
 
       // Update swap status
       async updateSwapStatus(id: string, updateData: any) {
-        return null; // Temporarily return empty data
+        try {
+          const result = await db
+            .update(swaps)
+            .set({
+              ...updateData,
+              updatedAt: Math.floor(Date.now() / 1000),
+            })
+            .where(eq(swaps.id, id))
+            .returning();
+
+          if (result.length === 0) {
+            return null;
+          }
+
+          logger.info(`Updated swap status: ${id}`);
+          return result[0];
+        } catch (error) {
+          logger.error('Error updating swap status:', error);
+          throw new Error('Failed to update swap status');
+        }
       },
 
       // Delete swap
       async deleteSwap(id: string) {
-        return null; // Temporarily return empty data
+        try {
+          const result = await db
+            .delete(swaps)
+            .where(eq(swaps.id, id))
+            .returning();
+
+          if (result.length === 0) {
+            return null;
+          }
+
+          logger.info(`Deleted swap: ${id}`);
+          return result[0];
+        } catch (error) {
+          logger.error('Error deleting swap:', error);
+          throw new Error('Failed to delete swap');
+        }
       },
 
       // Get swap statistics
       async getSwapStats() {
-        return {
-          total: 0,
-          pending: 0,
-          active: 0,
-          completed: 0,
-          failed: 0,
-          refunded: 0,
-          totalMakingAmount: '0',
-          totalTakingAmount: '0',
-        }; // Temporarily return empty statistics data
+        try {
+          // Get status counts
+          const statusCounts = await db
+            .select({
+              status: swaps.status,
+              count: sql<number>`count(*)`
+            })
+            .from(swaps)
+            .groupBy(swaps.status);
+
+          const stats = {
+            total: 0,
+            pending: 0,
+            active: 0,
+            completed: 0,
+            failed: 0,
+            refunded: 0,
+            totalMakingAmount: '0',
+            totalTakingAmount: '0',
+          };
+
+          statusCounts.forEach(item => {
+            stats.total += item.count;
+            stats[item.status] = item.count;
+          });
+
+          return stats;
+        } catch (error) {
+          logger.error('Error getting swap stats:', error);
+          throw new Error('Failed to get swap statistics');
+        }
       },
     }
   }))
