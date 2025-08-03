@@ -1,7 +1,9 @@
+## Note
+Even though the frontend integration isn’t complete yet, we’ve implemented most of the cross-chain bridging contracts on both Sui and EVM using 1inch Fusion+ logic. Feel free to check out our codebase. Thanks!
+
 # 1inch on Sui: ETHGlobal Unite Hackathon
 
 This project is built for the [ETHGlobal Unite Hackathon's 1inch challenge](https://ethglobal.com/events/unite/prizes/1inch). The primary goal is to expand the reach of 1inch Cross-chain Swap (Fusion+) to the Sui blockchain.
-
 
 ## 🎯 Project Goals & Requirements
 
