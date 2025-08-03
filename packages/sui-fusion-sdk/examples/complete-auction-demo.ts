@@ -27,8 +27,7 @@ async function runCompleteAuctionDemo() {
   const config: SuiFusionConfig = {
     network: 'testnet',
     rpcUrl: 'https://fullnode.testnet.sui.io:443',
-    privateKey: process.env.PRIVATE_KEY || '',
-    gasPrice: '1000'
+    privateKey: process.env.PRIVATE_KEY || ''
   };
   
   // Initialize services
@@ -77,14 +76,14 @@ async function runCompleteAuctionDemo() {
       reputation: 85.5,
       successRate: 0.92,
       averageGasUsed: '2500000',
-      totalVolumeHandled: '50000000000000',
+      // totalVolumeHandled: '50000000000000', // Removed as not part of ResolverInfo type
       isActive: true,
       lastActiveTime: Date.now(),
       supportedTokens: ['0x2::sui::SUI', '0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN']
     };
     
     const resolverService = new ResolverService(
-      fusionService['transactionBuilder'], // Access private member for demo
+      fusionService,
       resolverKeypair,
       resolverInfo
     );
@@ -106,7 +105,7 @@ async function runCompleteAuctionDemo() {
         return;
       }
       
-      const currentRate = AuctionService.calculateCurrentAuctionRate(order.auctionDetails);
+      const currentRate = AuctionService.getCurrentAuctionRate(order.auctionDetails);
       const timeRemaining = AuctionService.getTimeRemaining(order.auctionDetails);
       
       console.log(`   Current Rate: ${currentRate} (${timeRemaining}s remaining)`);
@@ -282,7 +281,7 @@ function monitorNetworkConditions() {
 }
 
 // Run the demo
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   runCompleteAuctionDemo().catch(console.error);
 }
 

@@ -294,8 +294,7 @@ async function runResolverBot() {
   const config: SuiFusionConfig = {
     network: 'testnet',
     rpcUrl: 'https://fullnode.testnet.sui.io:443',
-    privateKey: process.env.RESOLVER_PRIVATE_KEY || '',
-    // gasPrice: '1000' // Removed invalid property
+    privateKey: process.env.RESOLVER_PRIVATE_KEY || ''
   };
 
   // Initialize services
@@ -312,9 +311,7 @@ async function runResolverBot() {
     reputation: 90.0,
     successRate: 0.95,
     averageGasUsed: '2000000',
-    // totalVolumeHandled: '0', // Removed invalid property
     isActive: true,
-    lastActiveTime: Date.now(),
     supportedTokens: [
       '0x2::sui::SUI',
       '0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN'
@@ -371,7 +368,7 @@ async function runResolverBot() {
 export { ResolverBot, runResolverBot };
 
 // Run if this file is executed directly
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   runResolverBot().catch(error => {
     console.error('❌ Failed to start resolver bot:', error);
     process.exit(1);
