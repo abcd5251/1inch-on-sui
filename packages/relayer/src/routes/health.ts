@@ -5,6 +5,7 @@
 
 import { Elysia } from 'elysia';
 import { logger } from '../utils/logger.js';
+import { getDatabaseManager } from '../config/database.js';
 
 /**
  * Health check routes
@@ -23,7 +24,7 @@ export const healthRoutes = new Elysia({ prefix: '/health' })
         memory: process.memoryUsage(),
         version: '2.0.0',
         services: {
-          database: 'disabled', // Temporarily disable database check
+          database: await checkDatabaseHealth(),
           api: 'healthy',
         },
         responseTime: Date.now() - startTime,
@@ -73,8 +74,8 @@ export const healthRoutes = new Elysia({ prefix: '/health' })
         },
         services: {
           database: {
-            status: 'disabled',
-            stats: null,
+            status: await checkDatabaseHealth(),
+            stats: await getDatabaseStats(),
           },
           api: {
             status: 'healthy',
@@ -115,7 +116,7 @@ export const healthRoutes = new Elysia({ prefix: '/health' })
         success: true,
         ready,
         services: {
-          database: 'disabled',
+          database: await checkDatabaseHealth(),
         },
         timestamp: new Date().toISOString(),
       };
@@ -151,3 +152,30 @@ export const healthRoutes = new Elysia({ prefix: '/health' })
       description: 'Check if application is alive',
     }
   });
+
+/**
+ * Check database health status
+ */
+async function checkDatabaseHealth(): Promise<string> {
+  try {
+    const dbManager = getDatabaseManager();
+    const isHealthy = await dbManager.healthCheck();
+    return isHealthy ? 'healthy' : 'unhealthy';
+  } catch (error) {
+    logger.error('Database health check failed:', error);
+    return 'unhealthy';
+  }
+}
+
+/**
+ * Get database statistics
+ */
+async function getDatabaseStats(): Promise<any> {
+  try {
+    const dbManager = getDatabaseManager();
+    return await dbManager.getStats();
+  } catch (error) {
+    logger.error('Failed to get database stats:', error);
+    return null;
+  }
+}

@@ -98,7 +98,7 @@ const UpdateSwapStatusSchema = t.Object({
  */
 export const swapsRoutes = new Elysia({ prefix: '/swaps' })
   .use(createDatabaseMiddleware())
-  .derive(({ db }) => ({
+  .derive({ as: 'scoped' }, ({ db }) => ({
     swapService: {
       // Query swap list with database operations
       async findSwaps(query: any) {

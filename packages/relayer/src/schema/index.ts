@@ -5,59 +5,63 @@
 
 import { sql } from 'drizzle-orm';
 import { 
-  sqliteTable, 
-  text, 
+  pgTable, 
+  varchar, 
+  text,
   integer, 
-  real,
-  blob,
+  decimal,
+  bytea,
+  jsonb,
   index,
-  uniqueIndex
-} from 'drizzle-orm/sqlite-core';
+  uniqueIndex,
+  timestamp,
+  boolean
+} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 /**
  * Cross-chain swap records table
  */
-export const swaps = sqliteTable('swaps', {
+export const swaps = pgTable('swaps', {
   // Primary key
-  id: text('id').primaryKey(),
+  id: varchar('id', { length: 255 }).primaryKey(),
   
   // Basic information
-  orderId: text('order_id').notNull(),
-  maker: text('maker').notNull(),
-  taker: text('taker'),
+  orderId: varchar('order_id', { length: 255 }).notNull(),
+  maker: varchar('maker', { length: 255 }).notNull(),
+  taker: varchar('taker', { length: 255 }),
   
   // Amount information
-  makingAmount: text('making_amount').notNull(),
-  takingAmount: text('taking_amount').notNull(),
-  makingToken: text('making_token').notNull(),
-  takingToken: text('taking_token').notNull(),
+  makingAmount: varchar('making_amount', { length: 100 }).notNull(),
+  takingAmount: varchar('taking_amount', { length: 100 }).notNull(),
+  makingToken: varchar('making_token', { length: 255 }).notNull(),
+  takingToken: varchar('taking_token', { length: 255 }).notNull(),
   
   // Chain information
-  sourceChain: text('source_chain').notNull(),
-  targetChain: text('target_chain').notNull(),
+  sourceChain: varchar('source_chain', { length: 100 }).notNull(),
+  targetChain: varchar('target_chain', { length: 100 }).notNull(),
   
   // HTLC information
-  secretHash: text('secret_hash').notNull(),
-  secret: text('secret'),
+  secretHash: varchar('secret_hash', { length: 255 }).notNull(),
+  secret: varchar('secret', { length: 255 }),
   timeLock: integer('time_lock').notNull(),
   
   // Contract addresses
-  sourceContract: text('source_contract').notNull(),
-  targetContract: text('target_contract').notNull(),
+  sourceContract: varchar('source_contract', { length: 255 }).notNull(),
+  targetContract: varchar('target_contract', { length: 255 }).notNull(),
   
   // Transaction hashes
-  sourceTransactionHash: text('source_transaction_hash'),
-  targetTransactionHash: text('target_transaction_hash'),
-  refundTransactionHash: text('refund_transaction_hash'),
+  sourceTransactionHash: varchar('source_transaction_hash', { length: 255 }),
+  targetTransactionHash: varchar('target_transaction_hash', { length: 255 }),
+  refundTransactionHash: varchar('refund_transaction_hash', { length: 255 }),
   
   // Status information
-  status: text('status').notNull().default('pending'), // pending, active, completed, failed, refunded
-  substatus: text('substatus'), // Detailed status information
+  status: varchar('status', { length: 50 }).notNull().default('pending'), // pending, active, completed, failed, refunded
+  substatus: varchar('substatus', { length: 100 }), // Detailed status information
   
-  // Timestamps
-  createdAt: integer('created_at').notNull().default(sql`(unixepoch())`),
-  updatedAt: integer('updated_at').notNull().default(sql`(unixepoch())`),
+  // Timestamps (keeping as integer for Unix timestamps)
+  createdAt: integer('created_at').notNull().default(sql`extract(epoch from now())`),
+  updatedAt: integer('updated_at').notNull().default(sql`extract(epoch from now())`),
   expiresAt: integer('expires_at').notNull(),
   
   // Retry information
@@ -66,17 +70,17 @@ export const swaps = sqliteTable('swaps', {
   lastRetryAt: integer('last_retry_at'),
   
   // Fee information
-  estimatedGas: text('estimated_gas'),
-  actualGas: text('actual_gas'),
-  gasPrice: text('gas_price'),
-  relayerFee: text('relayer_fee'),
+  estimatedGas: varchar('estimated_gas', { length: 100 }),
+  actualGas: varchar('actual_gas', { length: 100 }),
+  gasPrice: varchar('gas_price', { length: 100 }),
+  relayerFee: varchar('relayer_fee', { length: 100 }),
   
   // Metadata
-  metadata: text('metadata', { mode: 'json' }),
+  metadata: jsonb('metadata'),
   
   // Error information
   errorMessage: text('error_message'),
-  errorCode: text('error_code'),
+  errorCode: varchar('error_code', { length: 100 }),
 }, (table) => ({
   // Indexes
   orderIdIdx: index('idx_swaps_order_id').on(table.orderId),
@@ -93,28 +97,28 @@ export const swaps = sqliteTable('swaps', {
 /**
  * Event logs table
  */
-export const eventLogs = sqliteTable('event_logs', {
-  id: text('id').primaryKey(),
+export const eventLogs = pgTable('event_logs', {
+  id: varchar('id', { length: 255 }).primaryKey(),
   
   // Associated swap ID
-  swapId: text('swap_id').references(() => swaps.id, { onDelete: 'cascade' }),
+  swapId: varchar('swap_id', { length: 255 }).references(() => swaps.id, { onDelete: 'cascade' }),
   
   // Event information
-  eventType: text('event_type').notNull(), // OrderCreated, OrderFilled, SecretRevealed, etc.
-  eventData: text('event_data', { mode: 'json' }).notNull(),
+  eventType: varchar('event_type', { length: 100 }).notNull(), // OrderCreated, OrderFilled, SecretRevealed, etc.
+  eventData: jsonb('event_data').notNull(),
   
   // Chain and transaction information
-  chainId: text('chain_id').notNull(),
+  chainId: varchar('chain_id', { length: 100 }).notNull(),
   blockNumber: integer('block_number').notNull(),
-  transactionHash: text('transaction_hash').notNull(),
+  transactionHash: varchar('transaction_hash', { length: 255 }).notNull(),
   logIndex: integer('log_index').notNull(),
   
   // Timestamps
   timestamp: integer('timestamp').notNull(),
-  createdAt: integer('created_at').notNull().default(sql`(unixepoch())`),
+  createdAt: integer('created_at').notNull().default(sql`extract(epoch from now())`),
   
   // Processing status
-  processed: integer('processed', { mode: 'boolean' }).notNull().default(false),
+  processed: boolean('processed').notNull().default(false),
   processedAt: integer('processed_at'),
   
   // Error information
@@ -138,22 +142,22 @@ export const eventLogs = sqliteTable('event_logs', {
 /**
  * Block sync status table
  */
-export const blockSyncStatus = sqliteTable('block_sync_status', {
-  chainId: text('chain_id').primaryKey(),
+export const blockSyncStatus = pgTable('block_sync_status', {
+  chainId: varchar('chain_id', { length: 100 }).primaryKey(),
   
   // Sync status
   lastSyncedBlock: integer('last_synced_block').notNull().default(0),
   currentBlock: integer('current_block').notNull().default(0),
   
   // Timestamps
-  lastSyncAt: integer('last_sync_at').notNull().default(sql`(unixepoch())`),
+  lastSyncAt: integer('last_sync_at').notNull().default(sql`extract(epoch from now())`),
   
   // Sync configuration
   batchSize: integer('batch_size').notNull().default(100),
   confirmations: integer('confirmations').notNull().default(12),
   
   // Status information
-  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  isActive: boolean('is_active').notNull().default(true),
   errorCount: integer('error_count').notNull().default(0),
   lastError: text('last_error'),
 }, (table) => ({
@@ -164,15 +168,15 @@ export const blockSyncStatus = sqliteTable('block_sync_status', {
 /**
  * Relayer configuration table
  */
-export const relayerConfig = sqliteTable('relayer_config', {
-  key: text('key').primaryKey(),
+export const relayerConfig = pgTable('relayer_config', {
+  key: varchar('key', { length: 255 }).primaryKey(),
   value: text('value').notNull(),
-  type: text('type').notNull().default('string'), // string, number, boolean, json
+  type: varchar('type', { length: 50 }).notNull().default('string'), // string, number, boolean, json
   description: text('description'),
   
   // Timestamps
-  createdAt: integer('created_at').notNull().default(sql`(unixepoch())`),
-  updatedAt: integer('updated_at').notNull().default(sql`(unixepoch())`),
+  createdAt: integer('created_at').notNull().default(sql`extract(epoch from now())`),
+  updatedAt: integer('updated_at').notNull().default(sql`extract(epoch from now())`),
 }, (table) => ({
   typeIdx: index('idx_relayer_config_type').on(table.type),
 }));
@@ -180,35 +184,35 @@ export const relayerConfig = sqliteTable('relayer_config', {
 /**
  * Notification records table
  */
-export const notifications = sqliteTable('notifications', {
-  id: text('id').primaryKey(),
+export const notifications = pgTable('notifications', {
+  id: varchar('id', { length: 255 }).primaryKey(),
   
   // Associated information
-  swapId: text('swap_id').references(() => swaps.id, { onDelete: 'cascade' }),
+  swapId: varchar('swap_id', { length: 255 }).references(() => swaps.id, { onDelete: 'cascade' }),
   
   // Notification information
-  type: text('type').notNull(), // webhook, email, telegram, etc.
-  recipient: text('recipient').notNull(),
-  title: text('title').notNull(),
+  type: varchar('type', { length: 50 }).notNull(), // webhook, email, telegram, etc.
+  recipient: varchar('recipient', { length: 255 }).notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
   message: text('message').notNull(),
-  data: text('data', { mode: 'json' }),
+  data: jsonb('data'),
   
   // Status information
-  status: text('status').notNull().default('pending'), // pending, sent, failed
+  status: varchar('status', { length: 50 }).notNull().default('pending'), // pending, sent, failed
   retryCount: integer('retry_count').notNull().default(0),
   maxRetries: integer('max_retries').notNull().default(3),
   
   // Timestamps
-  createdAt: integer('created_at').notNull().default(sql`(unixepoch())`),
+  createdAt: integer('created_at').notNull().default(sql`extract(epoch from now())`),
   sentAt: integer('sent_at'),
   
   // Error information
   errorMessage: text('error_message'),
   
   // HTTP specific fields
-  httpMethod: text('http_method'),
+  httpMethod: varchar('http_method', { length: 20 }),
   httpUrl: text('http_url'),
-  httpHeaders: text('http_headers', { mode: 'json' }),
+  httpHeaders: jsonb('http_headers'),
   httpStatusCode: integer('http_status_code'),
   httpResponse: text('http_response'),
 }, (table) => ({
@@ -221,19 +225,19 @@ export const notifications = sqliteTable('notifications', {
 /**
  * Performance metrics table
  */
-export const metrics = sqliteTable('metrics', {
-  id: text('id').primaryKey(),
+export const metrics = pgTable('metrics', {
+  id: varchar('id', { length: 255 }).primaryKey(),
   
   // Metric information
-  name: text('name').notNull(),
-  value: real('value').notNull(),
-  tags: text('tags', { mode: 'json' }), // Tags for grouping and filtering
+  name: varchar('name', { length: 255 }).notNull(),
+  value: decimal('value', { precision: 15, scale: 6 }).notNull(),
+  tags: jsonb('tags'), // Tags for grouping and filtering
   
   // Timestamps
   timestamp: integer('timestamp').notNull(),
   
   // Metadata
-  metadata: text('metadata', { mode: 'json' }),
+  metadata: jsonb('metadata'),
 }, (table) => ({
   nameIdx: index('idx_metrics_name').on(table.name),
   timestampIdx: index('idx_metrics_timestamp').on(table.timestamp),

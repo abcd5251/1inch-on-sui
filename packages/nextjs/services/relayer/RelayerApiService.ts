@@ -68,7 +68,7 @@ export class RelayerApiService {
    */
   async getSwaps(
     params: SwapQueryParams = {},
-  ): Promise<{ swaps: SwapData[]; total: number; page: number; limit: number }> {
+  ): Promise<{ success: boolean; swaps?: SwapData[]; total?: number; page?: number; limit?: number; error?: string }> {
     const searchParams = new URLSearchParams();
 
     Object.entries(params).forEach(([key, value]) => {
@@ -80,14 +80,14 @@ export class RelayerApiService {
     const queryString = searchParams.toString();
     const endpoint = `/api/swaps${queryString ? `?${queryString}` : ""}`;
 
-    return this.request<{ swaps: SwapData[]; total: number; page: number; limit: number }>(endpoint);
+    return this.request<{ success: boolean; swaps?: SwapData[]; total?: number; page?: number; limit?: number; error?: string }>(endpoint);
   }
 
   /**
    * 根据ID查询交换
    */
-  async getSwapById(id: string): Promise<SwapData | null> {
-    return this.request<SwapData | null>(`/api/swaps/${id}`);
+  async getSwapById(id: string): Promise<{ success: boolean; data?: SwapData; error?: string }> {
+    return this.request<{ success: boolean; data?: SwapData; error?: string }>(`/api/swaps/${id}`);
   }
 
   /**
@@ -100,8 +100,8 @@ export class RelayerApiService {
   /**
    * 创建新的交换
    */
-  async createSwap(swapData: CreateSwapRequest): Promise<SwapData> {
-    return this.request<SwapData>("/api/swaps", {
+  async createSwap(swapData: CreateSwapRequest): Promise<{ success: boolean; data: SwapData }> {
+    return this.request<{ success: boolean; data: SwapData }>("/api/swaps", {
       method: "POST",
       body: JSON.stringify(swapData),
     });
@@ -110,8 +110,8 @@ export class RelayerApiService {
   /**
    * 更新交换状态
    */
-  async updateSwapStatus(id: string, updateData: UpdateSwapStatusRequest): Promise<SwapData> {
-    return this.request<SwapData>(`/api/swaps/${id}`, {
+  async updateSwapStatus(id: string, updateData: UpdateSwapStatusRequest): Promise<{ success: boolean; data?: SwapData; error?: string }> {
+    return this.request<{ success: boolean; data?: SwapData; error?: string }>(`/api/swaps/${id}`, {
       method: "PUT",
       body: JSON.stringify(updateData),
     });
@@ -129,8 +129,8 @@ export class RelayerApiService {
   /**
    * 获取交换统计信息
    */
-  async getSwapStats(): Promise<SwapStats> {
-    return this.request<SwapStats>("/api/swaps/stats");
+  async getSwapStats(): Promise<{ success: boolean; data?: SwapStats; error?: string }> {
+    return this.request<{ success: boolean; data?: SwapStats; error?: string }>("/api/swaps/stats");
   }
 
   /**
@@ -162,8 +162,8 @@ export class RelayerApiService {
   /**
    * 健康检查
    */
-  async healthCheck(): Promise<{ status: string; timestamp: string }> {
-    return this.request<{ status: string; timestamp: string }>("/health");
+  async healthCheck(): Promise<{ success: boolean; status?: string; timestamp?: string; error?: string }> {
+    return this.request<{ success: boolean; status?: string; timestamp?: string; error?: string }>("/health");
   }
 
   /**

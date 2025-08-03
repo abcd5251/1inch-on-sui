@@ -1,11 +1,13 @@
 /**
  * Database configuration and initialization
- * Uses Drizzle ORM and SQLite/Turso for data persistence
+ * Uses Drizzle ORM and PostgreSQL for data persistence
  */
 
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-import { migrate } from 'drizzle-orm/libsql/migrator';
+import { Elysia } from 'elysia';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import { eq } from 'drizzle-orm';
 import * as schema from '../schema/index.js';
 import { logger } from '../utils/logger.js';
 
@@ -13,29 +15,36 @@ import { logger } from '../utils/logger.js';
  * Database configuration interface
  */
 export interface DatabaseConfig {
-  url: string;
-  authToken?: string;
-  syncUrl?: string;
-  syncInterval?: number;
-  encryptionKey?: string;
+  connectionString: string;
+  host?: string;
+  port?: number;
+  database?: string;
+  username?: string;
+  password?: string;
+  ssl?: boolean;
+  max?: number; // Maximum number of connections in pool
 }
 
 /**
  * Database connection manager
  */
 export class DatabaseManager {
-  private client: ReturnType<typeof createClient>;
+  private client: ReturnType<typeof postgres>;
   private db: ReturnType<typeof drizzle>;
   private config: DatabaseConfig;
 
   constructor(config: DatabaseConfig) {
     this.config = config;
-    this.client = createClient({
-      url: config.url,
-      authToken: config.authToken,
-      syncUrl: config.syncUrl,
-      syncInterval: config.syncInterval || 60000, // 1 minute sync interval
-      encryptionKey: config.encryptionKey,
+    this.client = postgres(config.connectionString, {
+      host: config.host,
+      port: config.port,
+      database: config.database,
+      username: config.username,
+      password: config.password,
+      ssl: config.ssl ? 'require' : false,
+      max: config.max || 20, // Maximum number of connections in pool
+      idle_timeout: 20,
+      connect_timeout: 10,
     });
     
     this.db = drizzle(this.client, { 
@@ -49,16 +58,16 @@ export class DatabaseManager {
    */
   async initialize(): Promise<void> {
     try {
-      logger.info('Initializing database...');
+      logger.info('Initializing PostgreSQL database...');
       
-      // Temporarily skip database migrations
-      // await migrate(this.db, { 
-      //   migrationsFolder: './drizzle/migrations' 
-      // });
+      // Run database migrations
+      await migrate(this.db, { 
+        migrationsFolder: './drizzle/migrations' 
+      });
       
-      logger.info('Database initialized successfully (migrations skipped)');
+      logger.info('PostgreSQL database initialized successfully');
     } catch (error) {
-      logger.error('Failed to initialize database:', error);
+      logger.error('Failed to initialize PostgreSQL database:', error);
       throw error;
     }
   }
@@ -78,16 +87,15 @@ export class DatabaseManager {
   }
 
   /**
-   * Sync database (for Turso)
+   * Test database connection
    */
-  async sync(): Promise<void> {
+  async testConnection(): Promise<void> {
     try {
-      if (this.config.syncUrl) {
-        await this.client.sync();
-        logger.info('Database synced successfully');
-      }
+      await this.client`SELECT 1 as test`;
+      logger.info('PostgreSQL connection test successful');
     } catch (error) {
-      logger.error('Failed to sync database:', error);
+      logger.error('PostgreSQL connection test failed:', error);
+      throw error;
     }
   }
 
@@ -96,10 +104,10 @@ export class DatabaseManager {
    */
   async close(): Promise<void> {
     try {
-      await this.client.close();
-      logger.info('Database connection closed');
+      await this.client.end();
+      logger.info('PostgreSQL connection closed');
     } catch (error) {
-      logger.error('Failed to close database connection:', error);
+      logger.error('Failed to close PostgreSQL connection:', error);
     }
   }
 
@@ -108,10 +116,10 @@ export class DatabaseManager {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      await this.client.execute('SELECT 1');
+      await this.client`SELECT 1 as health_check`;
       return true;
     } catch (error) {
-      logger.error('Database health check failed:', error);
+      logger.error('PostgreSQL health check failed:', error);
       return false;
     }
   }
@@ -133,9 +141,9 @@ export class DatabaseManager {
         failedSwaps
       ] = await Promise.all([
         this.db.select().from(schema.swaps),
-        this.db.select().from(schema.swaps).where(schema.eq(schema.swaps.status, 'active')),
-        this.db.select().from(schema.swaps).where(schema.eq(schema.swaps.status, 'completed')),
-        this.db.select().from(schema.swaps).where(schema.eq(schema.swaps.status, 'failed'))
+        this.db.select().from(schema.swaps).where(eq(schema.swaps.status, 'active')),
+        this.db.select().from(schema.swaps).where(eq(schema.swaps.status, 'completed')),
+        this.db.select().from(schema.swaps).where(eq(schema.swaps.status, 'failed'))
       ]);
 
       return {
@@ -161,21 +169,15 @@ export class DatabaseManager {
  */
 export function getDatabaseConfig(): DatabaseConfig {
   const config: DatabaseConfig = {
-    url: process.env.DATABASE_URL || 'file:./data/relayer.db',
+    connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/relayer',
+    host: process.env.POSTGRES_HOST || 'localhost',
+    port: parseInt(process.env.POSTGRES_PORT || '5432'),
+    database: process.env.POSTGRES_DB || 'relayer',
+    username: process.env.POSTGRES_USER || 'postgres',
+    password: process.env.POSTGRES_PASSWORD || '',
+    ssl: process.env.POSTGRES_SSL === 'true',
+    max: parseInt(process.env.POSTGRES_MAX_CONNECTIONS || '20'),
   };
-
-  // Turso configuration
-  if (process.env.TURSO_DATABASE_URL) {
-    config.url = process.env.TURSO_DATABASE_URL;
-    config.authToken = process.env.TURSO_AUTH_TOKEN;
-    config.syncUrl = process.env.TURSO_SYNC_URL;
-    config.syncInterval = parseInt(process.env.TURSO_SYNC_INTERVAL || '60000');
-  }
-
-  // Encryption configuration
-  if (process.env.DATABASE_ENCRYPTION_KEY) {
-    config.encryptionKey = process.env.DATABASE_ENCRYPTION_KEY;
-  }
 
   return config;
 }
@@ -199,18 +201,17 @@ export function getDatabaseManager(): DatabaseManager {
 export function createDatabaseMiddleware() {
   const dbManager = getDatabaseManager();
   
-  return {
-    beforeHandle: async ({ set }: any) => {
+  return new Elysia({ name: 'database' })
+    .derive(() => ({
+      db: dbManager.getDatabase(),
+      dbManager: dbManager,
+    }))
+    .onBeforeHandle(async ({ set }) => {
       // Database health check
       const isHealthy = await dbManager.healthCheck();
       if (!isHealthy) {
         set.status = 503;
         return { error: 'Database unavailable' };
       }
-    },
-    derive: () => ({
-      db: dbManager.getDatabase(),
-      dbManager: dbManager,
-    }),
-  };
+    });
 }

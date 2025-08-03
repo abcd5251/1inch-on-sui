@@ -269,7 +269,7 @@ export function setupRoutes(app: Elysia, relayerService: RelayerService): void {
   });
 
   // Error handling middleware
-  app.onError(({ code, error, set }) => {
+  app.onError({ as: 'global' }, ({ code, error, set }) => {
     logger.error(`API Error [${code}]:`, error);
     
     set.status = 500;

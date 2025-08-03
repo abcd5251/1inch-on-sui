@@ -4,11 +4,11 @@
  */
 
 import { Elysia } from 'elysia';
-import { cors } from '@elysiajs/cors';
-import { swagger } from '@elysiajs/swagger';
-import { bearer } from '@elysiajs/bearer';
-import { staticPlugin } from '@elysiajs/static';
-import { cron } from '@elysiajs/cron';
+// import { cors } from '@elysiajs/cors';
+// import { swagger } from '@elysiajs/swagger';
+// import { bearer } from '@elysiajs/bearer';
+// import { staticPlugin } from '@elysiajs/static';
+// import { cron } from '@elysiajs/cron';
 
 // Database and core services
 import { DatabaseManager, getDatabaseManager, createDatabaseMiddleware } from './config/database.js';
@@ -60,6 +60,33 @@ class EnhancedCrossChainRelayer {
       this.app = new Elysia({ name: 'cross-chain-relayer' });
       
       console.log('🔍 App instance created:', !!this.app);
+      
+      // Add global middleware and error handling
+      this.app = this.app
+        .onBeforeHandle({ as: 'global' }, ({ request }) => {
+          logger.debug(`Incoming request: ${request.method} ${request.url}`);
+        })
+        .onError({ as: 'global' }, ({ code, error, set }) => {
+          logger.error(`Global Error [${code}]:`, error);
+          
+          if (code === 'VALIDATION') {
+            set.status = 400;
+            return {
+              success: false,
+              error: 'Validation failed',
+              details: error instanceof Error ? error.message : 'Unknown validation error',
+              timestamp: Date.now(),
+            };
+          }
+          
+          set.status = 500;
+          return {
+            success: false,
+            error: 'Internal server error',
+            code,
+            timestamp: Date.now(),
+          };
+        });
       
       // Register routes
       this.registerRoutes();
@@ -127,12 +154,17 @@ class EnhancedCrossChainRelayer {
       }))
       .get('/test', () => ({ status: 'ok', message: 'Test endpoint working' }));
     
-    // Temporarily comment out database-related routes
-    // TODO: Re-enable database routes
-    // this.app.use(healthRoutes);
-    // this.app.use(swapsRoutes);
-    // this.app.use(metricsRoutes);
-    // this.app.use(webhookRoutes);
+    // Enable database-related routes for PostgreSQL testing
+    try {
+      this.app.use(healthRoutes);
+      this.app.use(swapsRoutes);
+      this.app.use(metricsRoutes);
+      this.app.use(webhookRoutes);
+      console.log('Database-related API routes enabled successfully');
+    } catch (error) {
+      console.warn('Failed to register database routes:', error);
+      logger.warn('Some database routes may not be available:', error);
+    }
     
     console.log('API routes registered successfully');
   }
@@ -230,11 +262,8 @@ class EnhancedCrossChainRelayer {
       // Use listen method correctly according to Elysia 1.3.8 documentation
       console.log('🔍 About to call listen with port:', port);
       
-      // Elysia's listen method should be called like this
-      this.app.listen({
-        port,
-        hostname
-      });
+      // Start Elysia server
+      this.app.listen(port);
       
       this.isRunning = true;
 
