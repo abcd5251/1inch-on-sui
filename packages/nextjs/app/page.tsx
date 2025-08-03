@@ -12,65 +12,105 @@ const Home: NextPage = () => {
   return (
     <>
       <div className="flex items-center flex-col grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
-          </h1>
-          <div className="flex justify-center items-center space-x-2 flex-col">
-            <p className="my-2 font-medium">Connected Address:</p>
+        <div className="px-5 max-w-4xl">
+          <div className="text-center mb-8">
+            <h1 className="text-center mb-6">
+              <span className="block text-3xl mb-3 text-primary font-bold">1inch-on-Sui</span>
+              <span className="block text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Cross-Chain Atomic Swaps
+              </span>
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Extending 1inch Fusion+ protocol to Sui blockchain with MEV-protected trading through HTLC mechanisms. 
+              Experience secure, bridge-free atomic swaps between Ethereum and Sui.
+            </p>
+          </div>
+
+          <div className="flex justify-center items-center space-x-2 flex-col mb-8">
+            <p className="my-2 font-medium">Connected Ethereum Address:</p>
             <Address address={connectedAddress} />
           </div>
 
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/nextjs/app/page.tsx
-            </code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              YourContract.sol
-            </code>{" "}
-            in{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/hardhat/contracts
-            </code>
-          </p>
+          <div className="text-center mb-8">
+            <Link href="/fusion/swap" passHref>
+              <button className="btn btn-primary btn-lg mr-4">
+                Start Cross-Chain Swap
+              </button>
+            </Link>
+            <Link href="/fusion/auctions" passHref>
+              <button className="btn btn-secondary btn-lg mr-4">
+                Live Auctions
+              </button>
+            </Link>
+            <Link href="/fusion" passHref>
+              <button className="btn btn-outline btn-lg">
+                Fusion Dashboard
+              </button>
+            </Link>
+          </div>
         </div>
 
-        <div className="grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-8 flex-col lg:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <ArrowsRightLeftIcon className="h-8 w-8 fill-primary" />
-              <p>
-                Experience next-gen cross-chain swaps with{" "}
-                <Link href="/fusion" passHref className="link">
-                  1inch Fusion
-                </Link>{" "}
-                - MEV protected trading.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contracts
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
+        <div className="grow bg-gradient-to-br from-base-200 to-base-300 w-full mt-16 px-8 py-12">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="flex flex-col bg-base-100 px-8 py-8 text-center items-center rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <ArrowsRightLeftIcon className="h-12 w-12 fill-primary mb-4" />
+                <h3 className="text-xl font-bold mb-3">Cross-Chain Swaps</h3>
+                <p className="text-gray-600">
+                  Bridge-free atomic swaps between Ethereum and Sui using{" "}
+                  <Link href="/fusion" passHref className="link link-primary">
+                    1inch Fusion+
+                  </Link>{" "}
+                  with HTLC security.
+                </p>
+              </div>
+              
+              <div className="flex flex-col bg-base-100 px-8 py-8 text-center items-center rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="text-4xl mb-4">🛡️</div>
+                <h3 className="text-xl font-bold mb-3">MEV Protection</h3>
+                <p className="text-gray-600">
+                  Advanced MEV protection through Dutch auction mechanisms and resolver competition for optimal execution.
+                </p>
+              </div>
+
+              <div className="flex flex-col bg-base-100 px-8 py-8 text-center items-center rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="text-4xl mb-4">⚡</div>
+                <h3 className="text-xl font-bold mb-3">Real-Time Monitoring</h3>
+                <p className="text-gray-600">
+                  Live auction tracking, WebSocket updates, and comprehensive transaction monitoring across both chains.
+                </p>
+              </div>
+
+              <div className="flex flex-col bg-base-100 px-8 py-8 text-center items-center rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <BugAntIcon className="h-12 w-12 fill-secondary mb-4" />
+                <h3 className="text-xl font-bold mb-3">Developer Tools</h3>
+                <p className="text-gray-600">
+                  Debug smart contracts and test cross-chain functionality with{" "}
+                  <Link href="/debug" passHref className="link link-secondary">
+                    integrated debugging tools
+                  </Link>.
+                </p>
+              </div>
+
+              <div className="flex flex-col bg-base-100 px-8 py-8 text-center items-center rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <MagnifyingGlassIcon className="h-12 w-12 fill-secondary mb-4" />
+                <h3 className="text-xl font-bold mb-3">Block Explorer</h3>
+                <p className="text-gray-600">
+                  Explore transactions and monitor blockchain activity with the{" "}
+                  <Link href="/blockexplorer" passHref className="link link-secondary">
+                    integrated block explorer
+                  </Link>.
+                </p>
+              </div>
+
+              <div className="flex flex-col bg-base-100 px-8 py-8 text-center items-center rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="text-4xl mb-4">🔗</div>
+                <h3 className="text-xl font-bold mb-3">Dual Wallet Support</h3>
+                <p className="text-gray-600">
+                  Seamless integration with both Ethereum (RainbowKit) and Sui wallets for true cross-chain experience.
+                </p>
+              </div>
             </div>
           </div>
         </div>

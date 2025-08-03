@@ -30,6 +30,111 @@ export class MockFusionService extends FusionService {
   constructor(config: SuiFusionConfig) {
     super(config);
     this.generateMockData();
+    this.generateUSDCScenarios();
+  }
+
+  /**
+   * Generate USDC-specific auction scenarios for demo
+   */
+  private generateUSDCScenarios(): void {
+    const baseDate = Date.now();
+    
+    // High-volume USDC cross-chain swap
+    const crossChainUSDC: FusionOrder = {
+      id: "0x" + "usdc".repeat(16),
+      maker: this.getAddress(),
+      fromToken: "USDC-ETH", // USDC on Ethereum
+      toToken: "USDC-SUI", // USDC on Sui
+      fromAmount: "500000000", // 500 USDC
+      toAmount: "499500000", // 499.5 USDC (0.1% cross-chain fee)
+      enableAuction: true,
+      auctionDetails: {
+        auctionId: "usdc_cross_chain",
+        startTime: baseDate - 45000, // 45 seconds ago
+        endTime: baseDate + 15000, // 15 seconds remaining
+        duration: 60,
+        startRate: "0.9998", // Start slightly above 1:1
+        endRate: "0.9995", // End slightly below 1:1
+        currentRate: "0.99965", // Current rate
+        priceDecayFunction: "linear",
+        tokenPair: "USDC-ETH/USDC-SUI",
+        status: "active",
+      },
+      partialFillAllowed: true,
+      status: 'pending',
+      createdAt: baseDate - 45000,
+      expiresAt: baseDate + 3555000,
+      txHash: "0x" + "usdc".repeat(16),
+      orderType: 'market',
+      fillHistory: []
+    };
+    
+    // Large SUI to USDC swap with competitive bidding
+    const largeSwap: FusionOrder = {
+      id: "0x" + "large".repeat(12) + "usdc",
+      maker: this.getAddress(),
+      fromToken: "0x2::sui::SUI",
+      toToken: "0x2::coin::COIN<0x123::usdc::USDC>",
+      fromAmount: "10000000000", // 10 SUI
+      toAmount: "24850000", // 24.85 USDC
+      enableAuction: true,
+      auctionDetails: {
+        auctionId: "large_sui_usdc",
+        startTime: baseDate - 20000, // 20 seconds ago
+        endTime: baseDate + 40000, // 40 seconds remaining
+        duration: 60,
+        startRate: "2.68", // 8% above market
+        endRate: "2.28", // 8% below market
+        currentRate: "2.54", // Current declining rate
+        priceDecayFunction: "linear",
+        tokenPair: "SUI/USDC",
+        status: "active",
+      },
+      partialFillAllowed: true,
+      status: 'pending',
+      createdAt: baseDate - 20000,
+      expiresAt: baseDate + 3580000,
+      txHash: "0x" + "large".repeat(12) + "usdc",
+      orderType: 'market',
+      fillHistory: []
+    };
+    
+    // Small arbitrage opportunity - USDC/USDT
+    const arbitrage: FusionOrder = {
+      id: "0x" + "arb".repeat(16),
+      maker: this.getAddress(),
+      fromToken: "0x2::coin::COIN<0x123::usdc::USDC>",
+      toToken: "0x2::coin::COIN<0x123::usdt::USDT>",
+      fromAmount: "1000000000", // 1000 USDC
+      toAmount: "1002000000", // 1002 USDT (arbitrage opportunity)
+      enableAuction: true,
+      auctionDetails: {
+        auctionId: "usdc_usdt_arb",
+        startTime: baseDate - 10000, // 10 seconds ago
+        endTime: baseDate + 50000, // 50 seconds remaining
+        duration: 60,
+        startRate: "1.003", // Start with higher rate
+        endRate: "0.9998", // End slightly below parity
+        currentRate: "1.0018", // Current rate
+        priceDecayFunction: "linear",
+        tokenPair: "USDC/USDT",
+        status: "active",
+      },
+      partialFillAllowed: false, // Full fill only for arbitrage
+      status: 'pending',
+      createdAt: baseDate - 10000,
+      expiresAt: baseDate + 3590000,
+      txHash: "0x" + "arb".repeat(16),
+      orderType: 'market',
+      fillHistory: []
+    };
+    
+    this.mockFusionOrders.push(crossChainUSDC, largeSwap, arbitrage);
+    
+    // Start auction simulations
+    this.simulateAuctionProgress(crossChainUSDC);
+    this.simulateAuctionProgress(largeSwap);
+    this.simulateAuctionProgress(arbitrage);
   }
 
   async initialize(): Promise<void> {
@@ -239,45 +344,93 @@ export class MockFusionService extends FusionService {
   }
 
   async getBalance(tokenType: string, address?: string): Promise<Balance> {
-    // Mock balance data
+    // Enhanced mock balance data with USDC-focused scenarios
     const mockBalances: Record<string, string> = {
-      "0x2::sui::SUI": "5000000000", // 5 SUI
-      "0x2::coin::COIN<0x123::usdc::USDC>": "10000000", // 10 USDC
-      "0x2::coin::COIN<0x123::usdt::USDT>": "25000000", // 25 USDT
-      "0x2::coin::COIN<0x123::weth::WETH>": "2500000000000000000", // 2.5 WETH
+      // Sui Network Tokens
+      "0x2::sui::SUI": "12350000000", // 12.35 SUI
+      "0x2::coin::COIN<0x123::usdc::USDC>": "50750000", // 50.75 USDC
+      "0x2::coin::COIN<0x123::usdt::USDT>": "25480000", // 25.48 USDT
+      "0x2::coin::COIN<0x123::weth::WETH>": "1850000000000000000", // 1.85 WETH
+      
+      // Cross-chain balance simulation
+      "USDC-ETH": "125000000", // 125 USDC on Ethereum
+      "USDC-SUI": "50750000", // 50.75 USDC on Sui
+      
+      // Ethereum tokens (for cross-chain scenarios)
+      "ETH": "3450000000000000000", // 3.45 ETH
+      "0xA0b86a33E6441d3e2DbEcC39ee4bd65A58da0e17": "125000000", // 125 USDC (Ethereum)
+      "0xdac17f958d2ee523a2206206994597c13d831ec7": "75250000", // 75.25 USDT (Ethereum)
+      "0x6b175474e89094c44da98b954eedeac495271d0f": "200000000000000000000", // 200 DAI
     };
 
     const balance = mockBalances[tokenType] || "0";
     const tokenInfo = this.getTokenInfo(tokenType);
+    
+    // Add USD value for realistic portfolio tracking
+    const formattedBalance = (parseFloat(balance) / Math.pow(10, tokenInfo.decimals));
+    let usdValue = 0;
+    
+    // Calculate USD values based on token type
+    switch (tokenInfo.symbol) {
+      case "USDC":
+      case "USDT":
+      case "DAI":
+        usdValue = formattedBalance; // Stablecoins = $1
+        break;
+      case "SUI":
+        usdValue = formattedBalance * 2.485; // SUI price
+        break;
+      case "ETH":
+      case "WETH":
+        usdValue = formattedBalance * 3420; // ETH price
+        break;
+    }
 
     return {
       tokenType,
       balance,
-      formattedBalance: (parseFloat(balance) / Math.pow(10, tokenInfo.decimals)).toString(),
+      formattedBalance: formattedBalance.toString(),
       decimals: tokenInfo.decimals,
-      symbol: tokenInfo.symbol
+      symbol: tokenInfo.symbol,
+      usdValue
     };
   }
 
   async getAllBalances(address?: string): Promise<Balance[]> {
+    // Enhanced token list with cross-chain USDC support
     const tokenTypes = [
+      // Sui network tokens
       "0x2::sui::SUI",
       "0x2::coin::COIN<0x123::usdc::USDC>",
       "0x2::coin::COIN<0x123::usdt::USDT>",
       "0x2::coin::COIN<0x123::weth::WETH>",
+      
+      // Cross-chain token identifiers
+      "USDC-ETH", // USDC on Ethereum
+      "USDC-SUI", // USDC on Sui
+      
+      // Ethereum tokens for cross-chain scenarios
+      "ETH",
+      "0xA0b86a33E6441d3e2DbEcC39ee4bd65A58da0e17", // USDC (Ethereum)
+      "0xdac17f958d2ee523a2206206994597c13d831ec7", // USDT (Ethereum)
+      "0x6b175474e89094c44da98b954eedeac495271d0f", // DAI
     ];
 
     const balances: Balance[] = [];
     for (const tokenType of tokenTypes) {
       try {
         const balance = await this.getBalance(tokenType, address);
-        balances.push(balance);
+        // Only include non-zero balances for cleaner demo
+        if (parseFloat(balance.formattedBalance) > 0) {
+          balances.push(balance);
+        }
       } catch (error) {
         console.warn(`Failed to get balance for ${tokenType}:`, error);
       }
     }
 
-    return balances;
+    // Sort by USD value for better UX
+    return balances.sort((a, b) => (b.usdValue || 0) - (a.usdValue || 0));
   }
 
   getNetworkInfo(): NetworkInfo {
@@ -497,37 +650,82 @@ export class MockFusionService extends FusionService {
   }
 
   private getMockExchangeRate(fromToken: string, toToken: string): number {
-    // Mock exchange rates
+    // Enhanced mock exchange rates with USDC-specific scenarios
     const rates: Record<string, number> = {
-      "SUI_to_USDC": 2.5,
-      "USDC_to_SUI": 0.4,
-      "SUI_to_WETH": 0.0015,
-      "WETH_to_SUI": 666.67,
-      "USDC_to_USDT": 0.999,
-      "USDT_to_USDC": 1.001,
+      // SUI to stablecoins
+      "SUI_to_USDC": 2.485, // Slightly below 2.5 for realistic spread
+      "SUI_to_USDT": 2.492, // Slightly different from USDC
+      
+      // Stablecoins to SUI
+      "USDC_to_SUI": 0.4016, // 1/2.49 for realistic inverse
+      "USDT_to_SUI": 0.4008, // Slightly different rate
+      
+      // Cross-chain scenarios
+      "ETH_to_USDC": 3420.0, // ETH price in USDC
+      "USDC_to_ETH": 0.000292, // 1/3420
+      
+      // WETH scenarios 
+      "SUI_to_WETH": 0.000727, // SUI to WETH
+      "WETH_to_SUI": 1375.5, // WETH to SUI
+      "WETH_to_USDC": 3418.0, // WETH to USDC
+      "USDC_to_WETH": 0.000293, // USDC to WETH
+      
+      // Stablecoin pairs (realistic depegging scenarios)
+      "USDC_to_USDT": 0.9998, // Slight depeg for realism
+      "USDT_to_USDC": 1.0002,
+      
+      // DAI scenarios (Ethereum specific)
+      "DAI_to_USDC": 1.0001,
+      "USDC_to_DAI": 0.9999,
+      "ETH_to_DAI": 3419.5,
+      "DAI_to_ETH": 0.000293,
     };
 
     const fromSymbol = this.getTokenSymbol(fromToken);
     const toSymbol = this.getTokenSymbol(toToken);
     const rateKey = `${fromSymbol}_to_${toSymbol}`;
 
-    return rates[rateKey] || 1;
+    // Add small random variation (±0.1%) for realistic market movement
+    const baseRate = rates[rateKey] || 1;
+    const variation = 1 + (Math.random() - 0.5) * 0.002; // ±0.1%
+    
+    return baseRate * variation;
   }
 
   private getTokenSymbol(tokenType: string): string {
-    if (tokenType.includes("sui::SUI")) return "SUI";
-    if (tokenType.includes("usdc")) return "USDC";
-    if (tokenType.includes("usdt")) return "USDT";
-    if (tokenType.includes("weth")) return "WETH";
+    // Enhanced token symbol detection for cross-chain scenarios
+    if (tokenType.includes("sui::SUI") || tokenType === "SUI") return "SUI";
+    if (tokenType.includes("usdc") || tokenType === "USDC") return "USDC";
+    if (tokenType.includes("usdt") || tokenType === "USDT") return "USDT";
+    if (tokenType.includes("weth") || tokenType === "WETH") return "WETH";
+    if (tokenType.includes("ETH") || tokenType === "ETH") return "ETH";
+    if (tokenType.includes("dai") || tokenType === "DAI") return "DAI";
+    
+    // Handle cross-chain token prefixes
+    if (tokenType.includes("USDC-ETH")) return "USDC";
+    if (tokenType.includes("USDC-SUI")) return "USDC";
+    
     return "UNKNOWN";
   }
 
   private getTokenInfo(tokenType: string) {
     const tokenMap: Record<string, { symbol: string; decimals: number }> = {
+      // Sui network tokens
       "0x2::sui::SUI": { symbol: "SUI", decimals: 9 },
       "0x2::coin::COIN<0x123::usdc::USDC>": { symbol: "USDC", decimals: 6 },
       "0x2::coin::COIN<0x123::usdt::USDT>": { symbol: "USDT", decimals: 6 },
       "0x2::coin::COIN<0x123::weth::WETH>": { symbol: "WETH", decimals: 18 },
+      
+      // Cross-chain token support
+      "USDC-ETH": { symbol: "USDC", decimals: 6 },
+      "USDC-SUI": { symbol: "USDC", decimals: 6 },
+      
+      // Ethereum network tokens
+      "ETH": { symbol: "ETH", decimals: 18 },
+      "0x0000000000000000000000000000000000000000": { symbol: "ETH", decimals: 18 },
+      "0xA0b86a33E6441d3e2DbEcC39ee4bd65A58da0e17": { symbol: "USDC", decimals: 6 },
+      "0xdac17f958d2ee523a2206206994597c13d831ec7": { symbol: "USDT", decimals: 6 },
+      "0x6b175474e89094c44da98b954eedeac495271d0f": { symbol: "DAI", decimals: 18 },
     };
 
     return tokenMap[tokenType] || { symbol: "UNKNOWN", decimals: 9 };

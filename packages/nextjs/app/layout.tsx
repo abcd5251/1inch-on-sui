@@ -6,8 +6,8 @@ import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 export const metadata = getMetadata({
-  title: "Scaffold-ETH 2 App",
-  description: "Built with 🏗 Scaffold-ETH 2",
+  title: "1inch-on-Sui | Cross-Chain Atomic Swaps",
+  description: "1inch Fusion+ protocol extended to Sui blockchain with MEV-protected cross-chain atomic swaps using HTLC mechanisms",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {

@@ -52,14 +52,23 @@ const FusionPage: NextPage = () => {
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900">快速开始</h2>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
             <Link 
-              href={`/fusion/${selectedNetwork}/swap`}
+              href="/fusion/swap"
               className="group bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
             >
               <div className="text-3xl mb-3">🔄</div>
               <h3 className="font-bold mb-2">开始交易</h3>
               <p className="text-sm opacity-90">执行代币交换</p>
+            </Link>
+            
+            <Link 
+              href="/fusion/auctions"
+              className="group bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-xl hover:from-red-600 hover:to-red-700 transition-all transform hover:scale-105 shadow-lg"
+            >
+              <div className="text-3xl mb-3">🎯</div>
+              <h3 className="font-bold mb-2">荷兰拍卖</h3>
+              <p className="text-sm opacity-90">实时拍卖监控</p>
             </Link>
             
             <Link 
@@ -84,7 +93,7 @@ const FusionPage: NextPage = () => {
               href="/fusion/shared/demo"
               className="group bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 shadow-lg"
             >
-              <div className="text-3xl mb-3">🎯</div>
+              <div className="text-3xl mb-3">🚀</div>
               <h3 className="font-bold mb-2">功能演示</h3>
               <p className="text-sm opacity-90">体验实时演示</p>
             </Link>
