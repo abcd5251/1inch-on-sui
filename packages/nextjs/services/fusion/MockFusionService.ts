@@ -92,36 +92,39 @@ export class MockFusionService extends FusionService {
     
     // Create auction details
     const auctionDetails: AuctionDetails = {
-      startTime: Date.now(),
-      endTime: Date.now() + duration * 1000,
-      duration: duration,
-      startRate: (parseFloat(baseQuote.rate) * (auctionParams?.startRateMultiplier || 1.08)).toString(),
-      endRate: (parseFloat(baseQuote.rate) * (auctionParams?.endRateMultiplier || 0.92)).toString(),
-      currentRate: baseQuote.rate,
-      priceDecayFunction: auctionParams?.priceDecayFunction || "linear",
-      remainingTime: duration
-    };
+          startTime: Date.now(),
+          duration: duration,
+          startRate: (parseFloat(baseQuote.rate) * (auctionParams?.startRateMultiplier || 1.08)).toString(),
+          endRate: (parseFloat(baseQuote.rate) * (auctionParams?.endRateMultiplier || 0.92)).toString(),
+          currentRate: baseQuote.rate,
+          priceDecayFunction: auctionParams?.priceDecayFunction || "linear",
+          remainingTime: duration
+        };
 
     return {
       ...baseQuote,
       auctionDetails,
       estimatedFillTime: Math.floor(duration * 0.6), // Estimated 60% through auction
       resolvers: [
-        {
-          address: "0xresolver1",
-          reputation: 95,
-          fillCount: 1234,
-          avgFillTime: 35,
-          isActive: true
-        },
-        {
-          address: "0xresolver2", 
-          reputation: 88,
-          fillCount: 892,
-          avgFillTime: 42,
-          isActive: true
-        }
-      ],
+          {
+            address: "0xresolver1",
+            name: "Resolver 1",
+            reputation: 95,
+            totalVolume: "1234000000",
+            successRate: 98.5,
+            averageGasUsed: "0.001",
+            isActive: true
+          },
+          {
+            address: "0xresolver2",
+            name: "Resolver 2", 
+            reputation: 88,
+            totalVolume: "892000000",
+            successRate: 95.2,
+            averageGasUsed: "0.0012",
+            isActive: true
+          }
+        ],
       mevProtection: true
     };
   }
@@ -161,7 +164,6 @@ export class MockFusionService extends FusionService {
     if (params.enableAuction && params.auctionDetails) {
       auctionDetails = {
         startTime: Date.now(),
-        endTime: Date.now() + (params.auctionDetails.duration || 60) * 1000, // Default 1 minute
         duration: params.auctionDetails.duration || 60,
         startRate: params.auctionDetails.startRate,
         endRate: params.auctionDetails.endRate,
@@ -290,7 +292,9 @@ export class MockFusionService extends FusionService {
 
   private generateMockData(): void {
     // Generate diverse existing orders for demo
-    const now = Date.now();
+    // Base date: July 27, 2025 12:00:00 UTC
+    const baseDate = new Date('2025-07-27T12:00:00Z').getTime();
+    const now = baseDate + Math.floor(Math.random() * 86400000); // Random time within 24 hours after base date
     this.mockOrders = [
       {
         id: "0x" + "1".repeat(64),
@@ -300,7 +304,7 @@ export class MockFusionService extends FusionService {
         fromAmount: "1000000000",
         toAmount: "2500000",
         status: 'pending',
-        createdAt: now - 1800000, // 30 minutes ago
+        createdAt: baseDate - 1800000, // 30 minutes before base date
         expiresAt: now + 1800000, // 30 minutes from now
         txHash: "0x" + "1".repeat(64),
         orderType: 'market'
@@ -313,7 +317,7 @@ export class MockFusionService extends FusionService {
         fromAmount: "50000000", // 50 USDC
         toAmount: "20000000000", // 20 SUI
         status: 'filled',
-        createdAt: now - 7200000, // 2 hours ago
+        createdAt: baseDate - 7200000, // 2 hours before base date
         expiresAt: now + 7200000,
         txHash: "0x" + "3".repeat(64),
         orderType: 'limit'
@@ -326,8 +330,8 @@ export class MockFusionService extends FusionService {
         fromAmount: "500000000000000000", // 0.5 WETH
         toAmount: "333000000000", // 333 SUI
         status: 'expired',
-        createdAt: now - 86400000, // 1 day ago
-        expiresAt: now - 3600000, // Expired 1 hour ago
+        createdAt: baseDate - 86400000, // 1 day before base date
+        expiresAt: baseDate - 3600000, // Expired 1 hour before base date
         txHash: "0x" + "4".repeat(64),
         orderType: 'market'
       }
@@ -344,8 +348,7 @@ export class MockFusionService extends FusionService {
         toAmount: "5000000", // 5 USDC
         enableAuction: true,
         auctionDetails: {
-          startTime: now - 30000, // 30 seconds ago
-          endTime: now + 30000, // 30 seconds from now
+          startTime: baseDate - 30000, // 30 seconds before base date
           duration: 60, // 1 minute total
           startRate: "2.70", // 8% above market (2.5 * 1.08)
           endRate: "2.30", // 8% below market (2.5 * 0.92)
@@ -353,6 +356,8 @@ export class MockFusionService extends FusionService {
           priceDecayFunction: "linear",
           remainingTime: 30
         },
+        minFillAmount: "100000000", // 0.1 SUI minimum
+        maxFillAmount: "2000000000", // Full amount
         partialFillAllowed: true,
         status: 'pending',
         createdAt: now - 30000,
@@ -371,8 +376,7 @@ export class MockFusionService extends FusionService {
         toAmount: "12500000", // 12.5 USDC
         enableAuction: true,
         auctionDetails: {
-          startTime: now - 180000, // 3 minutes ago
-          endTime: now - 120000, // Ended 2 minutes ago
+          startTime: baseDate - 180000, // 3 minutes before base date
           duration: 60,
           startRate: "2.70",
           endRate: "2.30",
@@ -382,18 +386,20 @@ export class MockFusionService extends FusionService {
         },
         partialFillAllowed: true,
         status: 'filled',
-        createdAt: now - 180000,
-        expiresAt: now + 3420000,
+        createdAt: baseDate - 180000,
+        expiresAt: baseDate + 3420000,
         txHash: "0x" + "5".repeat(64),
         orderType: 'market',
         fillHistory: [
           {
-            fillId: "fill_001",
+            id: "fill_001",
+            orderId: "0x" + "5".repeat(64),
             resolver: "0xresolver1",
             fillAmount: "5000000000",
             fillRate: "2.45",
-            timestamp: now - 120000,
-            txHash: "0xfill001"
+            timestamp: baseDate - 120000,
+            txHash: "0xfill001",
+            gasUsed: "0.0015"
           }
         ]
       },
@@ -407,8 +413,7 @@ export class MockFusionService extends FusionService {
         toAmount: "40000000000", // 40 SUI
         enableAuction: true,
         auctionDetails: {
-          startTime: now - 300000, // 5 minutes ago
-          endTime: now - 240000, // Ended 4 minutes ago
+          startTime: baseDate - 300000, // 5 minutes before base date
           duration: 60,
           startRate: "0.368", // 0.368 SUI per USDC (8% below market)
           endRate: "0.432", // 0.432 SUI per USDC (8% above market)
@@ -418,26 +423,30 @@ export class MockFusionService extends FusionService {
         },
         partialFillAllowed: true,
         status: 'filled',
-        createdAt: now - 300000,
-        expiresAt: now + 3300000,
+        createdAt: baseDate - 300000,
+        expiresAt: baseDate + 3300000,
         txHash: "0x" + "6".repeat(64),
         orderType: 'market',
         fillHistory: [
           {
-            fillId: "fill_002",
+            id: "fill_002",
+            orderId: "0x" + "6".repeat(64),
             resolver: "0xresolver1",
             fillAmount: "60000000", // 60 USDC
             fillRate: "0.395",
-            timestamp: now - 250000,
-            txHash: "0xfill002"
+            timestamp: baseDate - 250000,
+            txHash: "0xfill002",
+            gasUsed: "0.0012"
           },
           {
-            fillId: "fill_003", 
+            id: "fill_003",
+            orderId: "0x" + "6".repeat(64),
             resolver: "0xresolver2",
             fillAmount: "40000000", // 40 USDC
             fillRate: "0.405",
-            timestamp: now - 240000,
-            txHash: "0xfill003"
+            timestamp: baseDate - 240000,
+            txHash: "0xfill003",
+            gasUsed: "0.0018"
           }
         ]
       },
@@ -452,8 +461,8 @@ export class MockFusionService extends FusionService {
         enableAuction: false,
         partialFillAllowed: false,
         status: 'pending',
-        createdAt: now - 600000, // 10 minutes ago
-        expiresAt: now + 3000000,
+        createdAt: baseDate - 600000, // 10 minutes before base date
+        expiresAt: baseDate + 3000000,
         txHash: "0x" + "7".repeat(64),
         orderType: 'limit',
         fillHistory: []
@@ -468,8 +477,7 @@ export class MockFusionService extends FusionService {
         toAmount: "7500000", // 7.5 USDT
         enableAuction: true,
         auctionDetails: {
-          startTime: now - 1800000, // 30 minutes ago
-          endTime: now - 1740000, // Ended 29 minutes ago
+          startTime: baseDate - 1800000, // 30 minutes before base date
           duration: 60,
           startRate: "2.70",
           endRate: "2.30", 
@@ -479,8 +487,8 @@ export class MockFusionService extends FusionService {
         },
         partialFillAllowed: true,
         status: 'expired',
-        createdAt: now - 1800000,
-        expiresAt: now + 1800000,
+        createdAt: baseDate - 1800000,
+        expiresAt: baseDate + 1800000,
         txHash: "0x" + "8".repeat(64),
         orderType: 'market',
         fillHistory: []
@@ -532,7 +540,7 @@ export class MockFusionService extends FusionService {
     const interval = setInterval(() => {
       if (order.auctionDetails) {
         const elapsed = Date.now() - order.auctionDetails.startTime;
-        const remaining = Math.max(0, order.auctionDetails.endTime - Date.now());
+        const remaining = Math.max(0, (order.auctionDetails.startTime + order.auctionDetails.duration * 1000) - Date.now());
         
         if (remaining <= 0) {
           order.status = 'expired';
@@ -560,12 +568,14 @@ export class MockFusionService extends FusionService {
         if (Math.random() < fillChance) {
           order.status = 'filled';
           order.fillHistory?.push({
-            fillId: `fill_${Date.now()}`,
+            id: `fill_${Date.now()}`,
+            orderId: order.id,
             resolver: progress > 0.6 ? "0xresolver2" : "0xresolver1", // Resolver competition
             fillAmount: order.fromAmount,
             fillRate: currentRate.toString(),
             timestamp: Date.now(),
-            txHash: `0xfill${Date.now()}`
+            txHash: `0xfill${Date.now()}`,
+            gasUsed: "0.002"
           });
           clearInterval(interval);
         }

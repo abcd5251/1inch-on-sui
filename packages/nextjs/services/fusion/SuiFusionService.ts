@@ -187,6 +187,8 @@ export class SuiFusionService {
       };
     } catch {
       // Fallback to mock data if blockchain query fails
+      // Base date: July 27, 2025 12:00:00 UTC
+      const baseDate = new Date('2025-07-27T12:00:00Z').getTime();
       const mockOrders: SuiOrderInfo[] = [
         {
           orderId: "0x1234567890abcdef",
@@ -196,8 +198,8 @@ export class SuiFusionService {
           fromAmount: "1000000000", // 1 SUI
           toAmount: "2500000", // 2.5 USDC
           status: "pending",
-          createdAt: Date.now() - 3600000, // 1 hour ago
-          expiresAt: Date.now() + 82800000, // 23 hours from now
+          createdAt: baseDate - 3600000, // 1 hour before base date
+          expiresAt: baseDate + 82800000, // 23 hours after base date
           txHash: "0x1234567890abcdef",
         },
       ];
@@ -230,7 +232,7 @@ export class SuiFusionService {
   getAddressFromPrivateKey(privateKey: string): string {
     try {
       const cleanPrivateKey = privateKey.startsWith("0x") ? privateKey.slice(2) : privateKey;
-      const privateKeyBytes = fromHEX(cleanPrivateKey);
+      const privateKeyBytes = new Uint8Array(Buffer.from(cleanPrivateKey, 'hex'));
       const keypair = Ed25519Keypair.fromSecretKey(privateKeyBytes);
       return keypair.getPublicKey().toSuiAddress();
     } catch (error) {
@@ -242,14 +244,16 @@ export class SuiFusionService {
    * Get supported tokens for current network
    */
   getTokenTypes(): Record<string, string> {
-    return suiFusionConfig.tokens[this.config.network] || {};
+    const networkConfig = suiFusionConfig.networks[this.config.network];
+    return networkConfig?.tokens || {};
   }
 
   /**
    * Get package ID for current network
    */
   getPackageId(): string {
-    return this.config.packageId || suiFusionConfig.packages[this.config.network] || suiFusionConfig.defaultPackageId;
+    const networkConfig = suiFusionConfig.networks[this.config.network];
+    return this.config.packageId || networkConfig?.packageId || suiFusionConfig.defaultPackageId;
   }
 
   /**
@@ -302,9 +306,10 @@ export class SuiFusionService {
    * Get network information
    */
   getNetworkInfo() {
+    const networkConfig = suiFusionConfig.networks[this.config.network];
     return {
       network: this.config.network,
-      packageId: this.config.packageId || suiFusionConfig.defaultPackageId,
+      packageId: this.config.packageId || networkConfig?.packageId || suiFusionConfig.defaultPackageId,
       rpcUrl: this.networkFactory.getRpcUrl(),
       explorerUrl: this.networkFactory.getExplorerUrl(),
       isTestnet: this.networkFactory.isTestnet(),

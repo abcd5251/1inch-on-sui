@@ -289,9 +289,9 @@ export default function FusionPage() {
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">最近活动</h3>
                   <div className="space-y-3">
                     {[
-                      { id: 1, action: "创建跨链订单", time: "2分钟前", status: "成功" },
-                      { id: 2, action: "桥接 ETH 到 Sui", time: "15分钟前", status: "进行中" },
-                      { id: 3, action: "取消订单 #1234", time: "1小时前", status: "已完成" },
+                      { id: 1, action: "创建跨链订单", time: "2025-07-27 12:28:00", status: "成功" },
+    { id: 2, action: "桥接 ETH 到 Sui", time: "2025-07-27 12:15:00", status: "进行中" },
+    { id: 3, action: "取消订单 #1234", time: "2025-07-27 11:30:00", status: "已完成" },
                     ].map(activity => (
                       <div
                         key={activity.id}
@@ -403,9 +403,9 @@ export default function FusionPage() {
                       </thead>
                       <tbody>
                         {[
-                          { id: "#1234", type: "ETH → SUI", amount: "1.5 ETH", status: "完成", time: "2小时前" },
-                          { id: "#1235", type: "USDC → SUI", amount: "1000 USDC", status: "进行中", time: "30分钟前" },
-                          { id: "#1236", type: "SUI → ETH", amount: "5000 SUI", status: "待确认", time: "10分钟前" },
+                          { id: "#1234", type: "ETH → SUI", amount: "1.5 ETH", status: "完成", time: "2025-07-27 10:30:00" },
+    { id: "#1235", type: "USDC → SUI", amount: "1000 USDC", status: "进行中", time: "2025-07-27 12:00:00" },
+    { id: "#1236", type: "SUI → ETH", amount: "5000 SUI", status: "待确认", time: "2025-07-27 12:20:00" },
                         ].map(order => (
                           <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
                             <td className="py-3 px-4 font-medium text-blue-600">{order.id}</td>

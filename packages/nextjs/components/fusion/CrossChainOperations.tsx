@@ -91,8 +91,8 @@ export const CrossChainOperations = ({
         initiation: "0x1234...abcd",
         lock: "0x5678...efgh",
       },
-      createdAt: Date.now() - 600000, // 10 minutes ago
-      updatedAt: Date.now() - 300000, // 5 minutes ago
+      createdAt: new Date('2025-07-27T12:00:00Z').getTime() - 600000, // 10 minutes before base date
+      updatedAt: new Date('2025-07-27T12:00:00Z').getTime() - 300000, // 5 minutes before base date
     },
     {
       id: "swap-2",
@@ -108,8 +108,8 @@ export const CrossChainOperations = ({
         lock: "0xcccc...dddd",
         reveal: "0xeeee...ffff",
       },
-      createdAt: Date.now() - 1800000, // 30 minutes ago
-      updatedAt: Date.now() - 900000, // 15 minutes ago
+      createdAt: new Date('2025-07-27T12:00:00Z').getTime() - 1800000, // 30 minutes before base date
+      updatedAt: new Date('2025-07-27T12:00:00Z').getTime() - 900000, // 15 minutes before base date
     },
   ]);
 

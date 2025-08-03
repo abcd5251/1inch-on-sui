@@ -27,7 +27,7 @@ module.exports = {
       fusionSettlement: "0x1111111254eeb25477b68fb85ed929f73a960582"
     },
     baseSepolia: {
-      url: process.env.BASE_SEPOLIA_RPC_URL,
+      url: process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       verify: {
         etherscan: {

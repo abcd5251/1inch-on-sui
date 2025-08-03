@@ -2,7 +2,9 @@
 
 import { ReactNode } from "react";
 import { SuiClientProvider, WalletProvider, createNetworkConfig } from "@mysten/dapp-kit";
+import { WalletProvider as SuietWalletProvider } from "@suiet/wallet-kit";
 import { getFullnodeUrl } from "@mysten/sui/client";
+import "@suiet/wallet-kit/style.css";
 
 // Define network configuration
 const { networkConfig } = createNetworkConfig({
@@ -18,13 +20,15 @@ interface SuiProvidersProps {
 
 /**
  * Sui ecosystem provider component
- * Integrates Mysten dApp Kit with proper provider hierarchy
+ * Integrates both Mysten dApp Kit and Suiet Wallet Kit with proper provider hierarchy
  */
 export function SuiProviders({ children }: SuiProvidersProps) {
   return (
-    <SuiClientProvider networks={networkConfig} defaultNetwork="devnet">
-      <WalletProvider enableUnsafeBurner>{children}</WalletProvider>
-    </SuiClientProvider>
+    <SuietWalletProvider>
+      <SuiClientProvider networks={networkConfig} defaultNetwork="devnet">
+        <WalletProvider enableUnsafeBurner>{children}</WalletProvider>
+      </SuiClientProvider>
+    </SuietWalletProvider>
   );
 }
 

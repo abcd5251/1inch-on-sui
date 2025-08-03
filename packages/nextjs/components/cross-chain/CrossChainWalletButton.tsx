@@ -66,7 +66,32 @@ export const CrossChainWalletButton = () => {
         {/* Sui wallet connection */}
         <div className="flex flex-col gap-2">
           <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Sui Network</span>
-          <SuiConnectButton />
+          <div className="sui-connect-wrapper">
+            <SuiConnectButton 
+              style={{
+                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                color: 'white',
+                fontWeight: '500',
+                fontSize: '14px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                minHeight: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onConnectError={(error) => {
+                console.error('Suiet connection error:', error);
+                toast.error('Failed to connect Suiet wallet');
+              }}
+              onConnectSuccess={() => {
+                toast.success('Suiet wallet connected successfully!');
+              }}
+            />
+          </div>
         </div>
 
         {/* Cross-chain status indicator */}
