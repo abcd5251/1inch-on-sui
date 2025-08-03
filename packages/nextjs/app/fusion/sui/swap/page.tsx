@@ -19,7 +19,7 @@ export default function SuiSwapPage() {
     toToken: 'USDC',
     amount: '',
     enableDutchAuction: true,
-    auctionDuration: 300, // 5分钟
+    auctionDuration: 300, // 5 minutes
     startPremium: 5 // 5%
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -29,11 +29,11 @@ export default function SuiSwapPage() {
   const handleSwap = async () => {
     setIsLoading(true);
     try {
-      // TODO: 实现实际的Sui交换逻辑
-      console.log('执行Sui交换:', formData);
-      await new Promise(resolve => setTimeout(resolve, 2000)); // 模拟交易
+      // TODO: Implement actual Sui swap logic
+      console.log('Execute Sui swap:', formData);
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate transaction
     } catch (error) {
-      console.error('交换失败:', error);
+      console.error('Swap failed:', error);
     } finally {
       setIsLoading(false);
     }
@@ -41,16 +41,16 @@ export default function SuiSwapPage() {
 
   const handleAmountChange = (value: string) => {
     setFormData(prev => ({ ...prev, amount: value }));
-    // TODO: 实现价格估算
+    // TODO: Implement price estimation
     if (value && !isNaN(Number(value))) {
-      const baseRate = 0.5; // SUI to USDC 基础汇率
+      const baseRate = 3.6; // SUI to USDC base rate (current market price ~$3.6)
       const estimated = (Number(value) * baseRate).toFixed(2);
       setEstimatedOutput(estimated);
       
-      // 生成拍卖预览
+      // Generate auction preview
       if (formData.enableDutchAuction) {
         const startPrice = Number(estimated) * (1 + formData.startPremium / 100);
-        const endPrice = Number(estimated) * 0.95; // 5% 折扣
+        const endPrice = Number(estimated) * 0.95; // 5% discount
         setAuctionPreview({
           startPrice: startPrice.toFixed(2),
           endPrice: endPrice.toFixed(2),
@@ -67,15 +67,15 @@ export default function SuiSwapPage() {
     <div className="max-w-2xl mx-auto p-6">
       <div className="bg-white rounded-2xl shadow-lg p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Sui 交换</h1>
-          <p className="text-gray-600">体验高速、低成本的 Sui 网络交易</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Sui Swap</h1>
+          <p className="text-gray-600">Experience high-speed, low-cost trading on Sui network</p>
         </div>
 
         <div className="space-y-6">
           {/* From Token */}
           <div className="bg-gray-50 rounded-xl p-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              发送
+              Send
             </label>
             <div className="flex items-center space-x-4">
               <select 
@@ -97,7 +97,7 @@ export default function SuiSwapPage() {
               />
             </div>
             <div className="mt-2 text-sm text-gray-500">
-              余额: 100.0 {formData.fromToken}
+              Balance: 100.0 {formData.fromToken}
             </div>
           </div>
 
@@ -122,7 +122,7 @@ export default function SuiSwapPage() {
           {/* To Token */}
           <div className="bg-gray-50 rounded-xl p-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              接收
+              Receive
             </label>
             <div className="flex items-center space-x-4">
               <select 
@@ -140,14 +140,14 @@ export default function SuiSwapPage() {
               </div>
             </div>
             <div className="mt-2 text-sm text-gray-500">
-              估算输出
+              Estimated Output
             </div>
           </div>
 
           {/* Dutch Auction Settings */}
           <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium text-orange-900">🎯 荷兰式拍卖</h3>
+              <h3 className="font-medium text-orange-900">🎯 Dutch Auction</h3>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -164,7 +164,7 @@ export default function SuiSwapPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-orange-700 mb-2">
-                      拍卖时长 (秒)
+                      Auction Duration (seconds)
                     </label>
                     <input
                       type="number"
@@ -175,7 +175,7 @@ export default function SuiSwapPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-orange-700 mb-2">
-                      起始溢价 (%)
+                      Start Premium (%)
                     </label>
                     <input
                       type="number"
@@ -189,19 +189,19 @@ export default function SuiSwapPage() {
                 
                 {auctionPreview && (
                   <div className="bg-white rounded-lg p-4 border border-orange-200">
-                    <h4 className="font-medium text-orange-900 mb-3">拍卖预览</h4>
+                    <h4 className="font-medium text-orange-900 mb-3">Auction Preview</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-orange-700">起始价格:</span>
+                        <span className="text-orange-700">Start Price:</span>
                         <span className="text-orange-900 font-medium">{auctionPreview.startPrice} {formData.toToken}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-orange-700">结束价格:</span>
+                        <span className="text-orange-700">End Price:</span>
                         <span className="text-orange-900 font-medium">{auctionPreview.endPrice} {formData.toToken}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-orange-700">价格衰减:</span>
-                        <span className="text-orange-900 font-medium">线性递减</span>
+                        <span className="text-orange-700">Price Decay:</span>
+                        <span className="text-orange-900 font-medium">Linear Decrease</span>
                       </div>
                     </div>
                   </div>
@@ -213,19 +213,19 @@ export default function SuiSwapPage() {
           {/* Transaction Info */}
           {estimatedOutput && (
             <div className="bg-blue-50 rounded-xl p-6">
-              <h3 className="font-medium text-blue-900 mb-3">交易信息</h3>
+              <h3 className="font-medium text-blue-900 mb-3">Transaction Info</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-blue-700">汇率:</span>
-                  <span className="text-blue-900 font-medium">1 {formData.fromToken} = 0.5 {formData.toToken}</span>
+                  <span className="text-blue-700">Exchange Rate:</span>
+                  <span className="text-blue-900 font-medium">1 {formData.fromToken} = 3.6 {formData.toToken}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-blue-700">网络费用:</span>
+                  <span className="text-blue-700">Network Fee:</span>
                   <span className="text-blue-900 font-medium">~$0.01</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-blue-700">预期执行时间:</span>
-                  <span className="text-blue-900 font-medium">{formData.enableDutchAuction ? '< 5分钟' : '< 3秒'}</span>
+                  <span className="text-blue-700">Expected Execution Time:</span>
+                  <span className="text-blue-900 font-medium">{formData.enableDutchAuction ? '< 5 minutes' : '< 3 seconds'}</span>
                 </div>
               </div>
             </div>
@@ -240,10 +240,10 @@ export default function SuiSwapPage() {
             {isLoading ? (
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>创建订单中...</span>
+                <span>Creating Order...</span>
               </div>
             ) : (
-              formData.enableDutchAuction ? '创建拍卖订单' : '立即交换'
+              formData.enableDutchAuction ? 'Create Auction Order' : 'Instant Swap'
             )}
           </button>
         </div>

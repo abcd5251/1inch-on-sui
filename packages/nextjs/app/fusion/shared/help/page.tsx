@@ -18,412 +18,412 @@ interface HelpSection {
 const helpSections: HelpSection[] = [
   {
     id: 'getting-started',
-    title: '快速开始',
+    title: 'Getting Started',
     icon: '🚀',
     articles: [
       {
         id: 'what-is-fusion',
-        title: '什么是 1inch Fusion？',
-        description: '了解 Fusion 的基本概念和优势',
+        title: 'What is 1inch Fusion?',
+        description: 'Learn about the basic concepts and advantages of Fusion',
         content: `
-# 什么是 1inch Fusion？
+# What is 1inch Fusion?
 
-1inch Fusion 是一个革命性的去中心化交易协议，通过荷兰式拍卖机制为用户提供最优的交易体验。
+1inch Fusion is a revolutionary decentralized trading protocol that provides users with optimal trading experience through Dutch auction mechanisms.
 
-## 主要特性
+## Key Features
 
-### 🎯 荷兰式拍卖
-- 价格从高开始，逐渐降低直到有解析器接受
-- 确保用户获得最佳可能价格
-- 自动价格发现机制
+### 🎯 Dutch Auction
+- Price starts high and gradually decreases until a resolver accepts
+- Ensures users get the best possible price
+- Automatic price discovery mechanism
 
-### ⚡ 零 Gas 费交易
-- 解析器承担 Gas 费用
-- 用户无需支付网络费用
-- 降低交易门槛
+### ⚡ Zero Gas Fee Trading
+- Resolvers bear the Gas fees
+- Users don't need to pay network fees
+- Lowers trading barriers
 
-### 🛡️ MEV 保护
-- 防止最大可提取价值攻击
-- 保护用户免受套利机器人影响
-- 确保公平交易环境
+### 🛡️ MEV Protection
+- Prevents Maximum Extractable Value attacks
+- Protects users from arbitrage bots
+- Ensures fair trading environment
 
-### 🌐 跨链支持
-- 支持 Ethereum 和 Sui 网络
-- 统一的交易体验
-- 无缝网络切换
+### 🌐 Cross-chain Support
+- Supports Ethereum and Sui networks
+- Unified trading experience
+- Seamless network switching
         `
       },
       {
         id: 'how-to-start',
-        title: '如何开始使用？',
-        description: '第一次使用 Fusion 的完整指南',
+        title: 'How to Get Started?',
+        description: 'Complete guide for first-time Fusion users',
         content: `
-# 如何开始使用 Fusion？
+# How to Get Started with Fusion?
 
-## 步骤 1：连接钱包
-1. 点击右上角的"连接钱包"按钮
-2. 选择您的钱包类型（MetaMask、WalletConnect 等）
-3. 授权连接并确认
+## Step 1: Connect Wallet
+1. Click the "Connect Wallet" button in the top right corner
+2. Select your wallet type (MetaMask, WalletConnect, etc.)
+3. Authorize the connection and confirm
 
-## 步骤 2：选择网络
-1. 在网络选择器中选择 Ethereum 或 Sui
-2. 确保钱包切换到对应网络
-3. 检查网络状态是否正常
+## Step 2: Select Network
+1. Choose Ethereum or Sui in the network selector
+2. Ensure your wallet switches to the corresponding network
+3. Check that the network status is normal
 
-## 步骤 3：进行第一笔交易
-1. 进入交换页面
-2. 选择要交换的代币对
-3. 输入交换数量
-4. 设置交易参数（滑点、期限等）
-5. 确认并提交交易
+## Step 3: Make Your First Trade
+1. Go to the swap page
+2. Select the token pair you want to swap
+3. Enter the swap amount
+4. Set trading parameters (slippage, deadline, etc.)
+5. Confirm and submit the transaction
 
-## 步骤 4：监控订单
-1. 在订单页面查看交易状态
-2. 实时跟踪拍卖进度
-3. 查看最终执行价格
+## Step 4: Monitor Orders
+1. View transaction status on the orders page
+2. Track auction progress in real-time
+3. View final execution price
         `
       }
     ]
   },
   {
     id: 'trading',
-    title: '交易指南',
+    title: 'Trading Guide',
     icon: '💱',
     articles: [
       {
         id: 'dutch-auction',
-        title: '荷兰式拍卖详解',
-        description: '深入了解荷兰式拍卖的工作原理',
+        title: 'Dutch Auction Explained',
+        description: 'Deep dive into how Dutch auctions work',
         content: `
-# 荷兰式拍卖详解
+# Dutch Auction Explained
 
-## 什么是荷兰式拍卖？
+## What is a Dutch Auction?
 
-荷兰式拍卖是一种价格发现机制，价格从高开始逐渐降低，直到有买家愿意接受当前价格。
+A Dutch auction is a price discovery mechanism where the price starts high and gradually decreases until a buyer is willing to accept the current price.
 
-## 在 Fusion 中的应用
+## Application in Fusion
 
-### 价格衰减机制
-- **起始价格**：略高于市场价格，确保有利可图
-- **结束价格**：略低于市场价格，确保订单被执行
-- **衰减时间**：通常 2-5 分钟，可自定义
+### Price Decay Mechanism
+- **Starting Price**: Slightly above market price to ensure profitability
+- **Ending Price**: Slightly below market price to ensure order execution
+- **Decay Time**: Usually 2-5 minutes, customizable
 
-### 解析器竞争
-- 多个解析器监控拍卖
-- 在最优时机提交执行
-- 竞争确保最佳价格
+### Resolver Competition
+- Multiple resolvers monitor the auction
+- Submit execution at optimal timing
+- Competition ensures best price
 
-### 用户收益
-- 获得比传统 AMM 更好的价格
-- 零 Gas 费交易
-- MEV 保护
+### User Benefits
+- Get better prices than traditional AMMs
+- Zero Gas fee trading
+- MEV protection
 
-## 最佳实践
+## Best Practices
 
-1. **合理设置起始溢价**：2-5% 通常是合适的
-2. **选择适当的拍卖时长**：流动性好的代币可以更短
-3. **监控市场条件**：波动期间调整参数
+1. **Set reasonable starting premium**: 2-5% is usually appropriate
+2. **Choose appropriate auction duration**: Tokens with good liquidity can be shorter
+3. **Monitor market conditions**: Adjust parameters during volatile periods
         `
       },
       {
         id: 'order-types',
-        title: '订单类型说明',
-        description: '了解不同类型的订单及其用途',
+        title: 'Order Types Explained',
+        description: 'Learn about different order types and their uses',
         content: `
-# 订单类型说明
+# Order Types Explained
 
-## 拍卖订单
+## Auction Orders
 
-### 特点
-- 通过荷兰式拍卖执行
-- 价格逐渐衰减
-- 解析器竞争执行
+### Features
+- Executed through Dutch auction
+- Price gradually decays
+- Resolver competition for execution
 
-### 适用场景
-- 大额交易
-- 追求最佳价格
-- 不急于立即执行
+### Use Cases
+- Large transactions
+- Seeking best price
+- Not urgent for immediate execution
 
-### 参数设置
-- **起始溢价**：2-10%
-- **拍卖时长**：2-10 分钟
-- **最小接收量**：考虑滑点
+### Parameter Settings
+- **Starting Premium**: 2-10%
+- **Auction Duration**: 2-10 minutes
+- **Minimum Receive Amount**: Consider slippage
 
-## 即时订单
+## Instant Orders
 
-### 特点
-- 立即执行
-- 固定价格
-- 快速确认
+### Features
+- Immediate execution
+- Fixed price
+- Fast confirmation
 
-### 适用场景
-- 小额交易
-- 需要立即执行
-- 价格敏感度低
+### Use Cases
+- Small transactions
+- Need immediate execution
+- Low price sensitivity
 
-### 注意事项
-- 可能支付少量 Gas 费
-- 价格可能不如拍卖优化
-- 适合紧急交易
+### Considerations
+- May pay small Gas fees
+- Price may not be as optimized as auction
+- Suitable for urgent trades
 
-## 限价订单
+## Limit Orders
 
-### 特点
-- 设定目标价格
-- 等待市场达到
-- 长期有效
+### Features
+- Set target price
+- Wait for market to reach
+- Long-term validity
 
-### 适用场景
-- 等待更好价格
-- 长期投资策略
-- 自动化交易
+### Use Cases
+- Waiting for better prices
+- Long-term investment strategy
+- Automated trading
         `
       }
     ]
   },
   {
     id: 'networks',
-    title: '网络支持',
+    title: 'Network Support',
     icon: '🌐',
     articles: [
       {
         id: 'ethereum-guide',
-        title: 'Ethereum 网络指南',
-        description: '在 Ethereum 上使用 Fusion 的完整指南',
+        title: 'Ethereum Network Guide',
+        description: 'Complete guide for using Fusion on Ethereum',
         content: `
-# Ethereum 网络指南
+# Ethereum Network Guide
 
-## 网络信息
-- **网络名称**：Ethereum Mainnet
-- **链 ID**：1
-- **区块时间**：~12 秒
-- **确认时间**：1-2 分钟
+## Network Information
+- **Network Name**: Ethereum Mainnet
+- **Chain ID**: 1
+- **Block Time**: ~12 seconds
+- **Confirmation Time**: 1-2 minutes
 
-## 支持的代币
-- ETH（原生代币）
-- USDC、USDT、DAI（稳定币）
-- WBTC、LINK、UNI（主流代币）
-- 所有 ERC-20 代币
+## Supported Tokens
+- ETH (Native token)
+- USDC, USDT, DAI (Stablecoins)
+- WBTC, LINK, UNI (Major tokens)
+- All ERC-20 tokens
 
-## Gas 费用
-- **拍卖订单**：零 Gas 费
-- **即时订单**：标准 Gas 费
-- **代币授权**：一次性 Gas 费
+## Gas Fees
+- **Auction Orders**: Zero Gas fees
+- **Instant Orders**: Standard Gas fees
+- **Token Approval**: One-time Gas fee
 
-## 最佳实践
+## Best Practices
 
-### Gas 优化
-1. 使用拍卖订单避免 Gas 费
-2. 批量授权减少交易次数
-3. 在 Gas 费低时进行授权
+### Gas Optimization
+1. Use auction orders to avoid Gas fees
+2. Batch approvals to reduce transaction count
+3. Approve during low Gas fee periods
 
-### 安全建议
-1. 验证合约地址
-2. 检查代币授权额度
-3. 使用硬件钱包
+### Security Recommendations
+1. Verify contract addresses
+2. Check token approval amounts
+3. Use hardware wallets
 
-### 性能优化
-1. 选择合适的拍卖时长
-2. 监控网络拥堵情况
-3. 调整滑点容忍度
+### Performance Optimization
+1. Choose appropriate auction duration
+2. Monitor network congestion
+3. Adjust slippage tolerance
         `
       },
       {
         id: 'sui-guide',
-        title: 'Sui 网络指南',
-        description: '在 Sui 上使用 Fusion 的完整指南',
+        title: 'Sui Network Guide',
+        description: 'Complete guide for using Fusion on Sui',
         content: `
-# Sui 网络指南
+# Sui Network Guide
 
-## 网络信息
-- **网络名称**：Sui Testnet
-- **共识机制**：Narwhal & Bullshark
-- **TPS**：2,000+
-- **确认时间**：2-3 秒
+## Network Information
+- **Network Name**: Sui Testnet
+- **Consensus Mechanism**: Narwhal & Bullshark
+- **TPS**: 2,000+
+- **Confirmation Time**: 2-3 seconds
 
-## 支持的代币
-- SUI（原生代币）
-- USDC、USDT（桥接稳定币）
-- WETH（桥接以太坊）
-- 原生 Sui 代币
+## Supported Tokens
+- SUI (Native token)
+- USDC, USDT (Bridged stablecoins)
+- WETH (Bridged Ethereum)
+- Native Sui tokens
 
-## 交易费用
-- **极低费用**：通常 < $0.01
-- **快速确认**：2-3 秒
-- **高吞吐量**：无网络拥堵
+## Transaction Fees
+- **Ultra-low fees**: Usually < $0.01
+- **Fast confirmation**: 2-3 seconds
+- **High throughput**: No network congestion
 
-## Sui 特色功能
+## Sui Special Features
 
-### 并行执行
-- 无关交易并行处理
-- 更高的网络吞吐量
-- 更低的延迟
+### Parallel Execution
+- Unrelated transactions processed in parallel
+- Higher network throughput
+- Lower latency
 
-### 对象模型
-- 独特的数据结构
-- 更安全的资产管理
-- 更灵活的编程模型
+### Object Model
+- Unique data structure
+- More secure asset management
+- More flexible programming model
 
-### Move 语言
-- 资源导向编程
-- 内置安全特性
-- 形式化验证支持
+### Move Language
+- Resource-oriented programming
+- Built-in security features
+- Formal verification support
 
-## 最佳实践
+## Best Practices
 
-### 钱包设置
-1. 安装 Sui Wallet
-2. 获取测试网 SUI
-3. 连接到测试网
+### Wallet Setup
+1. Install Sui Wallet
+2. Get testnet SUI
+3. Connect to testnet
 
-### 交易优化
-1. 利用快速确认
-2. 使用较短的拍卖时长
-3. 监控 Epoch 变化
+### Transaction Optimization
+1. Leverage fast confirmation
+2. Use shorter auction durations
+3. Monitor Epoch changes
 
-### 安全注意
-1. 仅使用测试网资金
-2. 不要使用主网私钥
-3. 定期备份钱包
+### Security Notes
+1. Only use testnet funds
+2. Don't use mainnet private keys
+3. Regularly backup wallet
         `
       }
     ]
   },
   {
     id: 'troubleshooting',
-    title: '故障排除',
+    title: 'Troubleshooting',
     icon: '🔧',
     articles: [
       {
         id: 'common-issues',
-        title: '常见问题解决',
-        description: '解决使用过程中遇到的常见问题',
+        title: 'Common Issues Resolution',
+        description: 'Resolve common issues encountered during use',
         content: `
-# 常见问题解决
+# Common Issues Resolution
 
-## 钱包连接问题
+## Wallet Connection Issues
 
-### 问题：无法连接钱包
-**解决方案：**
-1. 确保钱包扩展已安装并启用
-2. 刷新页面重试
-3. 检查钱包是否解锁
-4. 尝试手动连接
+### Issue: Unable to Connect Wallet
+**Solutions:**
+1. Ensure wallet extension is installed and enabled
+2. Refresh page and retry
+3. Check if wallet is unlocked
+4. Try manual connection
 
-### 问题：网络不匹配
-**解决方案：**
-1. 在钱包中切换到正确网络
-2. 使用网络选择器自动切换
-3. 手动添加网络配置
+### Issue: Network Mismatch
+**Solutions:**
+1. Switch to correct network in wallet
+2. Use network selector for automatic switching
+3. Manually add network configuration
 
-## 交易问题
+## Transaction Issues
 
-### 问题：交易失败
-**可能原因：**
-- Gas 费不足
-- 滑点过低
-- 代币余额不足
-- 网络拥堵
+### Issue: Transaction Failed
+**Possible Causes:**
+- Insufficient Gas fees
+- Slippage too low
+- Insufficient token balance
+- Network congestion
 
-**解决方案：**
-1. 检查余额是否充足
-2. 增加滑点容忍度
-3. 提高 Gas 价格
-4. 等待网络恢复
+**Solutions:**
+1. Check if balance is sufficient
+2. Increase slippage tolerance
+3. Increase Gas price
+4. Wait for network recovery
 
-### 问题：拍卖未执行
-**可能原因：**
-- 起始价格过高
-- 市场流动性不足
-- 解析器离线
+### Issue: Auction Not Executed
+**Possible Causes:**
+- Starting price too high
+- Insufficient market liquidity
+- Resolvers offline
 
-**解决方案：**
-1. 降低起始溢价
-2. 延长拍卖时间
-3. 切换到即时订单
+**Solutions:**
+1. Lower starting premium
+2. Extend auction duration
+3. Switch to instant orders
 
-## 性能问题
+## Performance Issues
 
-### 问题：页面加载慢
-**解决方案：**
-1. 检查网络连接
-2. 清除浏览器缓存
-3. 禁用不必要的扩展
-4. 使用最新版本浏览器
+### Issue: Slow Page Loading
+**Solutions:**
+1. Check network connection
+2. Clear browser cache
+3. Disable unnecessary extensions
+4. Use latest browser version
 
-### 问题：价格更新延迟
-**解决方案：**
-1. 刷新页面
-2. 检查 RPC 连接
-3. 切换到其他 RPC 节点
+### Issue: Price Update Delay
+**Solutions:**
+1. Refresh page
+2. Check RPC connection
+3. Switch to other RPC nodes
         `
       },
       {
         id: 'error-codes',
-        title: '错误代码说明',
-        description: '了解各种错误代码的含义和解决方法',
+        title: 'Error Code Explanations',
+        description: 'Understand the meaning and solutions for various error codes',
         content: `
-# 错误代码说明
+# Error Code Explanations
 
-## 钱包错误
+## Wallet Errors
 
-### 4001 - 用户拒绝
-- **含义**：用户在钱包中拒绝了交易
-- **解决**：重新发起交易并在钱包中确认
+### 4001 - User Rejected
+- **Meaning**: User rejected the transaction in wallet
+- **Solution**: Restart transaction and confirm in wallet
 
-### 4100 - 未授权
-- **含义**：钱包未连接或未授权
-- **解决**：重新连接钱包并授权
+### 4100 - Unauthorized
+- **Meaning**: Wallet not connected or unauthorized
+- **Solution**: Reconnect wallet and authorize
 
-### 4902 - 网络不存在
-- **含义**：钱包中没有配置目标网络
-- **解决**：添加网络配置或手动切换
+### 4902 - Network Not Found
+- **Meaning**: Target network not configured in wallet
+- **Solution**: Add network configuration or switch manually
 
-## 合约错误
+## Contract Errors
 
 ### INSUFFICIENT_BALANCE
-- **含义**：代币余额不足
-- **解决**：检查余额或减少交易数量
+- **Meaning**: Insufficient token balance
+- **Solution**: Check balance or reduce transaction amount
 
 ### INSUFFICIENT_ALLOWANCE
-- **含义**：代币授权额度不足
-- **解决**：增加代币授权额度
+- **Meaning**: Insufficient token allowance
+- **Solution**: Increase token allowance
 
 ### SLIPPAGE_TOO_HIGH
-- **含义**：价格滑点超过设定值
-- **解决**：增加滑点容忍度或等待价格稳定
+- **Meaning**: Price slippage exceeds set value
+- **Solution**: Increase slippage tolerance or wait for price stability
 
 ### DEADLINE_EXCEEDED
-- **含义**：交易超过设定期限
-- **解决**：延长交易期限或立即重试
+- **Meaning**: Transaction exceeded set deadline
+- **Solution**: Extend transaction deadline or retry immediately
 
-## 网络错误
+## Network Errors
 
 ### NETWORK_ERROR
-- **含义**：网络连接问题
-- **解决**：检查网络连接或切换 RPC
+- **Meaning**: Network connection issue
+- **Solution**: Check network connection or switch RPC
 
 ### RPC_ERROR
-- **含义**：RPC 节点响应错误
-- **解决**：切换到其他 RPC 节点
+- **Meaning**: RPC node response error
+- **Solution**: Switch to other RPC nodes
 
 ### TIMEOUT_ERROR
-- **含义**：请求超时
-- **解决**：重试请求或检查网络状况
+- **Meaning**: Request timeout
+- **Solution**: Retry request or check network conditions
 
-## 拍卖错误
+## Auction Errors
 
 ### AUCTION_EXPIRED
-- **含义**：拍卖已过期
-- **解决**：创建新的拍卖订单
+- **Meaning**: Auction has expired
+- **Solution**: Create new auction order
 
 ### NO_RESOLVERS
-- **含义**：没有可用的解析器
-- **解决**：等待解析器上线或使用即时订单
+- **Meaning**: No available resolvers
+- **Solution**: Wait for resolvers to come online or use instant orders
 
 ### PRICE_TOO_HIGH
-- **含义**：起始价格过高
-- **解决**：降低起始溢价重新创建
+- **Meaning**: Starting price too high
+- **Solution**: Lower starting premium and recreate
         `
       }
     ]
@@ -451,14 +451,14 @@ export default function HelpPage() {
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8">
-          <h1 className="text-3xl font-bold mb-2">帮助中心</h1>
-          <p className="text-blue-100 mb-6">找到您需要的答案和指南</p>
+          <h1 className="text-3xl font-bold mb-2">Help Center</h1>
+          <p className="text-blue-100 mb-6">Find the answers and guides you need</p>
           
           {/* Search */}
           <div className="relative max-w-md">
             <input
               type="text"
-              placeholder="搜索帮助文档..."
+              placeholder="Search help documentation..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
@@ -517,19 +517,19 @@ export default function HelpPage() {
 
             {/* Quick Links */}
             <div className="mt-8 pt-6 border-t border-gray-200">
-              <h3 className="font-medium text-gray-900 mb-4">快速链接</h3>
+              <h3 className="font-medium text-gray-900 mb-4">Quick Links</h3>
               <div className="space-y-2">
                 <Link 
                   href="/fusion/shared/demo"
                   className="block p-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
                 >
-                  🎮 功能演示
+                  🎮 Feature Demo
                 </Link>
                 <Link 
                   href="/fusion/shared/settings"
                   className="block p-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
                 >
-                  ⚙️ 设置中心
+                  ⚙️ Settings Center
                 </Link>
                 <a 
                   href="https://discord.gg/1inch"
@@ -537,7 +537,7 @@ export default function HelpPage() {
                   rel="noopener noreferrer"
                   className="block p-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
                 >
-                  💬 社区支持 ↗
+                  💬 Community Support ↗
                 </a>
               </div>
             </div>
@@ -562,15 +562,15 @@ export default function HelpPage() {
 
                 {/* Feedback */}
                 <div className="mt-8 pt-6 border-t border-gray-200">
-                  <h3 className="font-medium text-gray-900 mb-4">这篇文章对您有帮助吗？</h3>
+                  <h3 className="font-medium text-gray-900 mb-4">Was this article helpful?</h3>
                   <div className="flex space-x-4">
                     <button className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
                       <span>👍</span>
-                      <span>有帮助</span>
+                      <span>Helpful</span>
                     </button>
                     <button className="flex items-center space-x-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
                       <span>👎</span>
-                      <span>需要改进</span>
+                      <span>Needs Improvement</span>
                     </button>
                   </div>
                 </div>
@@ -578,8 +578,8 @@ export default function HelpPage() {
             ) : (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">📚</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">选择一个主题</h3>
-                <p className="text-gray-600">从左侧菜单选择您想了解的内容</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Select a Topic</h3>
+                <p className="text-gray-600">Choose what you want to learn from the left menu</p>
               </div>
             )}
           </div>
@@ -590,15 +590,15 @@ export default function HelpPage() {
       <div className="mt-8 bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-200">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-purple-900 mb-2">还有其他问题？</h3>
-            <p className="text-purple-700 text-sm">联系我们的支持团队获取个性化帮助</p>
+            <h3 className="font-semibold text-purple-900 mb-2">Have other questions?</h3>
+            <p className="text-purple-700 text-sm">Contact our support team for personalized help</p>
           </div>
           <div className="flex space-x-4">
             <a 
               href="mailto:support@1inch.io"
               className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
-              📧 发送邮件
+              📧 Send Email
             </a>
             <a 
               href="https://discord.gg/1inch"
@@ -606,7 +606,7 @@ export default function HelpPage() {
               rel="noopener noreferrer"
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
-              💬 加入 Discord
+              💬 Join Discord
             </a>
           </div>
         </div>

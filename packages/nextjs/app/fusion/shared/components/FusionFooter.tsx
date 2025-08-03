@@ -14,19 +14,19 @@ const FusionFooter: React.FC = () => {
               href="/fusion/shared/help" 
               className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
             >
-              帮助文档
+              Help Documentation
             </Link>
             <Link 
               href="/fusion/shared/demo" 
               className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
             >
-              功能演示
+              Feature Demo
             </Link>
             <Link 
               href="/fusion/resolver" 
               className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
             >
-              解析器管理
+              Resolver Management
             </Link>
           </div>
           
@@ -34,7 +34,7 @@ const FusionFooter: React.FC = () => {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-600">系统运行正常</span>
+              <span className="text-sm text-gray-600">System Running Normally</span>
             </div>
           </div>
           
@@ -48,13 +48,13 @@ const FusionFooter: React.FC = () => {
         <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
             <div className="text-xs text-gray-500">
-              支持的网络: Ethereum, Sui | 版本: v2.0.0
+              Supported Networks: Ethereum, Sui | Version: v2.0.0
             </div>
             
             <div className="flex items-center space-x-4 text-xs text-gray-500">
-              <span>最后更新: {new Date().toLocaleDateString('zh-CN')}</span>
+              <span>Last Updated: {new Date().toLocaleDateString('en-US')}</span>
               <span>•</span>
-              <span>服务状态: 正常</span>
+              <span>Service Status: Normal</span>
             </div>
           </div>
         </div>

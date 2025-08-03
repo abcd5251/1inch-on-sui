@@ -199,3 +199,10 @@ export interface AuctionParams {
   minFillAmount?: string;
   partialFillAllowed?: boolean;
 }
+
+// Preset enumeration for fusion swap speed settings
+export enum PresetEnum {
+  fast = 'fast',
+  medium = 'medium',
+  slow = 'slow'
+}

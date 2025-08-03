@@ -48,7 +48,7 @@ export class TestDataGenerator {
       maker: '0x1234567890123456789012345678901234567890',
       taker: '0x0987654321098765432109876543210987654321',
       makingAmount: '1000000000000000000', // 1 ETH
-      takingAmount: '2000000000', // 2000 SUI
+      takingAmount: '963888888889', // ~964 SUI at $3.6/SUI for 1 ETH ($3466)
       makingToken: '0x0000000000000000000000000000000000000000', // ETH
       takingToken: '0x2::sui::SUI', // SUI
       sourceChain: 'ethereum',

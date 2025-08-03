@@ -36,6 +36,9 @@ export type {
   AuctionParams
 } from './types';
 
+// Enum exports
+export { PresetEnum } from './types';
+
 // Utility exports
 export {
   TokenFormatter,

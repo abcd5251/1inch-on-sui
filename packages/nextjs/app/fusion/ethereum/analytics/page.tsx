@@ -23,20 +23,20 @@ interface AnalyticsData {
 }
 
 const mockAnalyticsData: AnalyticsData = {
-  totalVolume: '$2,450,000',
+  totalVolume: '$4,720,000',
   totalOrders: 1247,
   avgGasSaved: '23%',
   successRate: 98.5,
   topTokens: [
-    { symbol: 'USDC', volume: '$850,000', change24h: 12.5 },
-    { symbol: 'WETH', volume: '$720,000', change24h: -3.2 },
-    { symbol: 'USDT', volume: '$480,000', change24h: 8.7 },
-    { symbol: 'DAI', volume: '$400,000', change24h: 15.3 }
+    { symbol: 'USDC', volume: '$1,635,000', change24h: 12.5 },
+    { symbol: 'WETH', volume: '$1,385,000', change24h: -3.2 },
+    { symbol: 'USDT', volume: '$925,000', change24h: 8.7 },
+    { symbol: 'DAI', volume: '$775,000', change24h: 15.3 }
   ],
   recentActivity: [
     {
       type: 'order_filled',
-      amount: '1,000',
+      amount: '3,466',
       token: 'USDC',
       time: '2025-07-27 12:28:00',
       txHash: '0xabc123...def456'
@@ -50,7 +50,7 @@ const mockAnalyticsData: AnalyticsData = {
     },
     {
       type: 'order_created',
-      amount: '2,500',
+      amount: '6,932',
       token: 'USDT',
       time: '2025-07-27 12:22:00',
       txHash: '0xghi789...jkl012'
@@ -73,30 +73,30 @@ export default function EthereumAnalyticsPage() {
 
   const getActivityText = (type: string) => {
     switch (type) {
-      case 'swap': return '即时交换';
-      case 'order_created': return '创建订单';
-      case 'order_filled': return '订单完成';
-      default: return '未知活动';
+      case 'swap': return 'Instant Swap';
+      case 'order_created': return 'Order Created';
+      case 'order_filled': return 'Order Filled';
+      default: return 'Unknown Activity';
     }
   };
 
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">以太坊分析</h1>
-        <p className="text-gray-600">实时监控 Fusion 在以太坊网络上的表现</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Ethereum Analytics</h1>
+        <p className="text-gray-600">Real-time monitoring of Fusion performance on Ethereum network</p>
       </div>
 
       {/* Time Range Selector */}
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">时间范围</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Time Range</h2>
           <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
             {[
-              { key: '24h', label: '24小时' },
-              { key: '7d', label: '7天' },
-              { key: '30d', label: '30天' },
-              { key: '90d', label: '90天' }
+              { key: '24h', label: '24 Hours' },
+              { key: '7d', label: '7 Days' },
+              { key: '30d', label: '30 Days' },
+              { key: '90d', label: '90 Days' }
             ].map(range => (
               <button
                 key={range.key}
@@ -124,7 +124,7 @@ export default function EthereumAnalyticsPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-gray-900 mb-1">{data.totalVolume}</div>
-          <div className="text-sm text-gray-600">总交易量</div>
+          <div className="text-sm text-gray-600">Total Volume</div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-6">
@@ -135,7 +135,7 @@ export default function EthereumAnalyticsPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-gray-900 mb-1">{data.totalOrders.toLocaleString()}</div>
-          <div className="text-sm text-gray-600">总订单数</div>
+          <div className="text-sm text-gray-600">Total Orders</div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-6">
@@ -146,7 +146,7 @@ export default function EthereumAnalyticsPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-gray-900 mb-1">{data.avgGasSaved}</div>
-          <div className="text-sm text-gray-600">平均Gas节省</div>
+          <div className="text-sm text-gray-600">Avg Gas Saved</div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-6">
@@ -157,7 +157,7 @@ export default function EthereumAnalyticsPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-gray-900 mb-1">{data.successRate}%</div>
-          <div className="text-sm text-gray-600">成功率</div>
+          <div className="text-sm text-gray-600">Success Rate</div>
         </div>
       </div>
 
@@ -165,12 +165,12 @@ export default function EthereumAnalyticsPage() {
         {/* Top Tokens */}
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">热门代币</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Top Tokens</h2>
             <Link 
               href="/fusion/ethereum/tokens"
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
-              查看全部 →
+              View All →
             </Link>
           </div>
           <div className="space-y-4">
@@ -198,12 +198,12 @@ export default function EthereumAnalyticsPage() {
         {/* Recent Activity */}
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">最近活动</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
             <Link 
               href="/fusion/ethereum/orders"
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
-              查看全部 →
+              View All →
             </Link>
           </div>
           <div className="space-y-4">
@@ -226,7 +226,7 @@ export default function EthereumAnalyticsPage() {
                     rel="noopener noreferrer"
                     className="text-xs text-blue-600 hover:text-blue-800"
                   >
-                    查看交易 ↗
+                    View Transaction ↗
                   </a>
                 </div>
               </div>
@@ -238,23 +238,23 @@ export default function EthereumAnalyticsPage() {
       {/* Charts Placeholder */}
       <div className="mt-8 grid lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">交易量趋势</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Volume Trends</h2>
           <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
             <div className="text-center">
               <div className="text-4xl mb-2">📈</div>
-              <div className="text-gray-600">交易量图表</div>
-              <div className="text-sm text-gray-500 mt-1">即将推出</div>
+              <div className="text-gray-600">Volume Chart</div>
+              <div className="text-sm text-gray-500 mt-1">Coming Soon</div>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Gas 费用分析</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Gas Fee Analysis</h2>
           <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
             <div className="text-center">
               <div className="text-4xl mb-2">⛽</div>
-              <div className="text-gray-600">Gas费用图表</div>
-              <div className="text-sm text-gray-500 mt-1">即将推出</div>
+              <div className="text-gray-600">Gas Fee Chart</div>
+              <div className="text-sm text-gray-500 mt-1">Coming Soon</div>
             </div>
           </div>
         </div>
@@ -262,21 +262,21 @@ export default function EthereumAnalyticsPage() {
 
       {/* Network Status */}
       <div className="mt-8 bg-white rounded-2xl shadow-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">网络状态</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Network Status</h2>
         <div className="grid md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-2xl mb-2">🟢</div>
-            <div className="font-semibold text-gray-900">网络状态</div>
-            <div className="text-sm text-green-600">正常运行</div>
+            <div className="font-semibold text-gray-900">Network Status</div>
+            <div className="text-sm text-green-600">Normal</div>
           </div>
           <div className="text-center">
             <div className="text-2xl mb-2">⚡</div>
-            <div className="font-semibold text-gray-900">当前 Gas Price</div>
+            <div className="font-semibold text-gray-900">Current Gas Price</div>
             <div className="text-sm text-gray-600">25 Gwei</div>
           </div>
           <div className="text-center">
             <div className="text-2xl mb-2">🔗</div>
-            <div className="font-semibold text-gray-900">最新区块</div>
+            <div className="font-semibold text-gray-900">Latest Block</div>
             <div className="text-sm text-gray-600">#18,950,123</div>
           </div>
         </div>

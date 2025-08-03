@@ -32,7 +32,7 @@ export default function TestPage() {
     setTestResults(prev => [...prev, test]);
   };
 
-  // 1. 健康检查测试
+  // 1. Health check test
   const testHealthCheck = async () => {
     const testName = "Health Check";
     updateTestResult(testName, { status: "running", message: "Testing relayer health..." });
@@ -67,7 +67,7 @@ export default function TestPage() {
     }
   };
 
-  // 2. CRUD操作测试
+  // 2. CRUD operations test
   const testCrudOperations = async () => {
     const testName = "CRUD Operations";
     updateTestResult(testName, { status: "running", message: "Testing CRUD operations..." });
@@ -132,7 +132,7 @@ export default function TestPage() {
     }
   };
 
-  // 3. 统计数据测试
+  // 3. Statistics data test
   const testStatistics = async () => {
     const testName = "Statistics";
     updateTestResult(testName, { status: "running", message: "Testing statistics..." });
@@ -167,7 +167,7 @@ export default function TestPage() {
     }
   };
 
-  // 4. WebSocket测试
+  // 4. WebSocket test
   const testWebSocket = async () => {
     const testName = "WebSocket";
     updateTestResult(testName, { status: "running", message: "Testing WebSocket connection..." });
@@ -242,7 +242,7 @@ export default function TestPage() {
     }
   };
 
-  // 5. 错误处理测试
+  // 5. Error handling test
   const testErrorHandling = async () => {
     const testName = "Error Handling";
     updateTestResult(testName, { status: "running", message: "Testing error handling..." });
@@ -278,7 +278,7 @@ export default function TestPage() {
     }
   };
 
-  // 6. 性能测试
+  // 6. Performance test
   const testPerformance = async () => {
     const testName = "Performance";
     updateTestResult(testName, { status: "running", message: "Testing performance..." });
@@ -319,13 +319,13 @@ export default function TestPage() {
     }
   };
 
-  // 运行所有测试
+  // Run all tests
   const runAllTests = async () => {
     setIsRunning(true);
     setTestResults([]);
     setWsMessages([]);
 
-    // 初始化测试结果
+    // Initialize test results
     const tests = [
       { name: "Health Check", status: "pending" as const, message: "Waiting to start..." },
       { name: "CRUD Operations", status: "pending" as const, message: "Waiting to start..." },
@@ -361,7 +361,7 @@ export default function TestPage() {
     }
   };
 
-  // 运行单个测试
+  // Run single test
   const runSingleTest = async (testName: string) => {
     setIsRunning(true);
     
@@ -375,7 +375,7 @@ export default function TestPage() {
     };
 
     if (testFunctions[testName]) {
-      // 初始化单个测试结果
+      // Initialize single test result
       setTestResults([{ name: testName, status: "pending", message: "Waiting to start..." }]);
       await testFunctions[testName]();
     }
@@ -383,7 +383,7 @@ export default function TestPage() {
     setIsRunning(false);
   };
 
-  // 清理WebSocket连接
+  // Clean up WebSocket connections
   useEffect(() => {
     return () => {
       if (wsRef.current) {

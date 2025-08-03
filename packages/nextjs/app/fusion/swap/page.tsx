@@ -35,7 +35,7 @@ const NETWORK_CONFIG = {
     name: 'Ethereum',
     color: 'blue',
     features: ['slippage', 'deadline'],
-    mockRate: 1800, // ETH to USDC
+    mockRate: 3466, // ETH to USDC
     networkFee: '$12.50',
     executionTime: '< 30 seconds',
   },

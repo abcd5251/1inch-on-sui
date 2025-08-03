@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface UserPreferences {
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'auto';
   defaultNetwork: 'ethereum' | 'sui';
   autoSwitchNetwork: boolean;
   showAdvancedFeatures: boolean;
@@ -33,7 +33,7 @@ export const FusionProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // 从localStorage加载用户偏好
+  // Load user preferences from localStorage
   useEffect(() => {
     const savedPreferences = localStorage.getItem('fusion-preferences');
     if (savedPreferences) {
@@ -48,19 +48,19 @@ export const FusionProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  // 保存用户偏好到localStorage
+  // Save user preferences to localStorage
   const updatePreferences = (newPreferences: Partial<UserPreferences>) => {
     const updated = { ...userPreferences, ...newPreferences };
     setUserPreferences(updated);
     localStorage.setItem('fusion-preferences', JSON.stringify(updated));
   };
 
-  // 智能网络切换
+  // Smart network switching
   const handleNetworkChange = (network: 'ethereum' | 'sui') => {
     setSelectedNetwork(network);
     updatePreferences({ defaultNetwork: network });
     
-    // 智能路由切换逻辑
+    // Smart routing switch logic
     if (userPreferences.autoSwitchNetwork) {
       const currentPath = window.location.pathname;
       if (currentPath.includes('/fusion/')) {
@@ -70,7 +70,7 @@ export const FusionProvider = ({ children }: { children: React.ReactNode }) => {
         if (fusionIndex !== -1 && pathParts[fusionIndex + 1]) {
           const currentSection = pathParts[fusionIndex + 1];
           
-          // 如果当前在特定网络页面，切换到对应网络
+          // If currently on a specific network page, switch to corresponding network
           if (currentSection === 'ethereum' || currentSection === 'sui') {
             const newPath = currentPath.replace(
               `/fusion/${currentSection}/`,

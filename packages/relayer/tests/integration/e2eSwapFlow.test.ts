@@ -147,8 +147,8 @@ describe('End-to-End Cross-Chain Swap Flow Tests', () => {
         ...TestDataGenerator.generateSwapParams(),
         sourceChain: 'ethereum',
         targetChain: 'sui',
-        makingAmount: '1000000000000000000', // 1 ETH
-        takingAmount: '2000000000', // 2000 SUI
+        makingAmount: '1000000000000000000', // 1 ETH ($3466)
+        takingAmount: '3600000000', // 3600 SUI ($3.6)
         secretHash,
       };
 
@@ -218,8 +218,8 @@ describe('End-to-End Cross-Chain Swap Flow Tests', () => {
         ...TestDataGenerator.generateSwapParams(),
         sourceChain: 'sui',
         targetChain: 'ethereum',
-        makingAmount: '2000000000', // 2000 SUI
-        takingAmount: '1000000000000000000', // 1 ETH
+        makingAmount: '1000000000000000000', // 1000 SUI ($3.6)
+        takingAmount: '288701562500000000', // ~0.289 ETH ($3466)
         secretHash,
       };
 

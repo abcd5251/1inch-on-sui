@@ -46,7 +46,7 @@ export const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     <div className={`network-selector ${className}`}>
       {showLabel && (
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          选择网络
+          Select Network
         </label>
       )}
       
@@ -78,7 +78,7 @@ export const NetworkSelector: React.FC<NetworkSelectorProps> = ({
       </div>
       
       <div className="mt-2 text-xs text-gray-500">
-        当前选择: {networks.find(n => n.id === selectedNetwork)?.name}
+        Current Selection: {networks.find(n => n.id === selectedNetwork)?.name}
       </div>
     </div>
   );

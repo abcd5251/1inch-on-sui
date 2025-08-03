@@ -12,83 +12,83 @@ const FusionSidebar: React.FC = () => {
   
   const menuItems = [
     {
-      category: '交易功能',
+      category: 'Trading Features',
       items: [
         {
-          label: '快速交易',
+          label: 'Quick Trade',
           href: `/fusion/${selectedNetwork}/swap`,
           icon: '🔄',
-          description: '执行代币交换'
+          description: 'Execute token swaps'
         },
         {
-          label: '订单管理',
+          label: 'Order Management',
           href: `/fusion/${selectedNetwork}/orders`,
           icon: '📋',
-          description: '管理交易订单'
+          description: 'Manage trading orders'
         },
         {
-          label: '活跃订单',
+          label: 'Active Orders',
           href: `/fusion/${selectedNetwork}/orders/active`,
           icon: '⚡',
-          description: '查看活跃订单'
+          description: 'View active orders'
         },
         {
-          label: '历史记录',
+          label: 'Order History',
           href: `/fusion/${selectedNetwork}/orders/history`,
           icon: '📜',
-          description: '查看历史订单'
+          description: 'View order history'
         }
       ]
     },
     {
-      category: '数据分析',
+      category: 'Data Analytics',
       items: [
         {
-          label: '分析概览',
+          label: 'Analytics Overview',
           href: `/fusion/${selectedNetwork}/analytics`,
           icon: '📊',
-          description: '查看数据分析'
+          description: 'View data analytics'
         },
         {
-          label: '交易量分析',
+          label: 'Volume Analysis',
           href: `/fusion/${selectedNetwork}/analytics/volume`,
           icon: '📈',
-          description: '交易量统计'
+          description: 'Trading volume statistics'
         },
         {
-          label: '性能分析',
+          label: 'Performance Analysis',
           href: `/fusion/${selectedNetwork}/analytics/performance`,
           icon: '⚡',
-          description: '性能指标'
+          description: 'Performance metrics'
         }
       ]
     },
     {
-      category: '工具与设置',
+      category: 'Tools & Settings',
       items: [
         {
-          label: '功能演示',
+          label: 'Feature Demo',
           href: '/fusion/shared/demo',
           icon: '🎮',
-          description: '功能演示'
+          description: 'Feature demonstration'
         },
         {
-          label: '解析器管理',
+          label: 'Resolver Management',
           href: '/fusion/resolver',
           icon: '🔧',
-          description: '管理解析器'
+          description: 'Manage resolvers'
         },
         {
-          label: '设置',
+          label: 'Settings',
           href: '/fusion/shared/settings',
           icon: '⚙️',
-          description: '用户设置'
+          description: 'User settings'
         },
         {
-          label: '帮助',
+          label: 'Help',
           href: '/fusion/shared/help',
           icon: '❓',
-          description: '帮助文档'
+          description: 'Help documentation'
         }
       ]
     }
@@ -106,7 +106,7 @@ const FusionSidebar: React.FC = () => {
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="w-full flex items-center justify-between text-gray-600 hover:text-gray-900 transition-colors"
         >
-          {!isCollapsed && <span className="font-medium">导航菜单</span>}
+          {!isCollapsed && <span className="font-medium">Navigation Menu</span>}
           <svg 
             className={`w-5 h-5 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} 
             fill="none" 
@@ -175,10 +175,10 @@ const FusionSidebar: React.FC = () => {
                 selectedNetwork === 'ethereum' ? 'bg-blue-500' : 'bg-cyan-500'
               }`}></div>
               <span className="text-sm font-medium text-gray-700">
-                {selectedNetwork === 'ethereum' ? 'Ethereum' : 'Sui'} 网络
+                {selectedNetwork === 'ethereum' ? 'Ethereum' : 'Sui'} Network
               </span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">连接正常</p>
+            <p className="text-xs text-gray-500 mt-1">Connected</p>
           </div>
         </div>
       )}

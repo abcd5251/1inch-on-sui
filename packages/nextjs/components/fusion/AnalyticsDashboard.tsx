@@ -1,3 +1,20 @@
+/**
+ * Advanced Analytics Dashboard for 1inch Fusion
+ * 
+ * Comprehensive analytics interface showing real-time protocol metrics,
+ * trading volume charts, resolver activity, and protocol health indicators.
+ * 
+ * Features:
+ * - Real-time protocol metrics with trend indicators
+ * - Interactive trading volume charts with multiple timeframes
+ * - Recent trades monitoring with live updates
+ * - Protocol health status indicators
+ * - Responsive design with loading states
+ * - Mock data generation for demo purposes
+ * 
+ * @component
+ * @author 1inch-on-Sui Hackathon Team
+ */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -53,7 +70,7 @@ export const AnalyticsDashboard = () => {
           time: time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           volume: Math.random() * 100000 + 50000,
           trades: Math.floor(Math.random() * 100) + 20,
-          price: 2000 + Math.random() * 200 - 100,
+          price: 3466 + Math.random() * 200 - 100,
         });
       }
       return data;

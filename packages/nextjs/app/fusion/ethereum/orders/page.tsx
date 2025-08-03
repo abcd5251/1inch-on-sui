@@ -25,7 +25,7 @@ const mockOrders: Order[] = [
     fromToken: 'ETH',
     toToken: 'USDC',
     fromAmount: '1.0',
-    toAmount: '1800.0',
+    toAmount: '3466.0',
     createdAt: '2025-07-27 10:30:00',
     expiresAt: '2025-07-27 10:50:00',
     txHash: '0xabcd...efgh',
@@ -37,7 +37,7 @@ const mockOrders: Order[] = [
     status: 'pending',
     fromToken: 'USDC',
     toToken: 'ETH',
-    fromAmount: '2000.0',
+    fromAmount: '3812.6',
     toAmount: '1.1',
     createdAt: '2025-07-27 11:00:00',
     expiresAt: '2025-07-27 12:00:00',
@@ -73,11 +73,11 @@ export default function EthereumOrdersPage() {
 
   const getStatusText = (status: Order['status']) => {
     switch (status) {
-      case 'filled': return '已完成';
-      case 'pending': return '进行中';
-      case 'cancelled': return '已取消';
-      case 'expired': return '已过期';
-      default: return '未知';
+      case 'filled': return 'Filled';
+      case 'pending': return 'Pending';
+      case 'cancelled': return 'Cancelled';
+      case 'expired': return 'Expired';
+      default: return 'Unknown';
     }
   };
 
@@ -92,23 +92,23 @@ export default function EthereumOrdersPage() {
       <div className="bg-white rounded-2xl shadow-lg p-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">以太坊订单</h1>
-            <p className="text-gray-600">管理您的交易订单</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Ethereum Orders</h1>
+            <p className="text-gray-600">Manage your trading orders</p>
           </div>
           <Link 
             href="/fusion/ethereum/swap"
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
-            创建新订单
+            Create New Order
           </Link>
         </div>
 
         {/* Tabs */}
         <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-8">
           {[
-            { key: 'all', label: '全部订单' },
-            { key: 'active', label: '活跃订单' },
-            { key: 'history', label: '历史订单' }
+            { key: 'all', label: 'All Orders' },
+            { key: 'active', label: 'Active Orders' },
+            { key: 'history', label: 'Order History' }
           ].map(tab => (
             <button
               key={tab.key}
@@ -129,13 +129,13 @@ export default function EthereumOrdersPage() {
           {filteredOrders.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">📋</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">暂无订单</h3>
-              <p className="text-gray-600 mb-6">您还没有任何交易订单</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Orders</h3>
+              <p className="text-gray-600 mb-6">You don't have any trading orders yet</p>
               <Link 
                 href="/fusion/ethereum/swap"
                 className="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
               >
-                创建第一个订单
+                Create First Order
               </Link>
             </div>
           ) : (
@@ -147,35 +147,35 @@ export default function EthereumOrdersPage() {
                       {getStatusText(order.status)}
                     </div>
                     <div className="text-sm text-gray-500">
-                      订单 ID: {order.id}
+                      Order ID: {order.id}
                     </div>
                   </div>
                   <div className="text-sm text-gray-500">
-                    {order.type === 'swap' ? '市价交换' : '限价订单'}
+                    {order.type === 'swap' ? 'Market Swap' : 'Limit Order'}
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-4 gap-6">
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">发送</div>
+                    <div className="text-sm text-gray-500 mb-1">Send</div>
                     <div className="font-semibold text-gray-900">
                       {order.fromAmount} {order.fromToken}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">接收</div>
+                    <div className="text-sm text-gray-500 mb-1">Receive</div>
                     <div className="font-semibold text-gray-900">
                       {order.toAmount} {order.toToken}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">创建时间</div>
+                    <div className="text-sm text-gray-500 mb-1">Created At</div>
                     <div className="font-semibold text-gray-900">
                       {order.createdAt}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">过期时间</div>
+                    <div className="text-sm text-gray-500 mb-1">Expires At</div>
                     <div className="font-semibold text-gray-900">
                       {order.expiresAt}
                     </div>
@@ -185,7 +185,7 @@ export default function EthereumOrdersPage() {
                 {order.fillPercentage > 0 && order.fillPercentage < 100 && (
                   <div className="mt-4">
                     <div className="flex justify-between text-sm text-gray-600 mb-2">
-                      <span>填充进度</span>
+                      <span>Fill Progress</span>
                       <span>{order.fillPercentage}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -206,19 +206,19 @@ export default function EthereumOrdersPage() {
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                       >
-                        查看交易 ↗
+                        View Transaction ↗
                       </a>
                     )}
                     <Link 
                       href={`/fusion/ethereum/orders/${order.id}`}
                       className="text-gray-600 hover:text-gray-800 text-sm font-medium"
                     >
-                      查看详情
+                      View Details
                     </Link>
                   </div>
                   {order.status === 'pending' && (
                     <button className="text-red-600 hover:text-red-800 text-sm font-medium">
-                      取消订单
+                      Cancel Order
                     </button>
                   )}
                 </div>
@@ -234,25 +234,25 @@ export default function EthereumOrdersPage() {
               <div className="text-2xl font-bold text-blue-600 mb-2">
                 {orders.filter(o => o.status === 'pending').length}
               </div>
-              <div className="text-sm text-blue-700">活跃订单</div>
+              <div className="text-sm text-blue-700">Active Orders</div>
             </div>
             <div className="bg-green-50 rounded-xl p-6 text-center">
               <div className="text-2xl font-bold text-green-600 mb-2">
                 {orders.filter(o => o.status === 'filled').length}
               </div>
-              <div className="text-sm text-green-700">已完成</div>
+              <div className="text-sm text-green-700">Completed</div>
             </div>
             <div className="bg-purple-50 rounded-xl p-6 text-center">
               <div className="text-2xl font-bold text-purple-600 mb-2">
                 {orders.length}
               </div>
-              <div className="text-sm text-purple-700">总订单数</div>
+              <div className="text-sm text-purple-700">Total Orders</div>
             </div>
             <div className="bg-orange-50 rounded-xl p-6 text-center">
               <div className="text-2xl font-bold text-orange-600 mb-2">
                 {Math.round(orders.filter(o => o.status === 'filled').length / orders.length * 100)}%
               </div>
-              <div className="text-sm text-orange-700">成功率</div>
+              <div className="text-sm text-orange-700">Success Rate</div>
             </div>
           </div>
         )}

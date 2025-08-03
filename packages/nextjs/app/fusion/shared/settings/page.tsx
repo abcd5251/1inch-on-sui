@@ -13,43 +13,60 @@ interface SettingsSection {
 const settingsSections: SettingsSection[] = [
   {
     id: 'general',
-    title: '通用设置',
-    description: '基本偏好和界面设置',
+    title: 'General Settings',
+    description: 'Basic preferences and interface settings',
     icon: '⚙️'
   },
   {
     id: 'trading',
-    title: '交易设置',
-    description: '交易相关的默认参数',
+    title: 'Trading Settings',
+    description: 'Default trading parameters',
     icon: '💱'
   },
   {
     id: 'notifications',
-    title: '通知设置',
-    description: '订单状态和系统通知',
+    title: 'Notification Settings',
+    description: 'Order status and system notifications',
     icon: '🔔'
   },
   {
     id: 'security',
-    title: '安全设置',
-    description: '钱包连接和安全选项',
+    title: 'Security Settings',
+    description: 'Wallet connection and security options',
     icon: '🔒'
   },
   {
     id: 'advanced',
-    title: '高级设置',
-    description: '开发者选项和实验功能',
+    title: 'Advanced Settings',
+    description: 'Developer options and experimental features',
     icon: '🔬'
   }
 ];
 
 export default function SettingsPage() {
   const {
-    preferences,
+    userPreferences,
     updatePreferences,
     selectedNetwork,
-    setSelectedNetwork
+    setSelectedNetwork,
+    isLoading
   } = useFusion();
+
+  // If still loading, show loading state
+  if (isLoading) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading settings...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   const [activeSection, setActiveSection] = useState<string>('general');
   const [tempSettings, setTempSettings] = useState({
@@ -65,9 +82,9 @@ export default function SettingsPage() {
   });
 
   const handleSaveSettings = () => {
-    // 这里应该保存设置到本地存储或后端
-    console.log('保存设置:', tempSettings);
-    // 可以显示成功提示
+    // Settings should be saved to local storage or backend here
+    console.log('Save settings:', tempSettings);
+    // Success notification can be shown here
   };
 
   const handleResetSettings = () => {
@@ -88,7 +105,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          默认网络
+          Default Network
         </label>
         <select
           value={selectedNetwork}
@@ -102,28 +119,28 @@ export default function SettingsPage() {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          主题
+          Theme
         </label>
         <select
-          value={preferences.theme}
+          value={userPreferences?.theme || 'light'}
           onChange={(e) => updatePreferences({ theme: e.target.value as 'light' | 'dark' | 'auto' })}
           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
-          <option value="light">浅色</option>
-          <option value="dark">深色</option>
-          <option value="auto">跟随系统</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="auto">Follow System</option>
         </select>
       </div>
 
       <div className="flex items-center justify-between">
         <div>
-          <div className="font-medium text-gray-900">自动切换网络</div>
-          <div className="text-sm text-gray-600">根据交易对自动切换到对应网络</div>
+          <div className="font-medium text-gray-900">Auto Switch Network</div>
+          <div className="text-sm text-gray-600">Automatically switch to corresponding network based on trading pair</div>
         </div>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
-            checked={preferences.autoSwitchNetwork}
+            checked={userPreferences?.autoSwitchNetwork || false}
             onChange={(e) => updatePreferences({ autoSwitchNetwork: e.target.checked })}
             className="sr-only peer"
           />
@@ -133,13 +150,13 @@ export default function SettingsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <div className="font-medium text-gray-900">显示高级功能</div>
-          <div className="text-sm text-gray-600">显示专家级交易选项和工具</div>
+          <div className="font-medium text-gray-900">Show Advanced Features</div>
+          <div className="text-sm text-gray-600">Display expert-level trading options and tools</div>
         </div>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
-            checked={preferences.showAdvancedFeatures}
+            checked={userPreferences?.showAdvancedFeatures || false}
             onChange={(e) => updatePreferences({ showAdvancedFeatures: e.target.checked })}
             className="sr-only peer"
           />
@@ -153,7 +170,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          滑点容忍度 (%)
+          Slippage Tolerance (%)
         </label>
         <input
           type="number"
@@ -168,7 +185,7 @@ export default function SettingsPage() {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          交易期限 (分钟)
+          Transaction Deadline (minutes)
         </label>
         <input
           type="number"
@@ -182,24 +199,24 @@ export default function SettingsPage() {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Gas 价格策略
+          Gas Price Strategy
         </label>
         <select
           value={tempSettings.gasPrice}
           onChange={(e) => setTempSettings({ ...tempSettings, gasPrice: e.target.value })}
           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
-          <option value="slow">慢速 (节省费用)</option>
-          <option value="standard">标准</option>
-          <option value="fast">快速</option>
-          <option value="custom">自定义</option>
+          <option value="slow">Slow (Save Fees)</option>
+          <option value="standard">Standard</option>
+          <option value="fast">Fast</option>
+          <option value="custom">Custom</option>
         </select>
       </div>
 
       <div className="flex items-center justify-between">
         <div>
-          <div className="font-medium text-gray-900">自动批准代币</div>
-          <div className="text-sm text-gray-600">自动批准常用代币的交易授权</div>
+          <div className="font-medium text-gray-900">Auto Approve Tokens</div>
+          <div className="text-sm text-gray-600">Automatically approve transaction authorization for common tokens</div>
         </div>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -218,8 +235,8 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <div className="font-medium text-gray-900">声音提醒</div>
-          <div className="text-sm text-gray-600">交易完成时播放提示音</div>
+          <div className="font-medium text-gray-900">Sound Alerts</div>
+          <div className="text-sm text-gray-600">Play notification sound when transaction completes</div>
         </div>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -234,8 +251,8 @@ export default function SettingsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <div className="font-medium text-gray-900">邮件通知</div>
-          <div className="text-sm text-gray-600">重要事件的邮件提醒</div>
+          <div className="font-medium text-gray-900">Email Notifications</div>
+          <div className="text-sm text-gray-600">Email alerts for important events</div>
         </div>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -250,8 +267,8 @@ export default function SettingsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <div className="font-medium text-gray-900">推送通知</div>
-          <div className="text-sm text-gray-600">浏览器推送通知</div>
+          <div className="font-medium text-gray-900">Push Notifications</div>
+          <div className="text-sm text-gray-600">Browser push notifications</div>
         </div>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -272,9 +289,9 @@ export default function SettingsPage() {
         <div className="flex items-start space-x-3">
           <div className="text-xl">⚠️</div>
           <div>
-            <h3 className="font-medium text-yellow-800">安全提醒</h3>
+            <h3 className="font-medium text-yellow-800">Security Reminder</h3>
             <p className="text-sm text-yellow-700 mt-1">
-              请确保只在受信任的设备上使用，并定期检查钱包连接状态。
+              Please ensure you only use this on trusted devices and regularly check wallet connection status.
             </p>
           </div>
         </div>
@@ -283,21 +300,21 @@ export default function SettingsPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
           <div>
-            <div className="font-medium text-gray-900">钱包连接状态</div>
-            <div className="text-sm text-green-600">已连接 MetaMask</div>
+            <div className="font-medium text-gray-900">Wallet Connection Status</div>
+            <div className="text-sm text-green-600">Connected to MetaMask</div>
           </div>
           <button className="text-red-600 hover:text-red-800 text-sm font-medium">
-            断开连接
+            Disconnect
           </button>
         </div>
 
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
           <div>
-            <div className="font-medium text-gray-900">会话超时</div>
-            <div className="text-sm text-gray-600">30 分钟无操作后自动断开</div>
+            <div className="font-medium text-gray-900">Session Timeout</div>
+            <div className="text-sm text-gray-600">Automatically disconnect after 30 minutes of inactivity</div>
           </div>
           <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-            修改
+            Modify
           </button>
         </div>
       </div>
@@ -308,8 +325,8 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <div className="font-medium text-gray-900">专家模式</div>
-          <div className="text-sm text-gray-600">启用高级交易功能和详细信息</div>
+          <div className="font-medium text-gray-900">Expert Mode</div>
+          <div className="text-sm text-gray-600">Enable advanced trading features and detailed information</div>
         </div>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -324,8 +341,8 @@ export default function SettingsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <div className="font-medium text-gray-900">测试网模式</div>
-          <div className="text-sm text-gray-600">使用测试网络进行交易</div>
+          <div className="font-medium text-gray-900">Testnet Mode</div>
+          <div className="text-sm text-gray-600">Use test networks for transactions</div>
         </div>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -340,18 +357,18 @@ export default function SettingsPage() {
 
       <div className="space-y-4">
         <button className="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-          <div className="font-medium text-gray-900">清除缓存数据</div>
-          <div className="text-sm text-gray-600">清除本地存储的交易历史和设置</div>
+          <div className="font-medium text-gray-900">Clear Cache Data</div>
+          <div className="text-sm text-gray-600">Clear locally stored transaction history and settings</div>
         </button>
 
         <button className="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-          <div className="font-medium text-gray-900">导出设置</div>
-          <div className="text-sm text-gray-600">导出当前设置配置文件</div>
+          <div className="font-medium text-gray-900">Export Settings</div>
+          <div className="text-sm text-gray-600">Export current settings configuration file</div>
         </button>
 
         <button className="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-          <div className="font-medium text-gray-900">导入设置</div>
-          <div className="text-sm text-gray-600">从配置文件导入设置</div>
+          <div className="font-medium text-gray-900">Import Settings</div>
+          <div className="text-sm text-gray-600">Import settings from configuration file</div>
         </button>
       </div>
     </div>
@@ -372,8 +389,8 @@ export default function SettingsPage() {
     <div className="max-w-6xl mx-auto p-6">
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         <div className="p-8 border-b border-gray-200">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">设置</h1>
-          <p className="text-gray-600">管理您的 Fusion 偏好设置和账户配置</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
+          <p className="text-gray-600">Manage your Fusion preferences and account configuration</p>
         </div>
 
         <div className="flex">
@@ -421,13 +438,13 @@ export default function SettingsPage() {
                 onClick={handleSaveSettings}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
               >
-                保存设置
+                Save Settings
               </button>
               <button
                 onClick={handleResetSettings}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors"
               >
-                重置为默认
+                Reset to Default
               </button>
             </div>
           </div>

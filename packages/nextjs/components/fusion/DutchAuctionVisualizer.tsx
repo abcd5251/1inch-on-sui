@@ -183,6 +183,26 @@ export const DutchAuctionVisualizer: React.FC<DutchAuctionVisualizerProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  // Calculate auction progress and status (moved up to fix variable order)
+  const totalDuration = auctionDetails.duration * 1000; // Convert to milliseconds
+  const elapsed = currentTime - auctionDetails.startTime;
+  const progress = Math.max(0, Math.min(1, elapsed / totalDuration));
+  const remainingTime = Math.max(0, auctionDetails.startTime + totalDuration - currentTime);
+
+  // Calculate current rate based on linear decay
+  const startRate = parseFloat(auctionDetails.startRate);
+  const endRate = parseFloat(auctionDetails.endRate);
+  const calculatedCurrentRate = startRate - (startRate - endRate) * progress;
+
+  // Use provided current rate or calculated rate
+  const displayRate = auctionDetails.currentRate 
+    ? parseFloat(auctionDetails.currentRate) 
+    : calculatedCurrentRate;
+
+  const isActive = remainingTime > 0 && (!order || order.status === 'pending');
+  const isExpired = remainingTime <= 0;
+  const isFilled = order?.status === 'filled';
+
   // Add occasional mock bids during auction
   useEffect(() => {
     if (!isActive || !showBidding) return;
@@ -281,25 +301,7 @@ export const DutchAuctionVisualizer: React.FC<DutchAuctionVisualizerProps> = ({
     }
   }, [isActive, remainingTime, bids, onAuctionEnd]);
 
-  // Calculate auction progress
-  const totalDuration = auctionDetails.endTime - auctionDetails.startTime;
-  const elapsed = currentTime - auctionDetails.startTime;
-  const progress = Math.max(0, Math.min(1, elapsed / totalDuration));
-  const remainingTime = Math.max(0, auctionDetails.endTime - currentTime);
-
-  // Calculate current rate based on linear decay
-  const startRate = parseFloat(auctionDetails.startRate);
-  const endRate = parseFloat(auctionDetails.endRate);
-  const calculatedCurrentRate = startRate - (startRate - endRate) * progress;
-
-  // Use provided current rate or calculated rate
-  const displayRate = auctionDetails.currentRate 
-    ? parseFloat(auctionDetails.currentRate) 
-    : calculatedCurrentRate;
-
-  const isActive = remainingTime > 0 && (!order || order.status === 'pending');
-  const isExpired = remainingTime <= 0;
-  const isFilled = order?.status === 'filled';
+  // Variables already calculated above
 
   const formatTime = (seconds: number): string => {
     if (seconds < 60) {

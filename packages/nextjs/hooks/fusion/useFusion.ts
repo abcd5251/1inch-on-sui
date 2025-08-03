@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { Order, Quote } from "~~/services/fusion";
+import { Order, Quote, MockFusionService } from "~~/services/fusion";
 import { FusionService, QuoteParams, SwapParams } from "~~/services/fusion/FusionService";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -11,6 +11,7 @@ export interface UseFusionConfig {
   network: string;
   rpcUrl: string;
   authKey?: string;
+  useMockService?: boolean; // Enable mock service for demo purposes
 }
 
 export interface FusionState {
@@ -24,7 +25,25 @@ export interface FusionState {
 
 export const useFusion = (config: UseFusionConfig) => {
   const { address } = useAccount();
-  const [fusionService] = useState(() => new FusionService(config));
+  
+  // Use MockFusionService for demo environment or when explicitly requested
+  const [fusionService] = useState(() => {
+    const isDemoMode = config.useMockService ?? 
+      (process.env.NODE_ENV === 'development' || 
+       process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+       !config.authKey); // Default to mock if no auth key provided
+    
+    if (isDemoMode) {
+      console.log('🎭 Using MockFusionService for demo purposes');
+      return new MockFusionService({
+        network: 'testnet',
+        rpcUrl: config.rpcUrl,
+      });
+    } else {
+      console.log('🚀 Using real FusionService');
+      return new FusionService(config);
+    }
+  });
   const [state, setState] = useState<FusionState>({
     isInitialized: false,
     isLoading: false,
@@ -52,7 +71,16 @@ export const useFusion = (config: UseFusionConfig) => {
     async (privateKey: string) => {
       try {
         updateState({ isLoading: true, error: null });
-        await fusionService.initializeWithPrivateKey(privateKey);
+        
+        // Check if it's MockFusionService
+        if (fusionService instanceof MockFusionService) {
+          // MockFusionService initializes automatically
+          await fusionService.initialize();
+        } else {
+          // Real FusionService needs private key initialization
+          await fusionService.initializeWithPrivateKey(privateKey);
+        }
+        
         updateState({ isInitialized: true, isLoading: false });
         notification.success("Fusion SDK initialized successfully");
       } catch (error) {
@@ -150,6 +178,19 @@ export const useFusion = (config: UseFusionConfig) => {
     },
     [fusionService],
   );
+
+  // Auto-initialize MockFusionService for demo purposes
+  useEffect(() => {
+    if (fusionService instanceof MockFusionService && !state.isInitialized) {
+      console.log('🎭 Auto-initializing MockFusionService');
+      fusionService.initialize().then(() => {
+        updateState({ isInitialized: true });
+        notification.success("Demo environment ready! 🎭");
+      }).catch(error => {
+        console.error('Failed to auto-initialize MockFusionService:', error);
+      });
+    }
+  }, [fusionService, state.isInitialized, updateState]);
 
   // Auto-load user orders when address changes
   useEffect(() => {

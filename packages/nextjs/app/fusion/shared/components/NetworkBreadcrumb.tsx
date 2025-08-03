@@ -11,19 +11,19 @@ interface NetworkBreadcrumbProps {
 const NetworkBreadcrumb: React.FC<NetworkBreadcrumbProps> = ({ network }) => {
   const pathname = usePathname();
   
-  // 解析路径生成面包屑
+  // Parse path to generate breadcrumbs
   const generateBreadcrumbs = () => {
     const pathParts = pathname.split('/').filter(Boolean);
     const breadcrumbs = [];
     
-    // 添加首页
+    // Add home page
     breadcrumbs.push({
       label: 'Fusion',
       href: '/fusion',
       isActive: false
     });
     
-    // 添加网络
+    // Add network
     const networkConfig = {
       ethereum: { label: 'Ethereum', icon: '⟠', color: 'text-blue-600' },
       sui: { label: 'Sui', icon: '🌊', color: 'text-cyan-600' }
@@ -38,10 +38,10 @@ const NetworkBreadcrumb: React.FC<NetworkBreadcrumbProps> = ({ network }) => {
       color: currentNetwork.color
     });
     
-    // 解析剩余路径
+    // Parse remaining path
     const fusionIndex = pathParts.indexOf('fusion');
     if (fusionIndex !== -1) {
-      const remainingParts = pathParts.slice(fusionIndex + 2); // 跳过 'fusion' 和 network
+      const remainingParts = pathParts.slice(fusionIndex + 2); // Skip 'fusion' and network
       
       let currentPath = `/fusion/${network}`;
       
@@ -49,18 +49,18 @@ const NetworkBreadcrumb: React.FC<NetworkBreadcrumbProps> = ({ network }) => {
         currentPath += `/${part}`;
         const isLast = index === remainingParts.length - 1;
         
-        // 转换路径名为友好显示名
+        // Convert path names to friendly display names
         const friendlyNames: Record<string, string> = {
-          'swap': '交易',
-          'orders': '订单',
-          'analytics': '分析',
-          'active': '活跃订单',
-          'history': '历史记录',
-          'volume': '交易量',
-          'performance': '性能分析',
-          'settings': '设置',
-          'help': '帮助',
-          'demo': '演示'
+          'swap': 'Trading',
+          'orders': 'Orders',
+          'analytics': 'Analytics',
+          'active': 'Active Orders',
+          'history': 'Order History',
+          'volume': 'Volume',
+          'performance': 'Performance',
+          'settings': 'Settings',
+          'help': 'Help',
+          'demo': 'Demo'
         };
         
         breadcrumbs.push({

@@ -32,14 +32,14 @@ const mockSuiOrders: SuiOrder[] = [
     fromToken: 'SUI',
     toToken: 'USDC',
     fromAmount: '100.0',
-    toAmount: '50.0',
+    toAmount: '360.0',
     createdAt: '2025-07-27 11:30:00',
     expiresAt: '2025-07-27 11:35:00',
     fillPercentage: 0,
     auctionDetails: {
-      startPrice: '52.5',
-      currentPrice: '51.2',
-      endPrice: '47.5',
+      startPrice: '378.0',
+      currentPrice: '370.8',
+      endPrice: '342.0',
       timeRemaining: 180,
       resolverCount: 5
     }
@@ -50,8 +50,8 @@ const mockSuiOrders: SuiOrder[] = [
     status: 'filled',
     fromToken: 'USDC',
     toToken: 'SUI',
-    fromAmount: '25.0',
-    toAmount: '50.0',
+    fromAmount: '90.0',
+    toAmount: '25.0',
     createdAt: '2025-07-27 10:45:00',
     expiresAt: '2025-07-27 10:48:00',
     txHash: '0x789abc...012def',
@@ -64,15 +64,15 @@ const mockSuiOrders: SuiOrder[] = [
     fromToken: 'SUI',
     toToken: 'WETH',
     fromAmount: '200.0',
-    toAmount: '0.05',
+    toAmount: '0.058',
     createdAt: '2025-07-27 09:30:00',
     expiresAt: '2025-07-27 09:35:00',
     txHash: '0x012def...345ghi',
     fillPercentage: 100,
     auctionDetails: {
-      startPrice: '0.0525',
-      currentPrice: '0.05',
-      endPrice: '0.0475',
+      startPrice: '0.061',
+      currentPrice: '0.058',
+      endPrice: '0.055',
       timeRemaining: 0,
       resolverCount: 8
     }
@@ -95,11 +95,11 @@ export default function SuiOrdersPage() {
 
   const getStatusText = (status: SuiOrder['status']) => {
     switch (status) {
-      case 'filled': return '已完成';
-      case 'pending': return '拍卖中';
-      case 'cancelled': return '已取消';
-      case 'expired': return '已过期';
-      default: return '未知';
+      case 'filled': return 'Filled';
+      case 'pending': return 'Auctioning';
+      case 'cancelled': return 'Cancelled';
+      case 'expired': return 'Expired';
+      default: return 'Unknown';
     }
   };
 
@@ -120,23 +120,23 @@ export default function SuiOrdersPage() {
       <div className="bg-white rounded-2xl shadow-lg p-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Sui 订单</h1>
-            <p className="text-gray-600">管理您的荷兰式拍卖和即时交易订单</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Sui Orders</h1>
+            <p className="text-gray-600">Manage your Dutch auction and instant trading orders</p>
           </div>
           <Link 
             href="/fusion/sui/swap"
             className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
-            创建新订单
+            Create New Order
           </Link>
         </div>
 
         {/* Tabs */}
         <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-8">
           {[
-            { key: 'all', label: '全部订单' },
-            { key: 'active', label: '活跃拍卖' },
-            { key: 'history', label: '历史订单' }
+            { key: 'all', label: 'All Orders' },
+            { key: 'active', label: 'Active Auctions' },
+            { key: 'history', label: 'Order History' }
           ].map(tab => (
             <button
               key={tab.key}
@@ -157,13 +157,13 @@ export default function SuiOrdersPage() {
           {filteredOrders.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🎯</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">暂无订单</h3>
-              <p className="text-gray-600 mb-6">您还没有任何拍卖订单</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Orders</h3>
+              <p className="text-gray-600 mb-6">You don't have any auction orders yet</p>
               <Link 
                 href="/fusion/sui/swap"
                 className="inline-flex items-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
               >
-                创建第一个订单
+                Create First Order
               </Link>
             </div>
           ) : (
@@ -179,16 +179,16 @@ export default function SuiOrdersPage() {
                         {order.type === 'auction' ? '🎯' : '⚡'}
                       </span>
                       <span className="text-sm text-gray-500">
-                        {order.type === 'auction' ? '荷兰式拍卖' : '即时交易'}
+                        {order.type === 'auction' ? 'Dutch Auction' : 'Instant Trade'}
                       </span>
                     </div>
                     <div className="text-sm text-gray-500">
-                      订单 ID: {order.id}
+                      Order ID: {order.id}
                     </div>
                   </div>
                   {order.auctionDetails && order.status === 'pending' && (
                     <div className="text-right">
-                      <div className="text-sm text-gray-500">剩余时间</div>
+                      <div className="text-sm text-gray-500">Time Remaining</div>
                       <div className="text-lg font-bold text-orange-600">
                         {formatTime(order.auctionDetails.timeRemaining)}
                       </div>
@@ -198,25 +198,25 @@ export default function SuiOrdersPage() {
 
                 <div className="grid md:grid-cols-4 gap-6 mb-4">
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">发送</div>
+                    <div className="text-sm text-gray-500 mb-1">Send</div>
                     <div className="font-semibold text-gray-900">
                       {order.fromAmount} {order.fromToken}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">接收</div>
+                    <div className="text-sm text-gray-500 mb-1">Receive</div>
                     <div className="font-semibold text-gray-900">
                       {order.toAmount} {order.toToken}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">创建时间</div>
+                    <div className="text-sm text-gray-500 mb-1">Created At</div>
                     <div className="font-semibold text-gray-900">
                       {order.createdAt}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">过期时间</div>
+                    <div className="text-sm text-gray-500 mb-1">Expires At</div>
                     <div className="font-semibold text-gray-900">
                       {order.expiresAt}
                     </div>
@@ -226,30 +226,30 @@ export default function SuiOrdersPage() {
                 {/* Auction Details */}
                 {order.auctionDetails && (
                   <div className="bg-orange-50 rounded-lg p-4 mb-4 border border-orange-200">
-                    <h4 className="font-medium text-orange-900 mb-3">拍卖详情</h4>
+                    <h4 className="font-medium text-orange-900 mb-3">Auction Details</h4>
                     <div className="grid md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <div className="text-orange-700 mb-1">起始价格</div>
+                        <div className="text-orange-700 mb-1">Start Price</div>
                         <div className="font-semibold text-orange-900">
                           {order.auctionDetails.startPrice} {order.toToken}
                         </div>
                       </div>
                       <div>
-                        <div className="text-orange-700 mb-1">当前价格</div>
+                        <div className="text-orange-700 mb-1">Current Price</div>
                         <div className="font-semibold text-orange-900">
                           {order.auctionDetails.currentPrice} {order.toToken}
                         </div>
                       </div>
                       <div>
-                        <div className="text-orange-700 mb-1">结束价格</div>
+                        <div className="text-orange-700 mb-1">End Price</div>
                         <div className="font-semibold text-orange-900">
                           {order.auctionDetails.endPrice} {order.toToken}
                         </div>
                       </div>
                       <div>
-                        <div className="text-orange-700 mb-1">竞争解析器</div>
+                        <div className="text-orange-700 mb-1">Competing Resolvers</div>
                         <div className="font-semibold text-orange-900">
-                          {order.auctionDetails.resolverCount} 个
+                          {order.auctionDetails.resolverCount}
                         </div>
                       </div>
                     </div>
@@ -257,7 +257,7 @@ export default function SuiOrdersPage() {
                     {order.status === 'pending' && (
                       <div className="mt-3">
                         <div className="flex justify-between text-sm text-orange-600 mb-2">
-                          <span>价格衰减进度</span>
+                          <span>Price Decay Progress</span>
                           <span>{Math.round((1 - order.auctionDetails.timeRemaining / 300) * 100)}%</span>
                         </div>
                         <div className="w-full bg-orange-200 rounded-full h-2">
@@ -274,7 +274,7 @@ export default function SuiOrdersPage() {
                 {order.fillPercentage > 0 && order.fillPercentage < 100 && (
                   <div className="mb-4">
                     <div className="flex justify-between text-sm text-gray-600 mb-2">
-                      <span>填充进度</span>
+                      <span>Fill Progress</span>
                       <span>{order.fillPercentage}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -295,19 +295,19 @@ export default function SuiOrdersPage() {
                         rel="noopener noreferrer"
                         className="text-orange-600 hover:text-orange-800 text-sm font-medium"
                       >
-                        查看交易 ↗
+                        View Transaction ↗
                       </a>
                     )}
                     <Link 
                       href={`/fusion/sui/orders/${order.id}`}
                       className="text-gray-600 hover:text-gray-800 text-sm font-medium"
                     >
-                      查看详情
+                      View Details
                     </Link>
                   </div>
                   {order.status === 'pending' && (
                     <button className="text-red-600 hover:text-red-800 text-sm font-medium">
-                      取消订单
+                      Cancel Order
                     </button>
                   )}
                 </div>
@@ -323,25 +323,25 @@ export default function SuiOrdersPage() {
               <div className="text-2xl font-bold text-orange-600 mb-2">
                 {orders.filter(o => o.status === 'pending').length}
               </div>
-              <div className="text-sm text-orange-700">活跃拍卖</div>
+              <div className="text-sm text-orange-700">Active Auctions</div>
             </div>
             <div className="bg-green-50 rounded-xl p-6 text-center">
               <div className="text-2xl font-bold text-green-600 mb-2">
                 {orders.filter(o => o.status === 'filled').length}
               </div>
-              <div className="text-sm text-green-700">已完成</div>
+              <div className="text-sm text-green-700">Completed</div>
             </div>
             <div className="bg-blue-50 rounded-xl p-6 text-center">
               <div className="text-2xl font-bold text-blue-600 mb-2">
                 {orders.filter(o => o.type === 'auction').length}
               </div>
-              <div className="text-sm text-blue-700">拍卖订单</div>
+              <div className="text-sm text-blue-700">Auction Orders</div>
             </div>
             <div className="bg-purple-50 rounded-xl p-6 text-center">
               <div className="text-2xl font-bold text-purple-600 mb-2">
                 2.3s
               </div>
-              <div className="text-sm text-purple-700">平均执行时间</div>
+              <div className="text-sm text-purple-700">Avg Execution Time</div>
             </div>
           </div>
         )}

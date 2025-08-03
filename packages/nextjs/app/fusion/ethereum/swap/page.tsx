@@ -26,11 +26,11 @@ export default function EthereumSwapPage() {
   const handleSwap = async () => {
     setIsLoading(true);
     try {
-      // TODO: 实现实际的交换逻辑
-      console.log('执行以太坊交换:', formData);
-      await new Promise(resolve => setTimeout(resolve, 2000)); // 模拟交易
+      // TODO: Implement actual swap logic
+      console.log('Execute Ethereum swap:', formData);
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate transaction
     } catch (error) {
-      console.error('交换失败:', error);
+      console.error('Swap failed:', error);
     } finally {
       setIsLoading(false);
     }
@@ -38,9 +38,9 @@ export default function EthereumSwapPage() {
 
   const handleAmountChange = (value: string) => {
     setFormData(prev => ({ ...prev, amount: value }));
-    // TODO: 实现价格估算
+    // TODO: Implement price estimation
     if (value && !isNaN(Number(value))) {
-      const estimated = (Number(value) * 1800).toFixed(2); // 模拟汇率
+      const estimated = (Number(value) * 3466).toFixed(2); // Simulate exchange rate
       setEstimatedOutput(estimated);
     } else {
       setEstimatedOutput('');
@@ -51,15 +51,15 @@ export default function EthereumSwapPage() {
     <div className="max-w-2xl mx-auto p-6">
       <div className="bg-white rounded-2xl shadow-lg p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">以太坊交换</h1>
-          <p className="text-gray-600">使用 1inch Fusion 进行高效交易</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Ethereum Swap</h1>
+          <p className="text-gray-600">Efficient trading using 1inch Fusion</p>
         </div>
 
         <div className="space-y-6">
           {/* From Token */}
           <div className="bg-gray-50 rounded-xl p-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              发送
+              Send
             </label>
             <div className="flex items-center space-x-4">
               <select 
@@ -81,7 +81,7 @@ export default function EthereumSwapPage() {
               />
             </div>
             <div className="mt-2 text-sm text-gray-500">
-              余额: 2.5 {formData.fromToken}
+              Balance: 2.5 {formData.fromToken}
             </div>
           </div>
 
@@ -106,7 +106,7 @@ export default function EthereumSwapPage() {
           {/* To Token */}
           <div className="bg-gray-50 rounded-xl p-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              接收
+              Receive
             </label>
             <div className="flex items-center space-x-4">
               <select 
@@ -124,17 +124,17 @@ export default function EthereumSwapPage() {
               </div>
             </div>
             <div className="mt-2 text-sm text-gray-500">
-              估算输出 (包含滑点)
+              Estimated Output (including slippage)
             </div>
           </div>
 
           {/* Advanced Settings */}
           <div className="bg-gray-50 rounded-xl p-6">
-            <h3 className="font-medium text-gray-900 mb-4">高级设置</h3>
+            <h3 className="font-medium text-gray-900 mb-4">Advanced Settings</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  滑点容忍度 (%)
+                  Slippage Tolerance (%)
                 </label>
                 <input
                   type="number"
@@ -146,7 +146,7 @@ export default function EthereumSwapPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  交易期限 (分钟)
+                  Transaction Deadline (minutes)
                 </label>
                 <input
                   type="number"
@@ -161,18 +161,18 @@ export default function EthereumSwapPage() {
           {/* Transaction Info */}
           {estimatedOutput && (
             <div className="bg-blue-50 rounded-xl p-6">
-              <h3 className="font-medium text-blue-900 mb-3">交易信息</h3>
+              <h3 className="font-medium text-blue-900 mb-3">Transaction Info</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-blue-700">汇率:</span>
-                  <span className="text-blue-900 font-medium">1 {formData.fromToken} = 1800 {formData.toToken}</span>
+                  <span className="text-blue-700">Exchange Rate:</span>
+                  <span className="text-blue-900 font-medium">1 {formData.fromToken} = 3466 {formData.toToken}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-blue-700">网络费用:</span>
-                  <span className="text-blue-900 font-medium">~$12.50</span>
+                  <span className="text-blue-700">Network Fee:</span>
+                  <span className="text-blue-900 font-medium">~$18.50</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-blue-700">最小接收:</span>
+                  <span className="text-blue-700">Minimum Received:</span>
                   <span className="text-blue-900 font-medium">{(Number(estimatedOutput) * (1 - formData.slippage / 100)).toFixed(2)} {formData.toToken}</span>
                 </div>
               </div>
@@ -188,10 +188,10 @@ export default function EthereumSwapPage() {
             {isLoading ? (
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>交易中...</span>
+                <span>Trading...</span>
               </div>
             ) : (
-              '执行交换'
+              'Execute Swap'
             )}
           </button>
         </div>

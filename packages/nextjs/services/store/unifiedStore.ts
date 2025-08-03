@@ -180,6 +180,9 @@ export interface UnifiedStoreState {
   // Orders management
   orders: OrdersState;
 
+  // Demo state
+  demo: DemoState;
+
   // Computed values
   isAnyWalletConnected: boolean;
   totalPortfolioValue: number;
@@ -242,6 +245,12 @@ export interface UnifiedStoreActions {
   addOrder: (order: Order) => void;
   updateOrderStatus: (orderId: string, status: string) => void;
   setOrderFilters: (filters: Partial<OrderFilters>) => void;
+
+  // Demo mode management
+  toggleDemoMode: () => void;
+  updateDemoConfig: (config: Partial<DemoState>) => void;
+  resetDemoState: () => void;
+  generateMockData: () => void;
 
   // UI management
   setLoading: (isLoading: boolean) => void;
@@ -360,9 +369,9 @@ export const useUnifiedStore = create<UnifiedStoreState & UnifiedStoreActions>()
               startTime: Date.now() - 30000, // 30 seconds ago
               endTime: Date.now() + 30000, // 30 seconds remaining  
               duration: 60,
-              startRate: '2.68',
-              endRate: '2.28',
-              currentRate: '2.50',
+              startRate: '3.78',
+              endRate: '3.24',
+              currentRate: '3.60',
               priceDecayFunction: 'linear',
               tokenPair: 'SUI/USDC',
               status: 'active',
@@ -389,7 +398,7 @@ export const useUnifiedStore = create<UnifiedStoreState & UnifiedStoreActions>()
               id: 'notif_1',
               auctionId: 'demo_auction_1',
               type: 'bid_placed',
-              message: 'New bid: 2.52 SUI/USDC',
+              message: 'New bid: 3.62 SUI/USDC',
               timestamp: Date.now() - 15000,
               isRead: false,
             }
@@ -420,6 +429,9 @@ export const useUnifiedStore = create<UnifiedStoreState & UnifiedStoreActions>()
             itemsPerPage: 20,
           },
         },
+
+        // Demo state
+        demo: { ...defaultDemoState },
 
         // Computed values
         get isAnyWalletConnected() {
@@ -626,7 +638,7 @@ export const useUnifiedStore = create<UnifiedStoreState & UnifiedStoreActions>()
                 formattedBalance: '3.45',
                 decimals: 18,
                 symbol: 'ETH',
-                usdValue: 3.45 * 3420
+                usdValue: 3.45 * 3466
               },
               'USDC': {
                 tokenType: '0xA0b86a33E6441d3e2DbEcC39ee4bd65A58da0e17',
@@ -662,7 +674,7 @@ export const useUnifiedStore = create<UnifiedStoreState & UnifiedStoreActions>()
                 formattedBalance: '12.35',
                 decimals: 9,
                 symbol: 'SUI',
-                usdValue: 12.35 * 2.485
+                usdValue: 12.35 * 3.6
               },
               'USDC': {
                 tokenType: '0x2::coin::COIN<0x123::usdc::USDC>',
@@ -686,7 +698,7 @@ export const useUnifiedStore = create<UnifiedStoreState & UnifiedStoreActions>()
                 formattedBalance: '1.85',
                 decimals: 18,
                 symbol: 'WETH',
-                usdValue: 1.85 * 3420
+                usdValue: 1.85 * 3466
               }
             };
 
@@ -843,6 +855,48 @@ export const useUnifiedStore = create<UnifiedStoreState & UnifiedStoreActions>()
               filters: { ...state.orders.filters, ...filters },
             }
           })),
+
+        // Demo mode management
+        toggleDemoMode: () =>
+          set(state => ({
+            demo: { ...state.demo, isDemoMode: !state.demo.isDemoMode }
+          })),
+
+        updateDemoConfig: (config: Partial<DemoState>) =>
+          set(state => ({
+            demo: { ...state.demo, ...config }
+          })),
+
+        resetDemoState: () =>
+          set(() => ({ demo: { ...defaultDemoState } })),
+
+        generateMockData: () => {
+          const state = get();
+          if (!state.demo.isDemoMode) return;
+          
+          // Generate random auction notification
+          state.addAuctionNotification({
+            auctionId: `demo_auction_${Date.now()}`,
+            type: 'bid_placed',
+            message: `New bid: ${(3.6 + Math.random() * 0.4).toFixed(4)} SUI/USDC`,
+          });
+
+          // Add random toast notification
+          const messages = [
+            'Cross-chain swap initiated',
+            'Dutch auction started',
+            'Order matched successfully',
+            'MEV protection activated',
+            'Relayer coordination complete'
+          ];
+          
+          state.addToastNotification({
+            type: 'info',
+            title: 'Demo Activity',
+            message: messages[Math.floor(Math.random() * messages.length)],
+            duration: 3000,
+          });
+        },
 
         // UI management
         setLoading: (isLoading: boolean) =>
@@ -1014,6 +1068,26 @@ export const selectActiveNotifications = (state: UnifiedStoreState) =>
 export const selectToastNotifications = (state: UnifiedStoreState) =>
   state.ui.toastNotifications.filter(n => n.isVisible);
 
+// ==================== Demo Mode Enhancement ====================
+
+export interface DemoState {
+  isDemoMode: boolean;
+  autoGenerateData: boolean;
+  simulateRealTimeUpdates: boolean;
+  mockLatency: number;
+  successRate: number;
+  enableMockNotifications: boolean;
+}
+
+const defaultDemoState: DemoState = {
+  isDemoMode: process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true',
+  autoGenerateData: true,
+  simulateRealTimeUpdates: true,
+  mockLatency: 200,
+  successRate: 0.95,
+  enableMockNotifications: true,
+};
+
 // ==================== Hooks ====================
 
 // Convenience hooks for common use cases
@@ -1026,6 +1100,23 @@ export const useIsWalletConnected = (network: 'ethereum' | 'sui') =>
 export const useSwapForm = () => useUnifiedStore(selectSwapFormData);
 
 export const useUserPreferences = () => useUnifiedStore(selectUserPreferences);
+
+// Demo mode hooks
+export const useDemoMode = () => {
+  const demo = useUnifiedStore(state => state.demo);
+  const toggleDemoMode = useUnifiedStore(state => state.toggleDemoMode);
+  const updateDemoConfig = useUnifiedStore(state => state.updateDemoConfig);
+  const generateMockData = useUnifiedStore(state => state.generateMockData);
+  const resetDemoState = useUnifiedStore(state => state.resetDemoState);
+  
+  return {
+    ...demo,
+    toggleDemoMode,
+    updateDemoConfig,
+    generateMockData,
+    resetDemoState,
+  };
+};
 
 // Cross-chain balance hooks
 export const useCrossChainBalances = () => {

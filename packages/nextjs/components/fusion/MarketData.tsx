@@ -38,7 +38,7 @@ export const MarketData = () => {
       const baseTokens = {
         top: [
           { symbol: "BTC", name: "Bitcoin", basePrice: 43000 },
-          { symbol: "ETH", name: "Ethereum", basePrice: 2600 },
+          { symbol: "ETH", name: "Ethereum", basePrice: 3466 },
           { symbol: "BNB", name: "BNB", basePrice: 310 },
           { symbol: "XRP", name: "XRP", basePrice: 0.62 },
           { symbol: "SOL", name: "Solana", basePrice: 98 },
@@ -57,7 +57,7 @@ export const MarketData = () => {
           { symbol: "SNX", name: "Synthetix", basePrice: 2.8 },
         ],
         sui: [
-          { symbol: "SUI", name: "Sui", basePrice: 2.15 },
+          { symbol: "SUI", name: "Sui", basePrice: 3.6 },
           { symbol: "MOVE", name: "Move Dollar", basePrice: 1.0 },
           { symbol: "CETUS", name: "Cetus Protocol", basePrice: 0.15 },
           { symbol: "NAVI", name: "Navi Protocol", basePrice: 0.85 },
@@ -100,7 +100,7 @@ export const MarketData = () => {
           const baseTokens = {
             top: [
               { symbol: "BTC", name: "Bitcoin", basePrice: 43000 },
-              { symbol: "ETH", name: "Ethereum", basePrice: 2600 },
+              { symbol: "ETH", name: "Ethereum", basePrice: 3466 },
               { symbol: "BNB", name: "BNB", basePrice: 310 },
               { symbol: "XRP", name: "XRP", basePrice: 0.62 },
               { symbol: "SOL", name: "Solana", basePrice: 98 },
@@ -119,7 +119,7 @@ export const MarketData = () => {
               { symbol: "SNX", name: "Synthetix", basePrice: 2.8 },
             ],
             sui: [
-              { symbol: "SUI", name: "Sui", basePrice: 2.15 },
+              { symbol: "SUI", name: "Sui", basePrice: 3.6 },
               { symbol: "MOVE", name: "Move Dollar", basePrice: 1.0 },
               { symbol: "CETUS", name: "Cetus Protocol", basePrice: 0.15 },
               { symbol: "NAVI", name: "Navi Protocol", basePrice: 0.85 },

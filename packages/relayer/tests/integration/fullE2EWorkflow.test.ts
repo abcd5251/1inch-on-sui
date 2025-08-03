@@ -136,7 +136,7 @@ describe('Full E2E Cross-Chain Workflow Tests', () => {
         sourceChain: 'ethereum',
         targetChain: 'sui',
         makingAmount: ethers.parseEther('1').toString(), // 1 ETH
-        takingAmount: '2000000000000', // 2000 SUI (9 decimals)
+        takingAmount: '962890625000', // ~963 SUI (9 decimals) - $3466 worth at $3.6/SUI
         secretHash: secretHash,
         lockDuration: TEST_CONFIG.timeouts.lockDuration,
         resolverAddress: TEST_ACCOUNTS.ethereum.relayer.address
@@ -186,8 +186,8 @@ describe('Full E2E Cross-Chain Workflow Tests', () => {
 
       // Dutch auction parameters
       const auctionParams = {
-        startPrice: ethers.parseUnits('2400', 9), // 2400 SUI
-        endPrice: ethers.parseUnits('2000', 9),   // 2000 SUI
+        startPrice: ethers.parseUnits('1010', 9), // 1010 SUI (5% above fair value)
+        endPrice: ethers.parseUnits('963', 9),   // 963 SUI (fair value)
         startTime: Math.floor(Date.now() / 1000),
         duration: 180 // 3 minutes
       };
@@ -232,7 +232,7 @@ describe('Full E2E Cross-Chain Workflow Tests', () => {
         arguments: [
           tx.object(TEST_CONFIG.sui.packageId), // protocol
           tx.pure.string(orderId), // swap_id
-          tx.splitCoins(tx.gas, [tx.pure.u64('2000000000000')]), // sui_coin
+          tx.splitCoins(tx.gas, [tx.pure.u64('962890625000')]), // sui_coin (~963 SUI)
           tx.pure.vector('u8', ethers.getBytes(secretHash)), // secret_hash
           tx.pure.u64(Date.now() + TEST_CONFIG.timeouts.lockDuration), // timeout
           tx.pure.address(TEST_ACCOUNTS.ethereum.user.address), // counterparty
@@ -313,8 +313,8 @@ describe('Full E2E Cross-Chain Workflow Tests', () => {
         ...TestDataGenerator.generateSwapParams(),
         sourceChain: 'sui',
         targetChain: 'ethereum',
-        makingAmount: '2000000000000', // 2000 SUI
-        takingAmount: ethers.parseEther('1').toString(), // 1 ETH
+        makingAmount: '1000000000000', // 1000 SUI ($3600 worth)
+        takingAmount: ethers.parseEther('1.039').toString(), // ~1.039 ETH ($3600 worth)
         secretHash: secretHash,
         lockDuration: TEST_CONFIG.timeouts.lockDuration
       };
@@ -336,8 +336,8 @@ describe('Full E2E Cross-Chain Workflow Tests', () => {
           tx.pure.string(swap.orderId), // order_id
           tx.pure.u64(TEST_CONFIG.sui.chainId), // source_chain_id
           tx.pure.u64(TEST_CONFIG.ethereum.chainId), // target_chain_id
-          tx.splitCoins(tx.gas, [tx.pure.u64('2000000000000')]), // sui_coin
-          tx.pure.u64(ethers.parseEther('1').toString()), // target_amount
+          tx.splitCoins(tx.gas, [tx.pure.u64('1000000000000')]), // sui_coin (1000 SUI)
+          tx.pure.u64(ethers.parseEther('1.039').toString()), // target_amount (~1.039 ETH)
           tx.pure.vector('u8', ethers.getBytes(secretHash)), // secret_hash
           tx.pure.u64(Date.now() + TEST_CONFIG.timeouts.lockDuration), // timeout
         ],
@@ -470,7 +470,7 @@ describe('Full E2E Cross-Chain Workflow Tests', () => {
         sourceChain: 'ethereum',
         targetChain: 'sui',
         makingAmount: ethers.parseEther('0.5').toString(),
-        takingAmount: '1000000000000',
+        takingAmount: '481445312500', // ~481 SUI ($1733 worth at $3.6/SUI)
         secretHash: secretHash,
         lockDuration: 60000, // 1 minute timeout
       };
@@ -575,13 +575,13 @@ describe('Full E2E Cross-Chain Workflow Tests', () => {
           sourceChain: 'ethereum',
           targetChain: 'sui',
           makingAmount: ethers.parseEther('0.3').toString(),
-          takingAmount: '600000000000'
+          takingAmount: '288867187500' // ~289 SUI ($1040 worth at $3.6/SUI)
         },
         {
           sourceChain: 'sui',
           targetChain: 'ethereum',
-          makingAmount: '800000000000',
-          takingAmount: ethers.parseEther('0.4').toString()
+          makingAmount: '800000000000', // 800 SUI ($2880 worth)
+          takingAmount: ethers.parseEther('0.831').toString() // ~0.831 ETH ($2880 worth)
         }
       ];
 

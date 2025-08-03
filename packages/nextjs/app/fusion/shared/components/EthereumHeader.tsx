@@ -11,7 +11,7 @@ const EthereumHeader: React.FC = () => {
           <span className="text-2xl">⟠</span>
           <div>
             <h2 className="font-semibold">Ethereum Network</h2>
-            <p className="text-xs text-blue-100">以太坊主网 - 去中心化交易</p>
+            <p className="text-xs text-blue-100">Ethereum Mainnet - Decentralized Trading</p>
           </div>
         </div>
         
@@ -25,7 +25,7 @@ const EthereumHeader: React.FC = () => {
             href="/fusion/sui"
             className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm transition-colors"
           >
-            切换到 Sui
+            Switch to Sui
           </Link>
         </div>
       </div>
