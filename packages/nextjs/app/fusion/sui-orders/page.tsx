@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import type { NextPage } from "next";
 import { useSuiFusion } from "~~/hooks/fusion/useSuiFusion";
-import { useCurrentAccount } from "@mysten/dapp-kit";
-import { notification } from "~~/utils/scaffold-eth";
 import { suiFusionConfig } from "~~/services/fusion/suiConfig";
+import { notification } from "~~/utils/scaffold-eth";
 
 interface SuiOrder {
   id: string;
@@ -122,9 +122,13 @@ const SuiOrdersPage: NextPage = () => {
   };
 
   const formatAmount = (amount: string, tokenType: string): string => {
-    const decimals = tokenType.includes("sui::SUI") ? 9 : 
-                    tokenType.includes("usdc::USDC") || tokenType.includes("usdt::USDT") ? 6 : 
-                    tokenType.includes("weth::WETH") ? 18 : 9;
+    const decimals = tokenType.includes("sui::SUI")
+      ? 9
+      : tokenType.includes("usdc::USDC") || tokenType.includes("usdt::USDT")
+        ? 6
+        : tokenType.includes("weth::WETH")
+          ? 18
+          : 9;
     return (parseFloat(amount) / Math.pow(10, decimals)).toFixed(6);
   };
 
@@ -138,9 +142,7 @@ const SuiOrdersPage: NextPage = () => {
     return `badge ${statusClasses[status as keyof typeof statusClasses] || "badge-neutral"}`;
   };
 
-  const filteredOrders = orders.filter(order => 
-    filter === "all" || order.status === filter
-  );
+  const filteredOrders = orders.filter(order => filter === "all" || order.status === filter);
 
   const isInitialized = suiFusion.isServiceInitialized();
 
@@ -152,16 +154,18 @@ const SuiOrdersPage: NextPage = () => {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
             🌊 Sui Fusion Orders
           </h1>
-          <p className="text-lg text-base-content/70">
-            Manage your Sui network Fusion orders
-          </p>
+          <p className="text-lg text-base-content/70">Manage your Sui network Fusion orders</p>
         </div>
 
         {/* Navigation */}
         <div className="flex justify-center mb-8">
           <div className="breadcrumbs text-sm">
             <ul>
-              <li><Link href="/fusion" className="link link-primary">Fusion</Link></li>
+              <li>
+                <Link href="/fusion" className="link link-primary">
+                  Fusion
+                </Link>
+              </li>
               <li>Sui Orders</li>
             </ul>
           </div>
@@ -189,7 +193,7 @@ const SuiOrdersPage: NextPage = () => {
                       placeholder="Enter your private key"
                       className="input input-bordered join-item flex-1"
                       value={privateKey}
-                      onChange={(e) => setPrivateKey(e.target.value)}
+                      onChange={e => setPrivateKey(e.target.value)}
                     />
                     <button
                       className="btn btn-primary join-item"
@@ -215,10 +219,7 @@ const SuiOrdersPage: NextPage = () => {
             <div className="flex flex-wrap justify-between items-center gap-4">
               {/* Filter Tabs */}
               <div className="tabs tabs-boxed">
-                <button
-                  className={`tab ${filter === "all" ? "tab-active" : ""}`}
-                  onClick={() => setFilter("all")}
-                >
+                <button className={`tab ${filter === "all" ? "tab-active" : ""}`} onClick={() => setFilter("all")}>
                   All ({orders.length})
                 </button>
                 <button
@@ -243,16 +244,8 @@ const SuiOrdersPage: NextPage = () => {
 
               {/* Actions */}
               <div className="flex gap-2">
-                <button
-                  className="btn btn-outline btn-sm"
-                  onClick={loadOrders}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <span className="loading loading-spinner loading-sm"></span>
-                  ) : (
-                    "🔄 Refresh"
-                  )}
+                <button className="btn btn-outline btn-sm" onClick={loadOrders} disabled={isLoading}>
+                  {isLoading ? <span className="loading loading-spinner loading-sm"></span> : "🔄 Refresh"}
                 </button>
                 <Link href="/fusion" className="btn btn-primary btn-sm">
                   + New Order
@@ -274,10 +267,9 @@ const SuiOrdersPage: NextPage = () => {
                 <div className="text-6xl mb-4">📋</div>
                 <h3 className="text-xl font-semibold mb-2">No orders found</h3>
                 <p className="text-base-content/70 mb-4">
-                  {filter === "all" 
+                  {filter === "all"
                     ? "You haven&apos;t created any Sui Fusion orders yet."
-                    : `No ${filter} orders found.`
-                  }
+                    : `No ${filter} orders found.`}
                 </p>
                 <Link href="/fusion" className="btn btn-primary">
                   Create Your First Order
@@ -285,7 +277,7 @@ const SuiOrdersPage: NextPage = () => {
               </div>
             </div>
           ) : (
-            filteredOrders.map((order) => (
+            filteredOrders.map(order => (
               <div key={order.id} className="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
                 <div className="card-body">
                   <div className="flex flex-wrap justify-between items-start gap-4">
@@ -295,11 +287,9 @@ const SuiOrdersPage: NextPage = () => {
                         <h3 className="font-semibold text-lg">
                           {getTokenSymbol(order.fromTokenType)} → {getTokenSymbol(order.toTokenType)}
                         </h3>
-                        <div className={getStatusBadge(order.status)}>
-                          {order.status}
-                        </div>
+                        <div className={getStatusBadge(order.status)}>{order.status}</div>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="text-base-content/70">Amount:</span>
@@ -307,7 +297,7 @@ const SuiOrdersPage: NextPage = () => {
                             {formatAmount(order.amount, order.fromTokenType)} {getTokenSymbol(order.fromTokenType)}
                           </span>
                         </div>
-                        
+
                         {order.rate && (
                           <div>
                             <span className="text-base-content/70">Rate:</span>
@@ -316,21 +306,17 @@ const SuiOrdersPage: NextPage = () => {
                             </span>
                           </div>
                         )}
-                        
+
                         <div>
                           <span className="text-base-content/70">Created:</span>
-                          <span className="ml-2">
-                            {new Date(order.createdAt).toLocaleString()}
-                          </span>
+                          <span className="ml-2">{new Date(order.createdAt).toLocaleString()}</span>
                         </div>
-                        
+
                         <div>
                           <span className="text-base-content/70">Expires:</span>
-                          <span className="ml-2">
-                            {new Date(order.expiresAt).toLocaleString()}
-                          </span>
+                          <span className="ml-2">{new Date(order.expiresAt).toLocaleString()}</span>
                         </div>
-                        
+
                         {order.filledAmount && (
                           <div>
                             <span className="text-base-content/70">Filled:</span>
@@ -339,7 +325,7 @@ const SuiOrdersPage: NextPage = () => {
                             </span>
                           </div>
                         )}
-                        
+
                         <div>
                           <span className="text-base-content/70">Order ID:</span>
                           <span className="ml-2 font-mono text-xs">
@@ -347,7 +333,7 @@ const SuiOrdersPage: NextPage = () => {
                           </span>
                         </div>
                       </div>
-                      
+
                       {order.txHash && (
                         <div className="mt-2">
                           <a
@@ -361,18 +347,15 @@ const SuiOrdersPage: NextPage = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Actions */}
                     <div className="flex flex-col gap-2">
                       {order.status === "pending" && (
-                        <button
-                          className="btn btn-error btn-sm"
-                          onClick={() => handleCancelOrder(order.id)}
-                        >
+                        <button className="btn btn-error btn-sm" onClick={() => handleCancelOrder(order.id)}>
                           Cancel
                         </button>
                       )}
-                      
+
                       <a
                         href={`${suiFusionConfig.networks.testnet.explorerUrl}/object/${order.id}`}
                         target="_blank"

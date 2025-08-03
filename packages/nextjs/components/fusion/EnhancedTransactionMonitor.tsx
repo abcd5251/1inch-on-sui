@@ -2,19 +2,33 @@
  * Enhanced Transaction Monitor
  * Advanced transaction monitoring with real-time updates and analytics
  */
+"use client";
 
-'use client';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useRealtimeData } from "../../hooks/useRealtimeData";
+import { ErrorBoundary } from "../../lib/monitoring/ErrorBoundary";
+import { PerformanceMonitor } from "../../lib/monitoring/PerformanceMonitor";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRealtimeData } from '../../hooks/useRealtimeData';
-import { ErrorBoundary } from '../../lib/monitoring/ErrorBoundary';
-import { PerformanceMonitor } from '../../lib/monitoring/PerformanceMonitor';
+/**
+ * Enhanced Transaction Monitor
+ * Advanced transaction monitoring with real-time updates and analytics
+ */
+
+/**
+ * Enhanced Transaction Monitor
+ * Advanced transaction monitoring with real-time updates and analytics
+ */
+
+/**
+ * Enhanced Transaction Monitor
+ * Advanced transaction monitoring with real-time updates and analytics
+ */
 
 interface Transaction {
   id: string;
   hash: string;
-  type: 'swap' | 'limit' | 'fusion' | 'bridge';
-  status: 'pending' | 'confirmed' | 'failed' | 'cancelled';
+  type: "swap" | "limit" | "fusion" | "bridge";
+  status: "pending" | "confirmed" | "failed" | "cancelled";
   fromToken: {
     address: string;
     symbol: string;
@@ -68,7 +82,7 @@ interface MonitorProps {
 }
 
 const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
-  className = '',
+  className = "",
   maxTransactions = 50,
   autoRefresh = true,
   refreshInterval = 5000,
@@ -79,71 +93,67 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'timestamp' | 'amount' | 'gasUsed'>('timestamp');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [selectedType, setSelectedType] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"timestamp" | "amount" | "gasUsed">("timestamp");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
   // Real-time data hook
-  const {
-    orders,
-    isConnected,
-    connectionError,
-  } = useRealtimeData({
+  const { /* orders, */ isConnected, connectionError } = useRealtimeData({
     orders: true,
   });
-  
+
   // Fetch transactions
   const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const response = await fetch('/api/transactions', {
-        method: 'GET',
+
+      const response = await fetch("/api/transactions", {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       setTransactions(data.transactions || []);
     } catch (err) {
-      console.error('Failed to fetch transactions:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      console.error("Failed to fetch transactions:", err);
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
   }, []);
-  
+
   // Generate mock transactions for demonstration
   const generateMockTransactions = useCallback((): Transaction[] => {
     const mockTransactions: Transaction[] = [];
-    const types: Transaction['type'][] = ['swap', 'limit', 'fusion', 'bridge'];
-    const statuses: Transaction['status'][] = ['pending', 'confirmed', 'failed', 'cancelled'];
+    const types: Transaction["type"][] = ["swap", "limit", "fusion", "bridge"];
+    const statuses: Transaction["status"][] = ["pending", "confirmed", "failed", "cancelled"];
     const tokens = [
-      { address: '0x1::sui::SUI', symbol: 'SUI', decimals: 9 },
-      { address: '0x2::coin::COIN', symbol: 'USDC', decimals: 6 },
-      { address: '0x3::token::TOKEN', symbol: 'WETH', decimals: 18 },
-      { address: '0x4::defi::DEFI', symbol: 'CETUS', decimals: 9 },
+      { address: "0x1::sui::SUI", symbol: "SUI", decimals: 9 },
+      { address: "0x2::coin::COIN", symbol: "USDC", decimals: 6 },
+      { address: "0x3::token::TOKEN", symbol: "WETH", decimals: 18 },
+      { address: "0x4::defi::DEFI", symbol: "CETUS", decimals: 9 },
     ];
-    
+
     for (let i = 0; i < maxTransactions; i++) {
       const fromToken = tokens[Math.floor(Math.random() * tokens.length)];
       let toToken = tokens[Math.floor(Math.random() * tokens.length)];
       while (toToken.address === fromToken.address) {
         toToken = tokens[Math.floor(Math.random() * tokens.length)];
       }
-      
+
       const type = types[Math.floor(Math.random() * types.length)];
       const status = statuses[Math.floor(Math.random() * statuses.length)];
       const timestamp = new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000).toISOString();
-      
+
       const transaction: Transaction = {
         id: `tx_${i + 1}`,
         hash: `0x${Math.random().toString(16).substr(2, 64)}`,
@@ -158,135 +168,140 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
           amount: (Math.random() * 1000 + 1).toFixed(toToken.decimals),
         },
         timestamp,
-        gasUsed: status === 'confirmed' ? (Math.random() * 100000 + 21000).toFixed(0) : undefined,
+        gasUsed: status === "confirmed" ? (Math.random() * 100000 + 21000).toFixed(0) : undefined,
         gasPrice: (Math.random() * 50 + 10).toFixed(9),
-        blockNumber: status === 'confirmed' ? Math.floor(Math.random() * 1000000 + 18000000) : undefined,
-        confirmations: status === 'confirmed' ? Math.floor(Math.random() * 100 + 1) : undefined,
-        error: status === 'failed' ? 'Transaction reverted' : undefined,
+        blockNumber: status === "confirmed" ? Math.floor(Math.random() * 1000000 + 18000000) : undefined,
+        confirmations: status === "confirmed" ? Math.floor(Math.random() * 100 + 1) : undefined,
+        error: status === "failed" ? "Transaction reverted" : undefined,
         estimatedTime: Math.floor(Math.random() * 300 + 30),
-        actualTime: status === 'confirmed' ? Math.floor(Math.random() * 300 + 30) : undefined,
+        actualTime: status === "confirmed" ? Math.floor(Math.random() * 300 + 30) : undefined,
         slippage: Math.random() * 2,
         priceImpact: Math.random() * 5,
         route: [
-          { protocol: '1inch', percentage: Math.random() * 100 },
-          { protocol: 'Uniswap', percentage: Math.random() * 100 },
+          { protocol: "1inch", percentage: Math.random() * 100 },
+          { protocol: "Uniswap", percentage: Math.random() * 100 },
         ],
         user: `0x${Math.random().toString(16).substr(2, 40)}`,
-        network: 'sui',
+        network: "sui",
       };
-      
+
       mockTransactions.push(transaction);
     }
-    
+
     return mockTransactions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }, [maxTransactions]);
-  
+
   // Initialize with mock data
   useEffect(() => {
     const mockData = generateMockTransactions();
     setTransactions(mockData);
     setLoading(false);
   }, [generateMockTransactions]);
-  
+
   // Auto-refresh
   useEffect(() => {
     if (!autoRefresh) return;
-    
+
     const interval = setInterval(() => {
       // In a real app, this would fetch new transactions
       // For demo, we'll just update timestamps
-      setTransactions(prev => prev.map(tx => ({
-        ...tx,
-        timestamp: tx.status === 'pending' ? new Date().toISOString() : tx.timestamp,
-      })));
+      setTransactions(prev =>
+        prev.map(tx => ({
+          ...tx,
+          timestamp: tx.status === "pending" ? new Date().toISOString() : tx.timestamp,
+        })),
+      );
     }, refreshInterval);
-    
+
     return () => clearInterval(interval);
   }, [autoRefresh, refreshInterval]);
-  
+
   // Filter and sort transactions
   const filteredTransactions = useMemo(() => {
     let filtered = transactions;
-    
+
     // Filter by status
-    if (selectedStatus !== 'all') {
+    if (selectedStatus !== "all") {
       filtered = filtered.filter(tx => tx.status === selectedStatus);
     }
-    
+
     // Filter by type
-    if (selectedType !== 'all') {
+    if (selectedType !== "all") {
       filtered = filtered.filter(tx => tx.type === selectedType);
     }
-    
+
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(tx => 
-        tx.hash.toLowerCase().includes(query) ||
-        tx.fromToken.symbol.toLowerCase().includes(query) ||
-        tx.toToken.symbol.toLowerCase().includes(query) ||
-        tx.user.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        tx =>
+          tx.hash.toLowerCase().includes(query) ||
+          tx.fromToken.symbol.toLowerCase().includes(query) ||
+          tx.toToken.symbol.toLowerCase().includes(query) ||
+          tx.user.toLowerCase().includes(query),
       );
     }
-    
+
     // Sort
     filtered.sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (sortBy) {
-        case 'timestamp':
+        case "timestamp":
           aValue = new Date(a.timestamp).getTime();
           bValue = new Date(b.timestamp).getTime();
           break;
-        case 'amount':
+        case "amount":
           aValue = parseFloat(a.fromToken.amount);
           bValue = parseFloat(b.fromToken.amount);
           break;
-        case 'gasUsed':
-          aValue = parseFloat(a.gasUsed || '0');
-          bValue = parseFloat(b.gasUsed || '0');
+        case "gasUsed":
+          aValue = parseFloat(a.gasUsed || "0");
+          bValue = parseFloat(b.gasUsed || "0");
           break;
         default:
           return 0;
       }
-      
-      if (sortOrder === 'asc') {
+
+      if (sortOrder === "asc") {
         return aValue - bValue;
       } else {
         return bValue - aValue;
       }
     });
-    
+
     return filtered;
   }, [transactions, selectedStatus, selectedType, searchQuery, sortBy, sortOrder]);
-  
+
   // Calculate statistics
   const stats = useMemo((): TransactionStats => {
     const total = transactions.length;
-    const pending = transactions.filter(tx => tx.status === 'pending').length;
-    const confirmed = transactions.filter(tx => tx.status === 'confirmed').length;
-    const failed = transactions.filter(tx => tx.status === 'failed').length;
-    const cancelled = transactions.filter(tx => tx.status === 'cancelled').length;
-    
-    const confirmedTxs = transactions.filter(tx => tx.status === 'confirmed' && tx.actualTime);
-    const averageTime = confirmedTxs.length > 0 
-      ? confirmedTxs.reduce((sum, tx) => sum + (tx.actualTime || 0), 0) / confirmedTxs.length
-      : 0;
-    
+    const pending = transactions.filter(tx => tx.status === "pending").length;
+    const confirmed = transactions.filter(tx => tx.status === "confirmed").length;
+    const failed = transactions.filter(tx => tx.status === "failed").length;
+    const cancelled = transactions.filter(tx => tx.status === "cancelled").length;
+
+    const confirmedTxs = transactions.filter(tx => tx.status === "confirmed" && tx.actualTime);
+    const averageTime =
+      confirmedTxs.length > 0
+        ? confirmedTxs.reduce((sum, tx) => sum + (tx.actualTime || 0), 0) / confirmedTxs.length
+        : 0;
+
     const successRate = total > 0 ? (confirmed / total) * 100 : 0;
-    
+
     const totalVolume = transactions.reduce((sum, tx) => {
-      if (tx.status === 'confirmed') {
+      if (tx.status === "confirmed") {
         return sum + parseFloat(tx.fromToken.amount);
       }
       return sum;
     }, 0);
-    
+
     const gasUsedTxs = transactions.filter(tx => tx.gasUsed);
-    const averageGasUsed = gasUsedTxs.length > 0
-      ? gasUsedTxs.reduce((sum, tx) => sum + parseFloat(tx.gasUsed || '0'), 0) / gasUsedTxs.length
-      : 0;
-    
+    const averageGasUsed =
+      gasUsedTxs.length > 0
+        ? gasUsedTxs.reduce((sum, tx) => sum + parseFloat(tx.gasUsed || "0"), 0) / gasUsedTxs.length
+        : 0;
+
     return {
       total,
       pending,
@@ -299,27 +314,37 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
       averageGasUsed: averageGasUsed.toFixed(0),
     };
   }, [transactions]);
-  
-  const getStatusColor = (status: Transaction['status']): string => {
+
+  const getStatusColor = (status: Transaction["status"]): string => {
     switch (status) {
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
-      case 'confirmed': return 'text-green-600 bg-green-100';
-      case 'failed': return 'text-red-600 bg-red-100';
-      case 'cancelled': return 'text-gray-600 bg-gray-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case "pending":
+        return "text-yellow-600 bg-yellow-100";
+      case "confirmed":
+        return "text-green-600 bg-green-100";
+      case "failed":
+        return "text-red-600 bg-red-100";
+      case "cancelled":
+        return "text-gray-600 bg-gray-100";
+      default:
+        return "text-gray-600 bg-gray-100";
     }
   };
-  
-  const getTypeColor = (type: Transaction['type']): string => {
+
+  const getTypeColor = (type: Transaction["type"]): string => {
     switch (type) {
-      case 'swap': return 'text-blue-600 bg-blue-100';
-      case 'limit': return 'text-purple-600 bg-purple-100';
-      case 'fusion': return 'text-orange-600 bg-orange-100';
-      case 'bridge': return 'text-teal-600 bg-teal-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case "swap":
+        return "text-blue-600 bg-blue-100";
+      case "limit":
+        return "text-purple-600 bg-purple-100";
+      case "fusion":
+        return "text-orange-600 bg-orange-100";
+      case "bridge":
+        return "text-teal-600 bg-teal-100";
+      default:
+        return "text-gray-600 bg-gray-100";
     }
   };
-  
+
   const formatAmount = (amount: string, decimals: number): string => {
     const num = parseFloat(amount);
     if (num >= 1e6) {
@@ -329,7 +354,7 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
     }
     return num.toFixed(Math.min(decimals, 4));
   };
-  
+
   const formatTime = (seconds: number): string => {
     if (seconds < 60) {
       return `${seconds}s`;
@@ -339,11 +364,11 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
       return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
     }
   };
-  
+
   const truncateHash = (hash: string): string => {
     return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
   };
-  
+
   if (loading) {
     return (
       <div className={`bg-white rounded-lg shadow-lg p-6 ${className}`}>
@@ -358,7 +383,7 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className={`bg-white rounded-lg shadow-lg p-6 ${className}`}>
@@ -375,7 +400,7 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
       </div>
     );
   }
-  
+
   return (
     <ErrorBoundary>
       <PerformanceMonitor componentName="EnhancedTransactionMonitor">
@@ -386,20 +411,14 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Transaction Monitor</h2>
                 <div className="flex items-center space-x-4 text-sm text-gray-600">
-                  <span className={`flex items-center ${
-                    isConnected ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    <span className={`w-2 h-2 rounded-full mr-2 ${
-                      isConnected ? 'bg-green-600' : 'bg-red-600'
-                    }`}></span>
-                    {isConnected ? 'Real-time Connected' : 'Disconnected'}
+                  <span className={`flex items-center ${isConnected ? "text-green-600" : "text-red-600"}`}>
+                    <span className={`w-2 h-2 rounded-full mr-2 ${isConnected ? "bg-green-600" : "bg-red-600"}`}></span>
+                    {isConnected ? "Real-time Connected" : "Disconnected"}
                   </span>
-                  {connectionError && (
-                    <span className="text-red-600">Error: {connectionError}</span>
-                  )}
+                  {connectionError && <span className="text-red-600">Error: {connectionError}</span>}
                 </div>
               </div>
-              
+
               <button
                 onClick={() => {
                   const newData = generateMockTransactions();
@@ -410,7 +429,7 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
                 Refresh
               </button>
             </div>
-            
+
             {/* Statistics */}
             {showStats && (
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
@@ -444,7 +463,7 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
                 </div>
               </div>
             )}
-            
+
             {/* Filters */}
             {showFilters && (
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
@@ -452,13 +471,13 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
                   type="text"
                   placeholder="Search by hash, token, or address..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={e => setSearchQuery(e.target.value)}
                   className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                
+
                 <select
                   value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  onChange={e => setSelectedStatus(e.target.value)}
                   className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Status</option>
@@ -467,10 +486,10 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
                   <option value="failed">Failed</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
-                
+
                 <select
                   value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
+                  onChange={e => setSelectedType(e.target.value)}
                   className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Types</option>
@@ -479,11 +498,11 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
                   <option value="fusion">Fusion</option>
                   <option value="bridge">Bridge</option>
                 </select>
-                
+
                 <select
                   value={`${sortBy}-${sortOrder}`}
-                  onChange={(e) => {
-                    const [field, order] = e.target.value.split('-');
+                  onChange={e => {
+                    const [field, order] = e.target.value.split("-");
                     setSortBy(field as any);
                     setSortOrder(order as any);
                   }}
@@ -499,16 +518,14 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
               </div>
             )}
           </div>
-          
+
           {/* Transaction List */}
           <div className="max-h-96 overflow-y-auto">
             {filteredTransactions.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                No transactions found matching your criteria.
-              </div>
+              <div className="text-center py-8 text-gray-500">No transactions found matching your criteria.</div>
             ) : (
               <div className="divide-y divide-gray-200">
-                {filteredTransactions.map((transaction) => (
+                {filteredTransactions.map(transaction => (
                   <div
                     key={transaction.id}
                     className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
@@ -518,43 +535,43 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
                       <div className="flex items-center space-x-4">
                         <div className="flex flex-col space-y-1">
                           <div className="flex items-center space-x-2">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}
+                            >
                               {transaction.status}
                             </span>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(transaction.type)}`}>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(transaction.type)}`}
+                            >
                               {transaction.type}
                             </span>
                           </div>
-                          <div className="text-sm text-gray-600">
-                            {truncateHash(transaction.hash)}
-                          </div>
+                          <div className="text-sm text-gray-600">{truncateHash(transaction.hash)}</div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
                           <div className="text-center">
                             <div className="font-medium">
-                              {formatAmount(transaction.fromToken.amount, transaction.fromToken.decimals)} {transaction.fromToken.symbol}
+                              {formatAmount(transaction.fromToken.amount, transaction.fromToken.decimals)}{" "}
+                              {transaction.fromToken.symbol}
                             </div>
                             <div className="text-sm text-gray-600">From</div>
                           </div>
                           <div className="text-gray-400">→</div>
                           <div className="text-center">
                             <div className="font-medium">
-                              {formatAmount(transaction.toToken.amount, transaction.toToken.decimals)} {transaction.toToken.symbol}
+                              {formatAmount(transaction.toToken.amount, transaction.toToken.decimals)}{" "}
+                              {transaction.toToken.symbol}
                             </div>
                             <div className="text-sm text-gray-600">To</div>
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="text-right">
-                        <div className="text-sm text-gray-600">
-                          {new Date(transaction.timestamp).toLocaleString()}
-                        </div>
+                        <div className="text-sm text-gray-600">{new Date(transaction.timestamp).toLocaleString()}</div>
                         {transaction.actualTime && (
-                          <div className="text-sm text-gray-500">
-                            {formatTime(transaction.actualTime)}
-                          </div>
+                          <div className="text-sm text-gray-500">{formatTime(transaction.actualTime)}</div>
                         )}
                         {transaction.gasUsed && (
                           <div className="text-sm text-gray-500">
@@ -563,11 +580,9 @@ const EnhancedTransactionMonitor: React.FC<MonitorProps> = ({
                         )}
                       </div>
                     </div>
-                    
+
                     {transaction.error && (
-                      <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded">
-                        {transaction.error}
-                      </div>
+                      <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded">{transaction.error}</div>
                     )}
                   </div>
                 ))}

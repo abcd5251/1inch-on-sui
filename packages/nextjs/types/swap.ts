@@ -1,7 +1,7 @@
 /**
  * 交换状态枚举
  */
-export type SwapStatus = 'pending' | 'active' | 'completed' | 'failed' | 'refunded';
+export type SwapStatus = "pending" | "active" | "completed" | "failed" | "refunded";
 
 /**
  * 基础交换数据接口
@@ -11,44 +11,44 @@ export interface SwapData {
   orderId: string;
   maker: string;
   taker?: string;
-  
+
   // 金额和代币信息
   makingAmount: string;
   takingAmount: string;
   makingToken: string;
   takingToken: string;
-  
+
   // 链信息
   sourceChain: string;
   targetChain: string;
-  
+
   // 状态信息
   status: SwapStatus;
   substatus?: string;
-  
+
   // HTLC相关
   secretHash: string;
   secret?: string;
   timeLock: number;
-  
+
   // 合约地址
   sourceContract: string;
   targetContract?: string;
-  
+
   // 交易哈希
   sourceTransactionHash?: string;
   targetTransactionHash?: string;
   refundTransactionHash?: string;
-  
+
   // 错误信息
   errorMessage?: string;
   errorCode?: string;
-  
+
   // 时间戳
   createdAt: string;
   updatedAt: string;
   expiresAt?: string;
-  
+
   // 元数据
   metadata?: Record<string, any>;
 }
@@ -60,21 +60,21 @@ export interface CreateSwapRequest {
   orderId: string;
   maker: string;
   taker?: string;
-  
+
   makingAmount: string;
   takingAmount: string;
   makingToken: string;
   takingToken: string;
-  
+
   sourceChain: string;
   targetChain: string;
-  
+
   secretHash: string;
   timeLock: number;
-  
+
   sourceContract: string;
   targetContract?: string;
-  
+
   metadata?: Record<string, any>;
 }
 
@@ -101,21 +101,21 @@ export interface SwapQueryParams {
   // 分页参数
   page?: number;
   limit?: number;
-  
+
   // 过滤参数
   status?: SwapStatus;
   maker?: string;
   taker?: string;
   sourceChain?: string;
   targetChain?: string;
-  
+
   // 时间范围
   fromDate?: string;
   toDate?: string;
-  
+
   // 排序参数
-  sortBy?: 'createdAt' | 'updatedAt' | 'expiresAt' | 'makingAmount';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "createdAt" | "updatedAt" | "expiresAt" | "makingAmount";
+  sortOrder?: "asc" | "desc";
 }
 
 /**
@@ -128,10 +128,13 @@ export interface SwapStats {
     makingAmount: string;
     takingAmount: string;
   };
-  chainStats: Record<string, {
-    count: number;
-    volume: string;
-  }>;
+  chainStats: Record<
+    string,
+    {
+      count: number;
+      volume: string;
+    }
+  >;
 }
 
 /**
@@ -151,7 +154,7 @@ export interface SwapEvent {
  * WebSocket消息类型
  */
 export interface SwapWebSocketMessage {
-  type: 'swap_created' | 'swap_updated' | 'swap_status_changed' | 'swap_error';
+  type: "swap_created" | "swap_updated" | "swap_status_changed" | "swap_error";
   data: SwapData;
   timestamp: string;
 }
@@ -202,12 +205,15 @@ export interface SwapConfig {
   fee: string;
   timeLockDuration: number;
   supportedChains: string[];
-  supportedTokens: Record<string, {
-    address: string;
-    decimals: number;
-    symbol: string;
-    name: string;
-  }>;
+  supportedTokens: Record<
+    string,
+    {
+      address: string;
+      decimals: number;
+      symbol: string;
+      name: string;
+    }
+  >;
 }
 
 /**

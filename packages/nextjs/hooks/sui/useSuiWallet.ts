@@ -2,7 +2,6 @@ import { useCallback, useMemo } from "react";
 import { useCurrentAccount, useSuiClient } from "@mysten/dapp-kit";
 import { useWallet } from "@suiet/wallet-kit";
 
-
 /**
  * Sui wallet operation hook
  * Primarily uses Suiet Wallet Kit, with Mysten dApp Kit as auxiliary

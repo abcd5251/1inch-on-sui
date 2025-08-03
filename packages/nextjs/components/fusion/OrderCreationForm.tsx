@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useCrossChainWallet } from "~~/hooks/cross-chain/useCrossChainWallet";
 import { useCoins } from "~~/hooks/fusion/useCoins";
 import { useFusionSDK } from "~~/hooks/fusion/useFusionSDK";
@@ -51,8 +51,8 @@ export const OrderCreationForm = ({ onSubmit, isLoading: externalLoading = false
     initError,
   } = useFusionSDK();
   const {
-    coins,
-    suiCoins,
+    // coins,
+    // suiCoins,
     suiBalance,
     formatBalance,
     parseAmount,

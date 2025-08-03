@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import type { NextPage } from "next";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useFusion } from "~~/hooks/fusion/useFusion";
+import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
+import { useFusion } from "~~/hooks/fusion/useFusion";
 
 interface HistoryFilter {
-  status: 'all' | 'filled' | 'cancelled' | 'expired' | 'pending';
-  timeRange: '24h' | '7d' | '30d' | '90d' | 'all';
+  status: "all" | "filled" | "cancelled" | "expired" | "pending";
+  timeRange: "24h" | "7d" | "30d" | "90d" | "all";
   tokenPair: string;
 }
 
@@ -20,7 +20,7 @@ interface OrderHistory {
   toToken: string;
   fromAmount: string;
   toAmount: string;
-  status: 'filled' | 'cancelled' | 'expired' | 'pending';
+  status: "filled" | "cancelled" | "expired" | "pending";
   txHash?: string;
   gasUsed?: string;
   executionTime?: number;
@@ -29,9 +29,9 @@ interface OrderHistory {
 const FusionHistoryPage: NextPage = () => {
   const { address } = useAccount();
   const [filter, setFilter] = useState<HistoryFilter>({
-    status: 'all',
-    timeRange: '30d',
-    tokenPair: 'all',
+    status: "all",
+    timeRange: "30d",
+    tokenPair: "all",
   });
   const [orders, setOrders] = useState<OrderHistory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -107,38 +107,38 @@ const FusionHistoryPage: NextPage = () => {
     setIsLoading(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     let filteredOrders = [...mockOrders];
-    
+
     // Apply status filter
-    if (filter.status !== 'all') {
+    if (filter.status !== "all") {
       filteredOrders = filteredOrders.filter(order => order.status === filter.status);
     }
-    
+
     // Apply time range filter
     const now = Date.now();
     const timeRanges = {
-      '24h': 24 * 60 * 60 * 1000,
-      '7d': 7 * 24 * 60 * 60 * 1000,
-      '30d': 30 * 24 * 60 * 60 * 1000,
-      '90d': 90 * 24 * 60 * 60 * 1000,
-      'all': Infinity,
+      "24h": 24 * 60 * 60 * 1000,
+      "7d": 7 * 24 * 60 * 60 * 1000,
+      "30d": 30 * 24 * 60 * 60 * 1000,
+      "90d": 90 * 24 * 60 * 60 * 1000,
+      all: Infinity,
     };
-    
-    if (filter.timeRange !== 'all') {
+
+    if (filter.timeRange !== "all") {
       const cutoff = now - timeRanges[filter.timeRange];
       filteredOrders = filteredOrders.filter(order => order.timestamp >= cutoff);
     }
-    
+
     // Apply token pair filter
-    if (filter.tokenPair !== 'all') {
-      const [from, to] = filter.tokenPair.split('/');
-      filteredOrders = filteredOrders.filter(order => 
-        (order.fromToken === from && order.toToken === to) ||
-        (order.fromToken === to && order.toToken === from)
+    if (filter.tokenPair !== "all") {
+      const [from, to] = filter.tokenPair.split("/");
+      filteredOrders = filteredOrders.filter(
+        order =>
+          (order.fromToken === from && order.toToken === to) || (order.fromToken === to && order.toToken === from),
       );
     }
-    
+
     setOrders(filteredOrders);
     setTotalPages(Math.ceil(filteredOrders.length / 10));
     setIsLoading(false);
@@ -150,12 +150,12 @@ const FusionHistoryPage: NextPage = () => {
 
   const getStatusBadge = (status: string) => {
     const badges = {
-      filled: 'badge-success',
-      cancelled: 'badge-error',
-      expired: 'badge-neutral',
-      pending: 'badge-warning',
+      filled: "badge-success",
+      cancelled: "badge-error",
+      expired: "badge-neutral",
+      pending: "badge-warning",
     };
-    return badges[status as keyof typeof badges] || 'badge-neutral';
+    return badges[status as keyof typeof badges] || "badge-neutral";
   };
 
   const formatTimestamp = (timestamp: number) => {
@@ -170,24 +170,37 @@ const FusionHistoryPage: NextPage = () => {
 
   const exportHistory = () => {
     const csv = [
-      ['Order ID', 'Timestamp', 'From Token', 'To Token', 'From Amount', 'To Amount', 'Status', 'TX Hash', 'Gas Used', 'Execution Time'].join(','),
-      ...orders.map(order => [
-        order.id,
-        formatTimestamp(order.timestamp),
-        order.fromToken,
-        order.toToken,
-        order.fromAmount,
-        order.toAmount,
-        order.status,
-        order.txHash || '',
-        order.gasUsed || '',
-        order.executionTime ? formatDuration(order.executionTime) : '',
-      ].join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
+      [
+        "Order ID",
+        "Timestamp",
+        "From Token",
+        "To Token",
+        "From Amount",
+        "To Amount",
+        "Status",
+        "TX Hash",
+        "Gas Used",
+        "Execution Time",
+      ].join(","),
+      ...orders.map(order =>
+        [
+          order.id,
+          formatTimestamp(order.timestamp),
+          order.fromToken,
+          order.toToken,
+          order.fromAmount,
+          order.toAmount,
+          order.status,
+          order.txHash || "",
+          order.gasUsed || "",
+          order.executionTime ? formatDuration(order.executionTime) : "",
+        ].join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `fusion-history-${Date.now()}.csv`;
     a.click();
@@ -229,11 +242,7 @@ const FusionHistoryPage: NextPage = () => {
         {/* Wallet Status */}
         <div className="bg-base-200 p-4 rounded-lg mb-6">
           <div className="text-sm font-medium mb-2">Connected Wallet:</div>
-          {address ? (
-            <Address address={address} />
-          ) : (
-            <div className="text-warning">Please connect your wallet</div>
-          )}
+          {address ? <Address address={address} /> : <div className="text-warning">Please connect your wallet</div>}
         </div>
 
         {/* Filters */}
@@ -245,10 +254,10 @@ const FusionHistoryPage: NextPage = () => {
               <label className="label">
                 <span className="label-text font-medium">Status</span>
               </label>
-              <select 
+              <select
                 className="select select-bordered w-full"
                 value={filter.status}
-                onChange={(e) => setFilter(prev => ({ ...prev, status: e.target.value as HistoryFilter['status'] }))}
+                onChange={e => setFilter(prev => ({ ...prev, status: e.target.value as HistoryFilter["status"] }))}
               >
                 <option value="all">All Status</option>
                 <option value="filled">Filled</option>
@@ -263,10 +272,12 @@ const FusionHistoryPage: NextPage = () => {
               <label className="label">
                 <span className="label-text font-medium">Time Range</span>
               </label>
-              <select 
+              <select
                 className="select select-bordered w-full"
                 value={filter.timeRange}
-                onChange={(e) => setFilter(prev => ({ ...prev, timeRange: e.target.value as HistoryFilter['timeRange'] }))}
+                onChange={e =>
+                  setFilter(prev => ({ ...prev, timeRange: e.target.value as HistoryFilter["timeRange"] }))
+                }
               >
                 <option value="24h">Last 24 Hours</option>
                 <option value="7d">Last 7 Days</option>
@@ -281,10 +292,10 @@ const FusionHistoryPage: NextPage = () => {
               <label className="label">
                 <span className="label-text font-medium">Token Pair</span>
               </label>
-              <select 
+              <select
                 className="select select-bordered w-full"
                 value={filter.tokenPair}
-                onChange={(e) => setFilter(prev => ({ ...prev, tokenPair: e.target.value }))}
+                onChange={e => setFilter(prev => ({ ...prev, tokenPair: e.target.value }))}
               >
                 <option value="all">All Pairs</option>
                 <option value="ETH/USDC">ETH/USDC</option>
@@ -294,20 +305,12 @@ const FusionHistoryPage: NextPage = () => {
               </select>
             </div>
           </div>
-          
+
           <div className="flex gap-2 mt-4">
-            <button 
-              className="btn btn-outline btn-sm"
-              onClick={loadOrderHistory}
-              disabled={isLoading}
-            >
+            <button className="btn btn-outline btn-sm" onClick={loadOrderHistory} disabled={isLoading}>
               {isLoading ? "Loading..." : "Refresh"}
             </button>
-            <button 
-              className="btn btn-outline btn-sm"
-              onClick={exportHistory}
-              disabled={orders.length === 0}
-            >
+            <button className="btn btn-outline btn-sm" onClick={exportHistory} disabled={orders.length === 0}>
               Export CSV
             </button>
           </div>
@@ -334,7 +337,7 @@ const FusionHistoryPage: NextPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
+                  {orders.map(order => (
                     <tr key={order.id}>
                       <td>
                         <div className="font-mono text-sm">
@@ -342,9 +345,7 @@ const FusionHistoryPage: NextPage = () => {
                         </div>
                       </td>
                       <td>
-                        <div className="text-sm">
-                          {formatTimestamp(order.timestamp)}
-                        </div>
+                        <div className="text-sm">{formatTimestamp(order.timestamp)}</div>
                       </td>
                       <td>
                         <div className="font-medium">
@@ -356,8 +357,12 @@ const FusionHistoryPage: NextPage = () => {
                       </td>
                       <td>
                         <div className="text-sm">
-                          <div>{order.fromAmount} {order.fromToken}</div>
-                          <div className="text-base-content/70">→ {order.toAmount} {order.toToken}</div>
+                          <div>
+                            {order.fromAmount} {order.fromToken}
+                          </div>
+                          <div className="text-base-content/70">
+                            → {order.toAmount} {order.toToken}
+                          </div>
                         </div>
                       </td>
                       <td>
@@ -366,17 +371,17 @@ const FusionHistoryPage: NextPage = () => {
                         </span>
                       </td>
                       <td>
-                        {order.status === 'filled' && (
+                        {order.status === "filled" && (
                           <div className="text-sm">
-                            <div>⏱️ {order.executionTime ? formatDuration(order.executionTime) : 'N/A'}</div>
-                            <div>⛽ {order.gasUsed || 'N/A'} ETH</div>
+                            <div>⏱️ {order.executionTime ? formatDuration(order.executionTime) : "N/A"}</div>
+                            <div>⛽ {order.gasUsed || "N/A"} ETH</div>
                           </div>
                         )}
                       </td>
                       <td>
                         <div className="flex gap-1">
                           {order.txHash && (
-                            <a 
+                            <a
                               href={`https://etherscan.io/tx/${order.txHash}`}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -385,9 +390,7 @@ const FusionHistoryPage: NextPage = () => {
                               View TX
                             </a>
                           )}
-                          <button className="btn btn-xs btn-ghost">
-                            Details
-                          </button>
+                          <button className="btn btn-xs btn-ghost">Details</button>
                         </div>
                       </td>
                     </tr>
@@ -447,14 +450,24 @@ const FusionHistoryPage: NextPage = () => {
 
         {/* Info */}
         <div className="mt-8 alert alert-info">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="stroke-current shrink-0 w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
           </svg>
           <div>
             <h3 className="font-bold">History Information</h3>
             <div className="text-sm">
-              Order history shows all your past 1inch Fusion transactions. 
-              Data is fetched from the blockchain and may have slight delays.
+              Order history shows all your past 1inch Fusion transactions. Data is fetched from the blockchain and may
+              have slight delays.
             </div>
           </div>
         </div>

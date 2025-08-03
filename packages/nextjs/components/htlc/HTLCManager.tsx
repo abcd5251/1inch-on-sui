@@ -1,11 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { bcs } from "@mysten/sui/bcs";
-import { SuiClient } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { Contract } from "ethers";
-import { formatEther, parseEther } from "viem";
+import { parseEther } from "viem";
 import { useEthersSigner } from "~~/hooks/scaffold-eth/useEthersSigner";
 import { useSuiWallet } from "~~/hooks/sui/useSuiWallet";
 

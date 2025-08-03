@@ -1,25 +1,25 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import type { NextPage } from "next";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useFusion } from "~~/hooks/fusion/useFusion";
-import { useAccount } from "wagmi";
+import type { NextPage } from "next";
 import {
-  LineChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
   Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  Legend,
 } from "recharts";
+import { useAccount } from "wagmi";
+import { useFusion } from "~~/hooks/fusion/useFusion";
 
 interface AnalyticsData {
   totalOrders: number;
@@ -39,7 +39,7 @@ interface AnalyticsData {
 
 const FusionAnalyticsPage: NextPage = () => {
   // const { address } = useAccount();
-  const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('7d');
+  const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d">("7d");
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -54,7 +54,7 @@ const FusionAnalyticsPage: NextPage = () => {
     setIsLoading(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     const volumeData = [
       { date: "Jan 1", volume: 125000, orders: 45 },
       { date: "Jan 2", volume: 189000, orders: 67 },
@@ -80,7 +80,7 @@ const FusionAnalyticsPage: NextPage = () => {
       { time: "16:00", avgTime: 22.1 },
       { time: "20:00", avgTime: 12.7 },
     ];
-    
+
     const mockData: AnalyticsData = {
       totalOrders: 1247,
       totalVolume: "$2,456,789",
@@ -97,7 +97,7 @@ const FusionAnalyticsPage: NextPage = () => {
       statusData,
       executionTimeData,
     };
-    
+
     setAnalyticsData(mockData);
     setIsLoading(false);
   };
@@ -141,13 +141,13 @@ const FusionAnalyticsPage: NextPage = () => {
         {/* Time Range Selector */}
         <div className="flex justify-center mb-8">
           <div className="btn-group">
-            {(['24h', '7d', '30d'] as const).map((range) => (
+            {(["24h", "7d", "30d"] as const).map(range => (
               <button
                 key={range}
-                className={`btn ${timeRange === range ? 'btn-active' : 'btn-outline'}`}
+                className={`btn ${timeRange === range ? "btn-active" : "btn-outline"}`}
                 onClick={() => setTimeRange(range)}
               >
-                {range === '24h' ? '24 Hours' : range === '7d' ? '7 Days' : '30 Days'}
+                {range === "24h" ? "24 Hours" : range === "7d" ? "7 Days" : "30 Days"}
               </button>
             ))}
           </div>
@@ -163,8 +163,18 @@ const FusionAnalyticsPage: NextPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="stat bg-base-200 rounded-2xl">
                 <div className="stat-figure text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    className="inline-block w-8 h-8 stroke-current"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
                   </svg>
                 </div>
                 <div className="stat-title">Total Orders</div>
@@ -174,8 +184,18 @@ const FusionAnalyticsPage: NextPage = () => {
 
               <div className="stat bg-base-200 rounded-2xl">
                 <div className="stat-figure text-secondary">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    className="inline-block w-8 h-8 stroke-current"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
+                    ></path>
                   </svg>
                 </div>
                 <div className="stat-title">Total Volume</div>
@@ -185,8 +205,18 @@ const FusionAnalyticsPage: NextPage = () => {
 
               <div className="stat bg-base-200 rounded-2xl">
                 <div className="stat-figure text-accent">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    className="inline-block w-8 h-8 stroke-current"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    ></path>
                   </svg>
                 </div>
                 <div className="stat-title">Avg Execution</div>
@@ -196,8 +226,18 @@ const FusionAnalyticsPage: NextPage = () => {
 
               <div className="stat bg-base-200 rounded-2xl">
                 <div className="stat-figure text-success">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    className="inline-block w-8 h-8 stroke-current"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
                   </svg>
                 </div>
                 <div className="stat-title">Success Rate</div>
@@ -236,7 +276,7 @@ const FusionAnalyticsPage: NextPage = () => {
                         <td className="font-mono">{pair.volume}</td>
                         <td>{pair.count}</td>
                         <td className="font-mono">
-                          ${(parseFloat(pair.volume.replace(/[$,]/g, '')) / pair.count).toLocaleString()}
+                          ${(parseFloat(pair.volume.replace(/[$,]/g, "")) / pair.count).toLocaleString()}
                         </td>
                       </tr>
                     ))}
@@ -253,32 +293,28 @@ const FusionAnalyticsPage: NextPage = () => {
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={analyticsData.volumeData}>
                       <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                      <XAxis 
-                        dataKey="date" 
+                      <XAxis dataKey="date" className="text-xs" tick={{ fontSize: 12 }} />
+                      <YAxis
                         className="text-xs"
                         tick={{ fontSize: 12 }}
+                        tickFormatter={value => `$${(value / 1000).toFixed(0)}k`}
                       />
-                      <YAxis 
-                        className="text-xs"
-                        tick={{ fontSize: 12 }}
-                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                      />
-                      <Tooltip 
-                        formatter={(value: number) => [`$${value.toLocaleString()}`, 'Volume']}
-                        labelFormatter={(label) => `Date: ${label}`}
+                      <Tooltip
+                        formatter={(value: number) => [`$${value.toLocaleString()}`, "Volume"]}
+                        labelFormatter={label => `Date: ${label}`}
                         contentStyle={{
-                          backgroundColor: 'hsl(var(--b1))',
-                          border: '1px solid hsl(var(--b3))',
-                          borderRadius: '0.5rem'
+                          backgroundColor: "hsl(var(--b1))",
+                          border: "1px solid hsl(var(--b3))",
+                          borderRadius: "0.5rem",
                         }}
                       />
-                      <Line 
-                        type="monotone" 
-                        dataKey="volume" 
-                        stroke="hsl(var(--p))" 
+                      <Line
+                        type="monotone"
+                        dataKey="volume"
+                        stroke="hsl(var(--p))"
                         strokeWidth={2}
-                        dot={{ fill: 'hsl(var(--p))', strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, stroke: 'hsl(var(--p))', strokeWidth: 2 }}
+                        dot={{ fill: "hsl(var(--p))", strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, stroke: "hsl(var(--p))", strokeWidth: 2 }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -303,20 +339,18 @@ const FusionAnalyticsPage: NextPage = () => {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip 
-                        formatter={(value: number) => [value, 'Orders']}
+                      <Tooltip
+                        formatter={(value: number) => [value, "Orders"]}
                         contentStyle={{
-                          backgroundColor: 'hsl(var(--b1))',
-                          border: '1px solid hsl(var(--b3))',
-                          borderRadius: '0.5rem'
+                          backgroundColor: "hsl(var(--b1))",
+                          border: "1px solid hsl(var(--b3))",
+                          borderRadius: "0.5rem",
                         }}
                       />
-                      <Legend 
-                        verticalAlign="bottom" 
+                      <Legend
+                        verticalAlign="bottom"
                         height={36}
-                        formatter={(value, entry) => (
-                          <span style={{ color: entry.color }}>{value}</span>
-                        )}
+                        formatter={(value, entry) => <span style={{ color: entry.color }}>{value}</span>}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -331,30 +365,18 @@ const FusionAnalyticsPage: NextPage = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={analyticsData.executionTimeData}>
                     <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                    <XAxis 
-                      dataKey="time" 
-                      className="text-xs"
-                      tick={{ fontSize: 12 }}
-                    />
-                    <YAxis 
-                      className="text-xs"
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => `${value}s`}
-                    />
-                    <Tooltip 
-                      formatter={(value: number) => [`${value}s`, 'Avg Time']}
-                      labelFormatter={(label) => `Time: ${label}`}
+                    <XAxis dataKey="time" className="text-xs" tick={{ fontSize: 12 }} />
+                    <YAxis className="text-xs" tick={{ fontSize: 12 }} tickFormatter={value => `${value}s`} />
+                    <Tooltip
+                      formatter={(value: number) => [`${value}s`, "Avg Time"]}
+                      labelFormatter={label => `Time: ${label}`}
                       contentStyle={{
-                        backgroundColor: 'hsl(var(--b1))',
-                        border: '1px solid hsl(var(--b3))',
-                        borderRadius: '0.5rem'
+                        backgroundColor: "hsl(var(--b1))",
+                        border: "1px solid hsl(var(--b3))",
+                        borderRadius: "0.5rem",
                       }}
                     />
-                    <Bar 
-                      dataKey="avgTime" 
-                      fill="hsl(var(--s))"
-                      radius={[4, 4, 0, 0]}
-                    />
+                    <Bar dataKey="avgTime" fill="hsl(var(--s))" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -368,11 +390,7 @@ const FusionAnalyticsPage: NextPage = () => {
               <Link href="/fusion/orders" className="btn btn-outline">
                 View All Orders
               </Link>
-              <button 
-                className="btn btn-outline"
-                onClick={loadAnalyticsData}
-                disabled={isLoading}
-              >
+              <button className="btn btn-outline" onClick={loadAnalyticsData} disabled={isLoading}>
                 {isLoading ? "Refreshing..." : "Refresh Data"}
               </button>
             </div>
@@ -385,14 +403,24 @@ const FusionAnalyticsPage: NextPage = () => {
 
         {/* Info */}
         <div className="mt-12 alert alert-info">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="stroke-current shrink-0 w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
           </svg>
           <div>
             <h3 className="font-bold">Analytics Information</h3>
             <div className="text-sm">
-              Analytics data is aggregated from 1inch Fusion protocol activity. 
-              Data may have a slight delay and is for informational purposes only.
+              Analytics data is aggregated from 1inch Fusion protocol activity. Data may have a slight delay and is for
+              informational purposes only.
             </div>
           </div>
         </div>

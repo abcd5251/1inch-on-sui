@@ -40,7 +40,7 @@ export const crossChainQueryClient = new QueryClient({
 });
 
 /**
- * 
+ *
  * support Ethereum (RainbowKit + Wagmi) and Sui (Suiet Wallet Kit + Mysten dApp Kit)
  */
 export const CrossChainAppWithProviders = ({ children }: { children: React.ReactNode }) => {

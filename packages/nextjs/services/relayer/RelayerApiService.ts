@@ -1,4 +1,11 @@
-import { SwapData, SwapStatus, SwapQueryParams, SwapStats, CreateSwapRequest, UpdateSwapStatusRequest } from '../../types/swap';
+import {
+  CreateSwapRequest,
+  SwapData,
+  SwapQueryParams,
+  SwapStats,
+  SwapStatus,
+  UpdateSwapStatusRequest,
+} from "../../types/swap";
 
 /**
  * Relayer API Service
@@ -8,8 +15,11 @@ export class RelayerApiService {
   private baseUrl: string;
   private timeout: number;
 
-  constructor(baseUrl: string = process.env.NEXT_PUBLIC_RELAYER_API_URL || 'http://localhost:3001', timeout: number = 10000) {
-    this.baseUrl = baseUrl.replace(/\/$/, ''); // 移除末尾斜杠
+  constructor(
+    baseUrl: string = process.env.NEXT_PUBLIC_RELAYER_API_URL || "http://localhost:3001",
+    timeout: number = 10000,
+  ) {
+    this.baseUrl = baseUrl.replace(/\/$/, ""); // 移除末尾斜杠
     this.timeout = timeout;
   }
 
@@ -26,7 +36,7 @@ export class RelayerApiService {
         ...options,
         signal: controller.signal,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           ...options.headers,
         },
       });
@@ -35,28 +45,32 @@ export class RelayerApiService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(`API请求失败: ${response.status} ${response.statusText}${errorData.message ? ` - ${errorData.message}` : ''}`);
+        throw new Error(
+          `API请求失败: ${response.status} ${response.statusText}${errorData.message ? ` - ${errorData.message}` : ""}`,
+        );
       }
 
       return await response.json();
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          throw new Error('请求超时');
+        if (error.name === "AbortError") {
+          throw new Error("请求超时");
         }
         throw error;
       }
-      throw new Error('未知错误');
+      throw new Error("未知错误");
     }
   }
 
   /**
    * 查询交换列表
    */
-  async getSwaps(params: SwapQueryParams = {}): Promise<{ swaps: SwapData[]; total: number; page: number; limit: number }> {
+  async getSwaps(
+    params: SwapQueryParams = {},
+  ): Promise<{ swaps: SwapData[]; total: number; page: number; limit: number }> {
     const searchParams = new URLSearchParams();
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         searchParams.append(key, String(value));
@@ -64,8 +78,8 @@ export class RelayerApiService {
     });
 
     const queryString = searchParams.toString();
-    const endpoint = `/api/swaps${queryString ? `?${queryString}` : ''}`;
-    
+    const endpoint = `/api/swaps${queryString ? `?${queryString}` : ""}`;
+
     return this.request<{ swaps: SwapData[]; total: number; page: number; limit: number }>(endpoint);
   }
 
@@ -87,8 +101,8 @@ export class RelayerApiService {
    * 创建新的交换
    */
   async createSwap(swapData: CreateSwapRequest): Promise<SwapData> {
-    return this.request<SwapData>('/api/swaps', {
-      method: 'POST',
+    return this.request<SwapData>("/api/swaps", {
+      method: "POST",
       body: JSON.stringify(swapData),
     });
   }
@@ -98,7 +112,7 @@ export class RelayerApiService {
    */
   async updateSwapStatus(id: string, updateData: UpdateSwapStatusRequest): Promise<SwapData> {
     return this.request<SwapData>(`/api/swaps/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(updateData),
     });
   }
@@ -108,7 +122,7 @@ export class RelayerApiService {
    */
   async deleteSwap(id: string): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/api/swaps/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
@@ -116,13 +130,17 @@ export class RelayerApiService {
    * 获取交换统计信息
    */
   async getSwapStats(): Promise<SwapStats> {
-    return this.request<SwapStats>('/api/swaps/stats');
+    return this.request<SwapStats>("/api/swaps/stats");
   }
 
   /**
    * 获取交换相关事件
    */
-  async getSwapEvents(id: string, page: number = 1, limit: number = 20): Promise<{
+  async getSwapEvents(
+    id: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{
     events: any[];
     total: number;
     page: number;
@@ -132,7 +150,7 @@ export class RelayerApiService {
       page: String(page),
       limit: String(limit),
     });
-    
+
     return this.request<{
       events: any[];
       total: number;
@@ -145,14 +163,14 @@ export class RelayerApiService {
    * 健康检查
    */
   async healthCheck(): Promise<{ status: string; timestamp: string }> {
-    return this.request<{ status: string; timestamp: string }>('/health');
+    return this.request<{ status: string; timestamp: string }>("/health");
   }
 
   /**
    * 设置基础URL
    */
   setBaseUrl(url: string): void {
-    this.baseUrl = url.replace(/\/$/, '');
+    this.baseUrl = url.replace(/\/$/, "");
   }
 
   /**

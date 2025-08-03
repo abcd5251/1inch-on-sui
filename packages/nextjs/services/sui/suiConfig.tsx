@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { WalletProvider, SuiClientProvider, createNetworkConfig } from "@mysten/dapp-kit";
+import { SuiClientProvider, WalletProvider, createNetworkConfig } from "@mysten/dapp-kit";
 import { getFullnodeUrl } from "@mysten/sui/client";
 
 // Define network configuration
@@ -23,9 +23,7 @@ interface SuiProvidersProps {
 export function SuiProviders({ children }: SuiProvidersProps) {
   return (
     <SuiClientProvider networks={networkConfig} defaultNetwork="devnet">
-      <WalletProvider enableUnsafeBurner>
-        {children}
-      </WalletProvider>
+      <WalletProvider enableUnsafeBurner>{children}</WalletProvider>
     </SuiClientProvider>
   );
 }

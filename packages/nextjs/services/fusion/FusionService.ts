@@ -1,7 +1,7 @@
-import { FusionSDK, PrivateKeyProviderConnector, OrderInfo } from "@1inch/fusion-sdk";
+import { fusionConfig } from "./config";
+import { FusionSDK, OrderInfo, PrivateKeyProviderConnector } from "@1inch/fusion-sdk";
 import { NetworkEnum, PresetEnum, Quote } from "@1inch/fusion-sdk/api";
 import Web3 from "web3";
-import { fusionConfig } from "./config";
 
 export interface FusionServiceConfig {
   network: NetworkEnum;
@@ -40,7 +40,7 @@ export class FusionService {
     const blockchainProvider = new PrivateKeyProviderConnector(
       privateKey,
       // @ts-ignore
-      this.web3
+      this.web3,
     );
 
     this.sdk = new FusionSDK({
@@ -116,7 +116,7 @@ export class FusionService {
     tokenAddress: string,
     spenderAddress: string,
     amount: string,
-    privateKey: string
+    privateKey: string,
   ): Promise<string> {
     const ERC20_ABI = [
       {
@@ -133,7 +133,7 @@ export class FusionService {
 
     const tokenContract = new this.web3.eth.Contract(ERC20_ABI, tokenAddress);
     const account = this.web3.eth.accounts.privateKeyToAccount(privateKey);
-    
+
     // @ts-ignore
     const approvalData = tokenContract.methods.approve(spenderAddress, amount).encodeABI();
 
@@ -143,7 +143,7 @@ export class FusionService {
         data: approvalData,
         gas: fusionConfig.gasLimits.approve.toString(),
       },
-      privateKey
+      privateKey,
     );
 
     if (!signedTransaction.rawTransaction) {

@@ -117,7 +117,7 @@ export const CrossChainStatus = () => {
       </div>
 
       <div className="space-y-3">
-        {chains.map((chain) => (
+        {chains.map(chain => (
           <div key={chain.name} className="flex items-center justify-between p-3 bg-base-100 rounded-lg border">
             <div className="flex items-center gap-3">
               {getChainIcon(chain.name)}

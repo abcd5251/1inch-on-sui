@@ -3,13 +3,13 @@ import { NetworkEnum } from "@1inch/fusion-sdk";
 export const fusionConfig = {
   // 1inch Fusion API endpoint
   apiUrl: "https://api.1inch.dev/fusion",
-  
+
   // Default network (can be overridden)
   defaultNetwork: NetworkEnum.ETHEREUM,
-  
+
   // Supported networks
   supportedNetworks: [NetworkEnum.ETHEREUM, NetworkEnum.BINANCE, NetworkEnum.POLYGON],
-  
+
   // Token addresses for different networks
   tokens: {
     [NetworkEnum.ETHEREUM]: {
@@ -29,14 +29,14 @@ export const fusionConfig = {
       USDC: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
     },
   },
-  
+
   // Router addresses
   routers: {
     [NetworkEnum.ETHEREUM]: "0x1111111254EEB25477B68fb85Ed929f73A960582",
     [NetworkEnum.BINANCE]: "0x1111111254EEB25477B68fb85Ed929f73A960582",
     [NetworkEnum.POLYGON]: "0x1111111254EEB25477B68fb85Ed929f73A960582",
   },
-  
+
   // Default gas limits
   gasLimits: {
     approve: 50000,

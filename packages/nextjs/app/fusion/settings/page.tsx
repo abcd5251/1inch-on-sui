@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import type { NextPage } from "next";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { PresetEnum } from "@1inch/fusion-sdk/api";
+import type { NextPage } from "next";
 import { useAccount } from "wagmi";
-import { notification } from "~~/utils/scaffold-eth";
 import { Address } from "~~/components/scaffold-eth";
+import { notification } from "~~/utils/scaffold-eth";
 
 interface FusionSettings {
   defaultPreset: PresetEnum;
   slippageTolerance: number;
-  gasPrice: 'auto' | 'fast' | 'standard' | 'slow';
+  gasPrice: "auto" | "fast" | "standard" | "slow";
   enableNotifications: boolean;
   autoRefreshOrders: boolean;
   refreshInterval: number;
@@ -22,12 +22,12 @@ interface FusionSettings {
 const defaultSettings: FusionSettings = {
   defaultPreset: PresetEnum.fast,
   slippageTolerance: 0.5,
-  gasPrice: 'auto',
+  gasPrice: "auto",
   enableNotifications: true,
   autoRefreshOrders: true,
   refreshInterval: 30,
   maxOrderDuration: 3600,
-  preferredTokens: ['ETH', 'USDC', 'WETH', '1INCH'],
+  preferredTokens: ["ETH", "USDC", "WETH", "1INCH"],
 };
 
 const FusionSettingsPage: NextPage = () => {
@@ -38,21 +38,18 @@ const FusionSettingsPage: NextPage = () => {
 
   // Load settings from localStorage on mount
   useEffect(() => {
-    const savedSettings = localStorage.getItem('fusion-settings');
+    const savedSettings = localStorage.getItem("fusion-settings");
     if (savedSettings) {
       try {
         const parsed = JSON.parse(savedSettings);
         setSettings({ ...defaultSettings, ...parsed });
       } catch (error) {
-        console.error('Failed to parse saved settings:', error);
+        console.error("Failed to parse saved settings:", error);
       }
     }
   }, []);
 
-  const updateSetting = <K extends keyof FusionSettings>(
-    key: K,
-    value: FusionSettings[K]
-  ) => {
+  const updateSetting = <K extends keyof FusionSettings>(key: K, value: FusionSettings[K]) => {
     setSettings(prev => ({ ...prev, [key]: value }));
     setHasChanges(true);
   };
@@ -60,11 +57,11 @@ const FusionSettingsPage: NextPage = () => {
   const saveSettings = async () => {
     setIsSaving(true);
     try {
-      localStorage.setItem('fusion-settings', JSON.stringify(settings));
+      localStorage.setItem("fusion-settings", JSON.stringify(settings));
       setHasChanges(false);
-      notification.success('Settings saved successfully');
+      notification.success("Settings saved successfully");
     } catch (error) {
-      notification.error('Failed to save settings');
+      notification.error("Failed to save settings");
     } finally {
       setIsSaving(false);
     }
@@ -76,14 +73,17 @@ const FusionSettingsPage: NextPage = () => {
   };
 
   const addPreferredToken = () => {
-    const token = prompt('Enter token symbol (e.g., DAI):');
+    const token = prompt("Enter token symbol (e.g., DAI):");
     if (token && !settings.preferredTokens.includes(token.toUpperCase())) {
-      updateSetting('preferredTokens', [...settings.preferredTokens, token.toUpperCase()]);
+      updateSetting("preferredTokens", [...settings.preferredTokens, token.toUpperCase()]);
     }
   };
 
   const removePreferredToken = (token: string) => {
-    updateSetting('preferredTokens', settings.preferredTokens.filter(t => t !== token));
+    updateSetting(
+      "preferredTokens",
+      settings.preferredTokens.filter(t => t !== token),
+    );
   };
 
   return (
@@ -121,11 +121,7 @@ const FusionSettingsPage: NextPage = () => {
         {/* Wallet Status */}
         <div className="bg-base-200 p-4 rounded-lg mb-6">
           <div className="text-sm font-medium mb-2">Connected Wallet:</div>
-          {address ? (
-            <Address address={address} />
-          ) : (
-            <div className="text-warning">Please connect your wallet</div>
-          )}
+          {address ? <Address address={address} /> : <div className="text-warning">Please connect your wallet</div>}
         </div>
 
         {/* Settings Form */}
@@ -133,17 +129,17 @@ const FusionSettingsPage: NextPage = () => {
           {/* Trading Preferences */}
           <div className="bg-base-200 p-6 rounded-2xl">
             <h2 className="text-xl font-bold mb-4">Trading Preferences</h2>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               {/* Default Preset */}
               <div className="form-control">
                 <label className="label">
                   <span className="label-text font-medium">Default Order Preset</span>
                 </label>
-                <select 
+                <select
                   className="select select-bordered w-full"
                   value={settings.defaultPreset}
-                  onChange={(e) => updateSetting('defaultPreset', e.target.value as PresetEnum)}
+                  onChange={e => updateSetting("defaultPreset", e.target.value as PresetEnum)}
                 >
                   <option value={PresetEnum.fast}>Fast (Higher fees, faster execution)</option>
                   <option value={PresetEnum.medium}>Medium (Balanced)</option>
@@ -160,7 +156,7 @@ const FusionSettingsPage: NextPage = () => {
                   type="number"
                   className="input input-bordered w-full"
                   value={settings.slippageTolerance}
-                  onChange={(e) => updateSetting('slippageTolerance', parseFloat(e.target.value))}
+                  onChange={e => updateSetting("slippageTolerance", parseFloat(e.target.value))}
                   min="0.1"
                   max="50"
                   step="0.1"
@@ -172,10 +168,10 @@ const FusionSettingsPage: NextPage = () => {
                 <label className="label">
                   <span className="label-text font-medium">Gas Price Strategy</span>
                 </label>
-                <select 
+                <select
                   className="select select-bordered w-full"
                   value={settings.gasPrice}
-                  onChange={(e) => updateSetting('gasPrice', e.target.value as FusionSettings['gasPrice'])}
+                  onChange={e => updateSetting("gasPrice", e.target.value as FusionSettings["gasPrice"])}
                 >
                   <option value="auto">Auto (Recommended)</option>
                   <option value="fast">Fast (Higher gas fees)</option>
@@ -193,7 +189,7 @@ const FusionSettingsPage: NextPage = () => {
                   type="number"
                   className="input input-bordered w-full"
                   value={settings.maxOrderDuration}
-                  onChange={(e) => updateSetting('maxOrderDuration', parseInt(e.target.value))}
+                  onChange={e => updateSetting("maxOrderDuration", parseInt(e.target.value))}
                   min="300"
                   max="86400"
                   step="300"
@@ -208,17 +204,17 @@ const FusionSettingsPage: NextPage = () => {
           {/* Interface Settings */}
           <div className="bg-base-200 p-6 rounded-2xl">
             <h2 className="text-xl font-bold mb-4">Interface Settings</h2>
-            
+
             <div className="space-y-4">
               {/* Enable Notifications */}
               <div className="form-control">
                 <label className="label cursor-pointer">
                   <span className="label-text font-medium">Enable Notifications</span>
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="toggle toggle-primary"
                     checked={settings.enableNotifications}
-                    onChange={(e) => updateSetting('enableNotifications', e.target.checked)}
+                    onChange={e => updateSetting("enableNotifications", e.target.checked)}
                   />
                 </label>
                 <label className="label">
@@ -230,11 +226,11 @@ const FusionSettingsPage: NextPage = () => {
               <div className="form-control">
                 <label className="label cursor-pointer">
                   <span className="label-text font-medium">Auto Refresh Orders</span>
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="toggle toggle-primary"
                     checked={settings.autoRefreshOrders}
-                    onChange={(e) => updateSetting('autoRefreshOrders', e.target.checked)}
+                    onChange={e => updateSetting("autoRefreshOrders", e.target.checked)}
                   />
                 </label>
                 <label className="label">
@@ -252,7 +248,7 @@ const FusionSettingsPage: NextPage = () => {
                     type="number"
                     className="input input-bordered w-full max-w-xs"
                     value={settings.refreshInterval}
-                    onChange={(e) => updateSetting('refreshInterval', parseInt(e.target.value))}
+                    onChange={e => updateSetting("refreshInterval", parseInt(e.target.value))}
                     min="10"
                     max="300"
                     step="10"
@@ -268,46 +264,33 @@ const FusionSettingsPage: NextPage = () => {
             <p className="text-sm text-base-content/70 mb-4">
               Add tokens that you frequently trade to have them appear first in token selection.
             </p>
-            
+
             <div className="flex flex-wrap gap-2 mb-4">
-              {settings.preferredTokens.map((token) => (
+              {settings.preferredTokens.map(token => (
                 <div key={token} className="badge badge-primary gap-2">
                   {token}
-                  <button 
-                    className="btn btn-xs btn-circle btn-ghost"
-                    onClick={() => removePreferredToken(token)}
-                  >
+                  <button className="btn btn-xs btn-circle btn-ghost" onClick={() => removePreferredToken(token)}>
                     ✕
                   </button>
                 </div>
               ))}
             </div>
-            
-            <button 
-              className="btn btn-outline btn-sm"
-              onClick={addPreferredToken}
-            >
+
+            <button className="btn btn-outline btn-sm" onClick={addPreferredToken}>
               + Add Token
             </button>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 justify-center pt-6">
-            <button 
-              className="btn btn-primary"
-              onClick={saveSettings}
-              disabled={!hasChanges || isSaving}
-            >
+            <button className="btn btn-primary" onClick={saveSettings} disabled={!hasChanges || isSaving}>
               {isSaving ? "Saving..." : "Save Settings"}
             </button>
-            
-            <button 
-              className="btn btn-outline"
-              onClick={resetSettings}
-            >
+
+            <button className="btn btn-outline" onClick={resetSettings}>
               Reset to Defaults
             </button>
-            
+
             <Link href="/fusion" className="btn btn-ghost">
               Back to Fusion
             </Link>
@@ -316,13 +299,24 @@ const FusionSettingsPage: NextPage = () => {
 
         {/* Settings Info */}
         <div className="mt-8 alert alert-info">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="stroke-current shrink-0 w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
           </svg>
           <div>
             <h3 className="font-bold">Settings Information</h3>
             <div className="text-sm">
-              Settings are stored locally in your browser. You may need to reconfigure them if you clear your browser data or use a different device.
+              Settings are stored locally in your browser. You may need to reconfigure them if you clear your browser
+              data or use a different device.
             </div>
           </div>
         </div>

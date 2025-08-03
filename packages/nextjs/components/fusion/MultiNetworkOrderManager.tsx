@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { NetworkType, useUnifiedFusionSDK } from "~~/hooks/fusion/useUnifiedFusionSDK";
 import { CompactNetworkSelector } from "./NetworkSelector";
+import { NetworkType, useUnifiedFusionSDK } from "~~/hooks/fusion/useUnifiedFusionSDK";
 
 interface Order {
   id: string;
@@ -36,18 +36,9 @@ interface MultiNetworkOrderManagerProps {
  * 多网络订单管理器
  * 支持查看和管理 Sui 和以太坊网络的订单
  */
-export const MultiNetworkOrderManager = ({ 
-  onOrderSelect, 
-  refreshInterval = 30000 
-}: MultiNetworkOrderManagerProps) => {
-  const { 
-    activeNetwork, 
-    getOrders, 
-    getOrdersByMaker, 
-    getNetworkInfo,
-    initializeNetwork 
-  } = useUnifiedFusionSDK();
-  
+export const MultiNetworkOrderManager = ({ onOrderSelect, refreshInterval = 30000 }: MultiNetworkOrderManagerProps) => {
+  const { activeNetwork, getOrders, getOrdersByMaker, getNetworkInfo, initializeNetwork } = useUnifiedFusionSDK();
+
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkType>(activeNetwork);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
@@ -70,7 +61,7 @@ export const MultiNetworkOrderManager = ({
 
     try {
       let orderData: any[];
-      
+
       if (viewMode === "my" && networkInfo.address) {
         orderData = await getOrdersByMaker({
           network: selectedNetwork,
@@ -142,7 +133,7 @@ export const MultiNetworkOrderManager = ({
     })
     .sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (sortBy) {
         case "createdAt":
           aValue = a.createdAt;
@@ -159,7 +150,7 @@ export const MultiNetworkOrderManager = ({
         default:
           return 0;
       }
-      
+
       if (sortOrder === "asc") {
         return aValue > bValue ? 1 : -1;
       } else {
@@ -227,7 +218,7 @@ export const MultiNetworkOrderManager = ({
           fetchOrders();
         }
       }, refreshInterval);
-      
+
       return () => clearInterval(interval);
     }
   }, [refreshInterval, selectedNetwork, fetchOrders, getNetworkInfo]);
@@ -237,13 +228,10 @@ export const MultiNetworkOrderManager = ({
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">多网络订单管理</h2>
-      
+
       {/* 网络选择器 */}
       <div className="mb-6">
-        <CompactNetworkSelector 
-          selectedNetwork={selectedNetwork}
-          onNetworkChange={handleNetworkChange} 
-        />
+        <CompactNetworkSelector selectedNetwork={selectedNetwork} onNetworkChange={handleNetworkChange} />
       </div>
 
       {/* 网络状态 */}
@@ -251,14 +239,14 @@ export const MultiNetworkOrderManager = ({
         <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                网络状态: 
-              </span>
-              <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                networkInfo.isInitialized 
-                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-              }`}>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">网络状态:</span>
+              <span
+                className={`ml-2 px-2 py-1 rounded text-xs ${
+                  networkInfo.isInitialized
+                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                }`}
+              >
                 {networkInfo.isInitialized ? "已初始化" : "未初始化"}
               </span>
             </div>
@@ -311,7 +299,7 @@ export const MultiNetworkOrderManager = ({
               {/* 状态过滤 */}
               <select
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
+                onChange={e => setFilterStatus(e.target.value)}
                 className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
               >
                 <option value="all">所有状态</option>
@@ -326,14 +314,14 @@ export const MultiNetworkOrderManager = ({
               {/* 排序 */}
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={e => setSortBy(e.target.value as any)}
                 className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
               >
                 <option value="createdAt">创建时间</option>
                 <option value="amount">数量</option>
                 <option value="expiryTime">过期时间</option>
               </select>
-              
+
               <button
                 onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
                 className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-sm hover:bg-gray-200 dark:hover:bg-gray-600"
@@ -390,18 +378,24 @@ export const MultiNetworkOrderManager = ({
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="border border-gray-300 dark:border-gray-600 px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={7}
+                      className="border border-gray-300 dark:border-gray-600 px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       加载中...
                     </td>
                   </tr>
                 ) : filteredAndSortedOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="border border-gray-300 dark:border-gray-600 px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={7}
+                      className="border border-gray-300 dark:border-gray-600 px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
                       暂无订单
                     </td>
                   </tr>
                 ) : (
-                  filteredAndSortedOrders.map((order) => (
+                  filteredAndSortedOrders.map(order => (
                     <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
                         {order.id.slice(0, 8)}...{order.id.slice(-6)}
@@ -425,9 +419,13 @@ export const MultiNetworkOrderManager = ({
                       </td>
                       <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                         <span className={`px-2 py-1 rounded text-xs ${getStatusStyle(order.status)}`}>
-                          {order.status === "active" ? "活跃" : 
-                           order.status === "filled" ? "已成交" :
-                           order.status === "cancelled" ? "已取消" : "已过期"}
+                          {order.status === "active"
+                            ? "活跃"
+                            : order.status === "filled"
+                              ? "已成交"
+                              : order.status === "cancelled"
+                                ? "已取消"
+                                : "已过期"}
                         </span>
                       </td>
                       <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
@@ -450,9 +448,7 @@ export const MultiNetworkOrderManager = ({
 
           {/* 统计信息 */}
           <div className="mt-6 flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
-            <div>
-              共 {filteredAndSortedOrders.length} 个订单
-            </div>
+            <div>共 {filteredAndSortedOrders.length} 个订单</div>
             <div>
               网络: {selectedNetwork} | 模式: {viewMode === "all" ? "所有订单" : "我的订单"}
             </div>

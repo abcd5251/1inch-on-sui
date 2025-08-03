@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { SecretManager } from "./SecretManager";
 import { useCrossChainWallet } from "~~/hooks/cross-chain/useCrossChainWallet";
-import { useCoins } from "~~/hooks/fusion/useCoins";
-import { useFusionSDK } from "~~/hooks/fusion/useFusionSDK";
+// import { useCoins } from "~~/hooks/fusion/useCoins";
+// import { useFusionSDK } from "~~/hooks/fusion/useFusionSDK";
 import { isWebCryptoSupported } from "~~/lib/crypto/webCryptoUtils";
 
 export interface EnhancedOrderCreationFormData {
@@ -54,14 +54,16 @@ export const EnhancedOrderCreationForm: React.FC<EnhancedOrderCreationFormProps>
   onSubmit,
   isLoading: externalLoading = false,
 }) => {
-  const { isFullyConnected, state } = useCrossChainWallet();
-  const {
-    createSimpleOrder,
-    createDutchAuctionOrder,
-    createCrossChainOrder,
-    isInitialized: sdkInitialized,
-  } = useFusionSDK();
-  const { supportedTokens } = useCoins();
+  const { /* state, */ isFullyConnected } = useCrossChainWallet();
+  // const {
+  //   // createSimpleOrder,
+  //   // createDutchAuctionOrder,
+  //   // createCrossChainOrder,
+  //   // isInitialized: sdkInitialized,
+  // } = useFusionSDK();
+  // const {
+  //   /* supportedTokens */
+  // } = useCoins();
 
   // 表单状态
   const [formData, setFormData] = useState<EnhancedOrderCreationFormData>({

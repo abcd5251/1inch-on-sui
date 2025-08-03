@@ -1,25 +1,34 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
-import { useCurrentAccount } from "@mysten/dapp-kit";
 import { OrderManager } from "~~/components/fusion/OrderManager";
+import { FusionOrderDisplay } from "~~/components/fusion/FusionOrderDisplay";
 import { useFusion } from "~~/hooks/fusion/useFusion";
 import { useSuiFusion } from "~~/hooks/fusion/useSuiFusion";
-import { notification } from "~~/utils/scaffold-eth";
 import { suiFusionConfig } from "~~/services/fusion/suiConfig";
+import { notification } from "~~/utils/scaffold-eth";
 
 const FusionOrdersPage: NextPage = () => {
   const { address } = useAccount();
   const currentAccount = useCurrentAccount();
   const [activeNetwork, setActiveNetwork] = useState<"ethereum" | "sui">("ethereum");
-  
+
   const suiFusion = useSuiFusion({
     network: "testnet",
     packageId: suiFusionConfig.defaultPackageId,
+    useMockService: true, // Enable mock service for demo
   });
+
+  // Auto-load orders when switching to Sui network
+  useEffect(() => {
+    if (activeNetwork === "sui" && suiFusion.isServiceInitialized() && suiFusion.fusionOrders.length === 0) {
+      suiFusion.loadMockFusionOrders();
+    }
+  }, [activeNetwork, suiFusion]);
 
   return (
     <div className="min-h-screen py-8 px-4">
@@ -49,8 +58,8 @@ const FusionOrdersPage: NextPage = () => {
             </span>
           </h1>
           <p className="text-lg text-base-content/70 max-w-2xl mx-auto">
-            Track and manage your 1inch Fusion swap orders across networks. Monitor order status, 
-            view execution details, and explore the order book.
+            Track and manage your 1inch Fusion swap orders across networks. Monitor order status, view execution
+            details, and explore the order book.
           </p>
         </div>
 
@@ -80,8 +89,13 @@ const FusionOrdersPage: NextPage = () => {
             <div className="alert alert-info">
               <div className="text-sm">
                 <div className="font-semibold mb-1">Sui Network Orders</div>
-                <div>Connected Account: {currentAccount?.address ? `${currentAccount.address.slice(0, 8)}...${currentAccount.address.slice(-6)}` : "Not connected"}</div>
-                <div>Network: {suiFusion.getNetwork()}</div>
+                <div>
+                  Connected Account:{" "}
+                  {currentAccount?.address
+                    ? `${currentAccount.address.slice(0, 8)}...${currentAccount.address.slice(-6)}`
+                    : "Not connected"}
+                </div>
+                <div>Network: {suiFusion.getNetworkInfo().network}</div>
               </div>
             </div>
           </div>
@@ -92,7 +106,9 @@ const FusionOrdersPage: NextPage = () => {
             <div className="alert alert-info">
               <div className="text-sm">
                 <div className="font-semibold mb-1">Ethereum Network Orders</div>
-                <div>Connected Account: {address ? `${address.slice(0, 8)}...${address.slice(-6)}` : "Not connected"}</div>
+                <div>
+                  Connected Account: {address ? `${address.slice(0, 8)}...${address.slice(-6)}` : "Not connected"}
+                </div>
               </div>
             </div>
           </div>
@@ -104,9 +120,28 @@ const FusionOrdersPage: NextPage = () => {
             Create New Order
           </Link>
           {activeNetwork === "sui" && (
-            <Link href="/fusion/sui-orders" className="btn btn-outline">
-              🌊 Dedicated Sui Orders
-            </Link>
+            <>
+              <Link href="/fusion/demo" className="btn btn-accent">
+                🎯 Live Demo
+              </Link>
+              <Link href="/fusion/sui-orders" className="btn btn-outline">
+                🌊 Dedicated Sui Orders
+              </Link>
+              <button 
+                className="btn btn-outline"
+                onClick={() => {
+                  suiFusion.loadMockFusionOrders();
+                  notification.info("Refreshed order data from mock service");
+                }}
+                disabled={suiFusion.isLoading}
+              >
+                {suiFusion.isLoading ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+                ) : (
+                  "🔄 Refresh Data"
+                )}
+              </button>
+            </>
           )}
           <Link href="/fusion/analytics" className="btn btn-outline">
             View Analytics
@@ -114,7 +149,43 @@ const FusionOrdersPage: NextPage = () => {
         </div>
 
         {/* Order Manager Component */}
-        <OrderManager />
+        {activeNetwork === "ethereum" ? (
+          <OrderManager />
+        ) : (
+          <div>
+            {/* Demo Notice for Sui Orders */}
+            <div className="mb-6 alert alert-info">
+              <div className="text-sm">
+                <div className="font-semibold mb-1">🎯 Demo Mode Active</div>
+                <div>
+                  These are mock orders generated for demonstration purposes. The data showcases various order types, 
+                  statuses, and auction scenarios including active auctions, filled orders, and partial fills.
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-6 flex justify-between items-center">
+              <h2 className="text-xl font-bold">Sui Fusion Orders ({suiFusion.fusionOrders.length})</h2>
+              <div className="flex gap-2">
+                <button 
+                  className="btn btn-sm btn-outline"
+                  onClick={() => suiFusion.loadMockFusionOrders()}
+                  disabled={suiFusion.isLoading}
+                >
+                  {suiFusion.isLoading ? (
+                    <span className="loading loading-spinner loading-sm"></span>
+                  ) : (
+                    "Refresh"
+                  )}
+                </button>
+                <Link href="/fusion/demo" className="btn btn-sm btn-primary">
+                  🎯 Try Demo
+                </Link>
+              </div>
+            </div>
+            <FusionOrderDisplay orders={suiFusion.fusionOrders} />
+          </div>
+        )}
 
         {/* Help Section */}
         <div className="mt-12 bg-base-200 p-6 rounded-2xl">
@@ -140,32 +211,39 @@ const FusionOrdersPage: NextPage = () => {
               <div className="flex items-center gap-2 mb-2">
                 <span className="badge badge-error">Cancelled</span>
               </div>
-              <p className="text-sm text-base-content/70">
-                Order was cancelled by the user before execution.
-              </p>
+              <p className="text-sm text-base-content/70">Order was cancelled by the user before execution.</p>
             </div>
             <div className="bg-base-100 p-4 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <span className="badge badge-neutral">Expired</span>
               </div>
-              <p className="text-sm text-base-content/70">
-                Order expired without being filled within the time limit.
-              </p>
+              <p className="text-sm text-base-content/70">Order expired without being filled within the time limit.</p>
             </div>
           </div>
         </div>
 
         {/* Tips */}
         <div className="mt-6 alert alert-info">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="stroke-current shrink-0 w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
           </svg>
           <div>
             <h3 className="font-bold">Pro Tips</h3>
             <div className="text-sm">
-              • Orders may take time to fill depending on market conditions<br/>
-              • Use faster presets for quicker execution at potentially higher costs<br/>
-              • Monitor gas prices to optimize your order timing
+              • Orders may take time to fill depending on market conditions
+              <br />
+              • Use faster presets for quicker execution at potentially higher costs
+              <br />• Monitor gas prices to optimize your order timing
             </div>
           </div>
         </div>

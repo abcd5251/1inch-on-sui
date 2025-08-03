@@ -2,12 +2,11 @@
  * Swap Manager Component
  * Demonstrates real-time swap management with Relayer integration
  */
-
-import React, { useState, useEffect } from 'react';
-import { useRelayerIntegration } from '../../hooks/useRelayerIntegration';
-import { CreateSwapRequest, SwapData } from '../../types/swap';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import React, { useState } from "react";
+import { useRelayerIntegration } from "../../hooks/useRelayerIntegration";
+import { CreateSwapRequest, SwapData } from "../../types/swap";
+import { formatDistanceToNow } from "date-fns";
+import { zhCN } from "date-fns/locale";
 
 /**
  * Connection status indicator component
@@ -15,28 +14,28 @@ import { zhCN } from 'date-fns/locale';
 const ConnectionStatus: React.FC<{ isConnected: boolean; isConnecting: boolean; error?: string | null }> = ({
   isConnected,
   isConnecting,
-  error
+  error,
 }) => {
   const getStatusColor = () => {
-    if (error) return 'text-red-500';
-    if (isConnected) return 'text-green-500';
-    if (isConnecting) return 'text-yellow-500';
-    return 'text-gray-500';
+    if (error) return "text-red-500";
+    if (isConnected) return "text-green-500";
+    if (isConnecting) return "text-yellow-500";
+    return "text-gray-500";
   };
 
   const getStatusText = () => {
     if (error) return `连接错误: ${error}`;
-    if (isConnected) return '已连接';
-    if (isConnecting) return '连接中...';
-    return '未连接';
+    if (isConnected) return "已连接";
+    if (isConnecting) return "连接中...";
+    return "未连接";
   };
 
   return (
     <div className="flex items-center space-x-2">
-      <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : isConnecting ? 'bg-yellow-500' : 'bg-red-500'}`} />
-      <span className={`text-sm ${getStatusColor()}`}>
-        {getStatusText()}
-      </span>
+      <div
+        className={`w-3 h-3 rounded-full ${isConnected ? "bg-green-500" : isConnecting ? "bg-yellow-500" : "bg-red-500"}`}
+      />
+      <span className={`text-sm ${getStatusColor()}`}>{getStatusText()}</span>
     </div>
   );
 };
@@ -47,40 +46,42 @@ const ConnectionStatus: React.FC<{ isConnected: boolean; isConnecting: boolean; 
 const SwapStatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'processing':
-        return 'bg-blue-100 text-blue-800';
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'failed':
-        return 'bg-red-100 text-red-800';
-      case 'cancelled':
-        return 'bg-gray-100 text-gray-800';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "processing":
+        return "bg-blue-100 text-blue-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "failed":
+        return "bg-red-100 text-red-800";
+      case "cancelled":
+        return "bg-gray-100 text-gray-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'pending':
-        return '待处理';
-      case 'processing':
-        return '处理中';
-      case 'completed':
-        return '已完成';
-      case 'failed':
-        return '失败';
-      case 'cancelled':
-        return '已取消';
+      case "pending":
+        return "待处理";
+      case "processing":
+        return "处理中";
+      case "completed":
+        return "已完成";
+      case "failed":
+        return "失败";
+      case "cancelled":
+        return "已取消";
       default:
         return status;
     }
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(status)}`}
+    >
       {getStatusText(status)}
     </span>
   );
@@ -89,8 +90,8 @@ const SwapStatusBadge: React.FC<{ status: string }> = ({ status }) => {
 /**
  * Swap card component
  */
-const SwapCard: React.FC<{ 
-  swap: SwapData; 
+const SwapCard: React.FC<{
+  swap: SwapData;
   onSubscribe: (orderId: string) => void;
   onUnsubscribe: (orderId: string) => void;
   isSubscribed: boolean;
@@ -99,9 +100,7 @@ const SwapCard: React.FC<{
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            订单 #{swap.orderId.slice(0, 8)}...
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900">订单 #{swap.orderId.slice(0, 8)}...</h3>
           <p className="text-sm text-gray-500">
             {formatDistanceToNow(new Date(swap.createdAt), { addSuffix: true, locale: zhCN })}
           </p>
@@ -162,14 +161,12 @@ const SwapCard: React.FC<{
 
       <div className="flex justify-between items-center">
         <button
-          onClick={() => isSubscribed ? onUnsubscribe(swap.orderId) : onSubscribe(swap.orderId)}
+          onClick={() => (isSubscribed ? onUnsubscribe(swap.orderId) : onSubscribe(swap.orderId))}
           className={`px-3 py-1 rounded text-sm font-medium ${
-            isSubscribed
-              ? 'bg-red-100 text-red-700 hover:bg-red-200'
-              : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+            isSubscribed ? "bg-red-100 text-red-700 hover:bg-red-200" : "bg-blue-100 text-blue-700 hover:bg-blue-200"
           }`}
         >
-          {isSubscribed ? '取消订阅' : '订阅更新'}
+          {isSubscribed ? "取消订阅" : "订阅更新"}
         </button>
         <p className="text-xs text-gray-500">
           更新于 {formatDistanceToNow(new Date(swap.updatedAt), { addSuffix: true, locale: zhCN })}
@@ -182,19 +179,19 @@ const SwapCard: React.FC<{
 /**
  * Create swap form component
  */
-const CreateSwapForm: React.FC<{ 
+const CreateSwapForm: React.FC<{
   onCreateSwap: (swapData: CreateSwapRequest) => void;
   isCreating: boolean;
 }> = ({ onCreateSwap, isCreating }) => {
   const [formData, setFormData] = useState<CreateSwapRequest>({
-    sourceChain: 'ethereum',
-    targetChain: 'sui',
-    sourceToken: 'USDC',
-    targetToken: 'SUI',
-    sourceAmount: '',
-    targetAmount: '',
-    maker: '',
-    taker: '',
+    sourceChain: "ethereum",
+    targetChain: "sui",
+    sourceToken: "USDC",
+    targetToken: "SUI",
+    sourceAmount: "",
+    targetAmount: "",
+    maker: "",
+    taker: "",
     deadline: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
   });
 
@@ -210,13 +207,13 @@ const CreateSwapForm: React.FC<{
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">创建新的跨链交换</h3>
-      
+
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">源链</label>
           <select
             value={formData.sourceChain}
-            onChange={(e) => handleInputChange('sourceChain', e.target.value)}
+            onChange={e => handleInputChange("sourceChain", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="ethereum">Ethereum</option>
@@ -228,7 +225,7 @@ const CreateSwapForm: React.FC<{
           <label className="block text-sm font-medium text-gray-700 mb-1">目标链</label>
           <select
             value={formData.targetChain}
-            onChange={(e) => handleInputChange('targetChain', e.target.value)}
+            onChange={e => handleInputChange("targetChain", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="sui">Sui</option>
@@ -243,7 +240,7 @@ const CreateSwapForm: React.FC<{
           <input
             type="text"
             value={formData.sourceToken}
-            onChange={(e) => handleInputChange('sourceToken', e.target.value)}
+            onChange={e => handleInputChange("sourceToken", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="USDC"
           />
@@ -253,7 +250,7 @@ const CreateSwapForm: React.FC<{
           <input
             type="text"
             value={formData.targetToken}
-            onChange={(e) => handleInputChange('targetToken', e.target.value)}
+            onChange={e => handleInputChange("targetToken", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="SUI"
           />
@@ -266,7 +263,7 @@ const CreateSwapForm: React.FC<{
           <input
             type="text"
             value={formData.sourceAmount}
-            onChange={(e) => handleInputChange('sourceAmount', e.target.value)}
+            onChange={e => handleInputChange("sourceAmount", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="100"
             required
@@ -277,7 +274,7 @@ const CreateSwapForm: React.FC<{
           <input
             type="text"
             value={formData.targetAmount}
-            onChange={(e) => handleInputChange('targetAmount', e.target.value)}
+            onChange={e => handleInputChange("targetAmount", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="95"
             required
@@ -291,7 +288,7 @@ const CreateSwapForm: React.FC<{
           <input
             type="text"
             value={formData.maker}
-            onChange={(e) => handleInputChange('maker', e.target.value)}
+            onChange={e => handleInputChange("maker", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="0x..."
             required
@@ -302,7 +299,7 @@ const CreateSwapForm: React.FC<{
           <input
             type="text"
             value={formData.taker}
-            onChange={(e) => handleInputChange('taker', e.target.value)}
+            onChange={e => handleInputChange("taker", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="0x..."
           />
@@ -314,7 +311,7 @@ const CreateSwapForm: React.FC<{
         disabled={isCreating}
         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isCreating ? '创建中...' : '创建交换'}
+        {isCreating ? "创建中..." : "创建交换"}
       </button>
     </form>
   );
@@ -331,7 +328,7 @@ export const SwapManager: React.FC = () => {
   });
 
   const [subscribedSwaps, setSubscribedSwaps] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'active' | 'history' | 'create'>('active');
+  const [activeTab, setActiveTab] = useState<"active" | "history" | "create">("active");
 
   // Handle swap subscription
   const handleSubscribe = (orderId: string) => {
@@ -352,7 +349,7 @@ export const SwapManager: React.FC = () => {
   const handleCreateSwap = async (swapData: CreateSwapRequest) => {
     const newSwap = await actions.createSwap(swapData);
     if (newSwap) {
-      setActiveTab('active');
+      setActiveTab("active");
     }
   };
 
@@ -363,7 +360,7 @@ export const SwapManager: React.FC = () => {
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold text-gray-900">跨链交换管理器</h1>
           <div className="flex items-center space-x-4">
-            <ConnectionStatus 
+            <ConnectionStatus
               isConnected={state.isConnected}
               isConnecting={state.isConnecting}
               error={state.connectionError}
@@ -376,16 +373,13 @@ export const SwapManager: React.FC = () => {
             </button>
           </div>
         </div>
-        
+
         {/* Error display */}
         {state.lastError && (
           <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
             <div className="flex justify-between items-center">
               <p className="text-red-700">{state.lastError}</p>
-              <button
-                onClick={actions.clearError}
-                className="text-red-500 hover:text-red-700"
-              >
+              <button onClick={actions.clearError} className="text-red-500 hover:text-red-700">
                 ✕
               </button>
             </div>
@@ -414,24 +408,22 @@ export const SwapManager: React.FC = () => {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
             {[
-              { key: 'active', label: '活跃交换', count: state.activeSwaps.length },
-              { key: 'history', label: '历史记录', count: state.swapHistory.length },
-              { key: 'create', label: '创建交换', count: null },
+              { key: "active", label: "活跃交换", count: state.activeSwaps.length },
+              { key: "history", label: "历史记录", count: state.swapHistory.length },
+              { key: "create", label: "创建交换", count: null },
             ].map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.key
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
                 {tab.label}
                 {tab.count !== null && (
-                  <span className="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs">
-                    {tab.count}
-                  </span>
+                  <span className="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs">{tab.count}</span>
                 )}
               </button>
             ))}
@@ -441,14 +433,9 @@ export const SwapManager: React.FC = () => {
 
       {/* Content */}
       <div className="space-y-6">
-        {activeTab === 'create' && (
-          <CreateSwapForm 
-            onCreateSwap={handleCreateSwap}
-            isCreating={state.isCreatingSwap}
-          />
-        )}
+        {activeTab === "create" && <CreateSwapForm onCreateSwap={handleCreateSwap} isCreating={state.isCreatingSwap} />}
 
-        {activeTab === 'active' && (
+        {activeTab === "active" && (
           <div>
             {state.isLoadingSwaps ? (
               <div className="text-center py-8">
@@ -475,7 +462,7 @@ export const SwapManager: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'history' && (
+        {activeTab === "history" && (
           <div>
             {state.swapHistory.length === 0 ? (
               <div className="text-center py-8">

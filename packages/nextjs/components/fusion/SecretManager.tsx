@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { encryptedStorage } from "~~/lib/crypto/encryptedStorage";
 import { type SecretMetadata, secretManager } from "~~/lib/crypto/secretManager";
 import { isWebCryptoSupported } from "~~/lib/crypto/webCryptoUtils";
 
@@ -53,9 +52,9 @@ export const SecretManager: React.FC<SecretManagerProps> = ({
     tags: [],
   });
 
-  // 导入选项状态
-  const [importPassword, setImportPassword] = useState("");
-  const [importData, setImportData] = useState("");
+  // 导入选项状态 (暂时未使用)
+  // const [importPassword, setImportPassword] = useState("");
+  // const [importData, setImportData] = useState("");
 
   // 初始化检查
   useEffect(() => {
@@ -63,7 +62,7 @@ export const SecretManager: React.FC<SecretManagerProps> = ({
     if (isWebCryptoSupported()) {
       loadSecrets();
     }
-  }, []);
+  }, [loadSecrets]);
 
   // 加载已存储的秘密列表
   const loadSecrets = useCallback(async () => {
@@ -185,6 +184,7 @@ export const SecretManager: React.FC<SecretManagerProps> = ({
           setError("Secret not available in session. Password required.");
         }
       } catch (err) {
+        console.error("Failed to access secret:", err);
         setError("Failed to access secret");
       }
     }
@@ -210,6 +210,7 @@ export const SecretManager: React.FC<SecretManagerProps> = ({
         setError("Failed to delete secret");
       }
     } catch (err) {
+      console.error("Failed to delete secret:", err);
       setError("Failed to delete secret");
     } finally {
       setIsLoading(false);
@@ -224,6 +225,7 @@ export const SecretManager: React.FC<SecretManagerProps> = ({
       setSuccess("Expired secrets cleaned up successfully!");
       await loadSecrets();
     } catch (err) {
+      console.error("Failed to cleanup expired secrets:", err);
       setError("Failed to cleanup expired secrets");
     } finally {
       setIsLoading(false);
@@ -458,7 +460,7 @@ export const SecretManager: React.FC<SecretManagerProps> = ({
           <div className="bg-base-100 rounded-lg p-4 mt-4">
             <h3 className="font-semibold mb-2">🛡️ Security Notes</h3>
             <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
-              <li>• Secrets are generated using your browser's WebCrypto API</li>
+              <li>• Secrets are generated using your browser&apos;s WebCrypto API</li>
               <li>• Passwords use PBKDF2 with 100,000 iterations for key derivation</li>
               <li>• Encrypted data is stored locally in your browser only</li>
               <li>• Secrets are automatically cleared from memory after use</li>

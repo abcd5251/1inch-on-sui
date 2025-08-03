@@ -1,24 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useFusion } from "~~/hooks/fusion/useFusion";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
+import { useFusion } from "~~/hooks/fusion/useFusion";
 
-interface Order {
-  orderHash: string;
-  status: string;
-  fromTokenAddress: string;
-  toTokenAddress: string;
-  fromTokenAmount: string;
-  toTokenAmount: string;
-  maker: string;
-  createdAt: string;
-}
+// interface Order {
+//   orderHash: string;
+//   status: string;
+//   fromTokenAddress: string;
+//   toTokenAddress: string;
+//   fromTokenAmount: string;
+//   toTokenAmount: string;
+//   maker: string;
+//   createdAt: string;
+// }
 
 export const OrderManager: React.FC = () => {
   const { address } = useAccount();
-  const [activeTab, setActiveTab] = useState<'my-orders' | 'all-orders'>('my-orders');
+  const [activeTab, setActiveTab] = useState<"my-orders" | "all-orders">("my-orders");
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
 
@@ -28,23 +28,23 @@ export const OrderManager: React.FC = () => {
     authKey: process.env.NEXT_PUBLIC_1INCH_AUTH_KEY,
   });
 
-  const loadMyOrders = async () => {
+  const loadMyOrders = useCallback(async () => {
     if (address) {
       await fusion.getOrdersByMaker(address, page, limit);
     }
-  };
+  }, [address, page, limit, fusion]);
 
-  const loadAllOrders = async () => {
+  const loadAllOrders = useCallback(async () => {
     await fusion.getActiveOrders(page, limit);
-  };
+  }, [page, limit, fusion]);
 
   useEffect(() => {
-    if (activeTab === 'my-orders' && address) {
+    if (activeTab === "my-orders" && address) {
       loadMyOrders();
-    } else if (activeTab === 'all-orders') {
+    } else if (activeTab === "all-orders") {
       loadAllOrders();
     }
-  }, [activeTab, address, page]);
+  }, [activeTab, address, page, loadAllOrders, loadMyOrders]);
 
   const formatTokenAmount = (amount: string, decimals: number = 18) => {
     const value = parseFloat(amount) / Math.pow(10, decimals);
@@ -63,10 +63,10 @@ export const OrderManager: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     const statusMap: { [key: string]: string } = {
-      "pending": "badge-warning",
-      "filled": "badge-success",
-      "cancelled": "badge-error",
-      "expired": "badge-neutral",
+      pending: "badge-warning",
+      filled: "badge-success",
+      cancelled: "badge-error",
+      expired: "badge-neutral",
     };
     return statusMap[status.toLowerCase()] || "badge-info";
   };
@@ -91,15 +91,15 @@ export const OrderManager: React.FC = () => {
       {/* Tabs */}
       <div className="tabs tabs-boxed mb-6">
         <button
-          className={`tab ${activeTab === 'my-orders' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('my-orders')}
+          className={`tab ${activeTab === "my-orders" ? "tab-active" : ""}`}
+          onClick={() => setActiveTab("my-orders")}
           disabled={!address}
         >
           My Orders
         </button>
         <button
-          className={`tab ${activeTab === 'all-orders' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('all-orders')}
+          className={`tab ${activeTab === "all-orders" ? "tab-active" : ""}`}
+          onClick={() => setActiveTab("all-orders")}
         >
           All Active Orders
         </button>
@@ -116,10 +116,7 @@ export const OrderManager: React.FC = () => {
       {fusion.error && (
         <div className="alert alert-error mb-6">
           <span>{fusion.error}</span>
-          <button
-            className="btn btn-xs btn-ghost"
-            onClick={fusion.clearError}
-          >
+          <button className="btn btn-xs btn-ghost" onClick={fusion.clearError}>
             ✕
           </button>
         </div>
@@ -144,7 +141,7 @@ export const OrderManager: React.FC = () => {
               {fusion.orders.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8 text-base-content/50">
-                    {activeTab === 'my-orders' && !address
+                    {activeTab === "my-orders" && !address
                       ? "Connect your wallet to view your orders"
                       : "No orders found"}
                   </td>
@@ -160,38 +157,32 @@ export const OrderManager: React.FC = () => {
                             {order.orderHash.slice(-6)}
                           </>
                         ) : (
-                          'N/A'
+                          "N/A"
                         )}
                       </div>
                     </td>
                     <td>
                       <div className="flex flex-col">
-                        <span className="font-medium">
-                          {getTokenSymbol(order.fromTokenAddress || '')}
-                        </span>
+                        <span className="font-medium">{getTokenSymbol(order.fromTokenAddress || "")}</span>
                         <span className="text-xs text-base-content/50">
-                          {formatTokenAmount(order.fromTokenAmount || '0')}
+                          {formatTokenAmount(order.fromTokenAmount || "0")}
                         </span>
                       </div>
                     </td>
                     <td>
                       <div className="flex flex-col">
-                        <span className="font-medium">
-                          {getTokenSymbol(order.toTokenAddress || '')}
-                        </span>
+                        <span className="font-medium">{getTokenSymbol(order.toTokenAddress || "")}</span>
                         <span className="text-xs text-base-content/50">
-                          {formatTokenAmount(order.toTokenAmount || '0')}
+                          {formatTokenAmount(order.toTokenAmount || "0")}
                         </span>
                       </div>
                     </td>
                     <td>
-                      <div className="text-sm">
-                        {formatTokenAmount(order.fromTokenAmount || '0')}
-                      </div>
+                      <div className="text-sm">{formatTokenAmount(order.fromTokenAmount || "0")}</div>
                     </td>
                     <td>
-                      <span className={`badge ${getStatusBadge(order.status || 'unknown')}`}>
-                        {order.status || 'Unknown'}
+                      <span className={`badge ${getStatusBadge(order.status || "unknown")}`}>
+                        {order.status || "Unknown"}
                       </span>
                     </td>
                     <td>
@@ -203,9 +194,7 @@ export const OrderManager: React.FC = () => {
                     </td>
                     <td>
                       <div className="text-xs text-base-content/50">
-                        {order.createdAt
-                          ? new Date(order.createdAt).toLocaleDateString()
-                          : 'N/A'}
+                        {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}
                       </div>
                     </td>
                   </tr>
@@ -226,9 +215,7 @@ export const OrderManager: React.FC = () => {
           >
             Previous
           </button>
-          <span className="text-sm">
-            Page {page}
-          </span>
+          <span className="text-sm">Page {page}</span>
           <button
             className="btn btn-sm btn-outline"
             onClick={() => setPage(page + 1)}
@@ -244,7 +231,7 @@ export const OrderManager: React.FC = () => {
         <button
           className="btn btn-outline"
           onClick={() => {
-            if (activeTab === 'my-orders') {
+            if (activeTab === "my-orders") {
               loadMyOrders();
             } else {
               loadAllOrders();
@@ -258,7 +245,7 @@ export const OrderManager: React.FC = () => {
               Loading...
             </>
           ) : (
-            'Refresh Orders'
+            "Refresh Orders"
           )}
         </button>
       </div>

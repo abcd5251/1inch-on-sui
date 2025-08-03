@@ -1,18 +1,18 @@
+import { SuiNetwork, suiFusionConfig } from "./suiConfig";
 import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { fromHEX } from "@mysten/sui/utils";
-import { suiFusionConfig, SuiNetwork } from "./suiConfig";
 
 /**
  * Factory class for creating Sui network configurations and clients
  */
 export class SuiNetworkFactory {
   private static instances: Map<SuiNetwork, SuiNetworkFactory> = new Map();
-  
+
   private constructor(
     private network: SuiNetwork,
     private client: SuiClient,
-    private config: typeof suiFusionConfig.networks[SuiNetwork]
+    private config: (typeof suiFusionConfig.networks)[SuiNetwork],
   ) {}
 
   /**
@@ -39,13 +39,13 @@ export class SuiNetworkFactory {
    */
   createKeypair(privateKey: string): Ed25519Keypair {
     // Remove '0x' prefix if present
-    const cleanPrivateKey = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey;
-    
+    const cleanPrivateKey = privateKey.startsWith("0x") ? privateKey.slice(2) : privateKey;
+
     // Validate private key length (64 hex characters = 32 bytes)
     if (cleanPrivateKey.length !== 64) {
-      throw new Error('Invalid private key length. Expected 64 hex characters.');
+      throw new Error("Invalid private key length. Expected 64 hex characters.");
     }
-    
+
     try {
       const privateKeyBytes = fromHEX(cleanPrivateKey);
       return Ed25519Keypair.fromSecretKey(privateKeyBytes);
@@ -109,7 +109,7 @@ export class SuiNetworkFactory {
   isValidAddress(address: string): boolean {
     try {
       // Sui addresses are 32 bytes (64 hex characters) with 0x prefix
-      const cleanAddress = address.startsWith('0x') ? address.slice(2) : address;
+      const cleanAddress = address.startsWith("0x") ? address.slice(2) : address;
       return cleanAddress.length === 64 && /^[0-9a-fA-F]+$/.test(cleanAddress);
     } catch {
       return false;
@@ -122,7 +122,7 @@ export class SuiNetworkFactory {
   isValidTransactionDigest(digest: string): boolean {
     try {
       // Transaction digests are typically 32 bytes (64 hex characters)
-      const cleanDigest = digest.startsWith('0x') ? digest.slice(2) : digest;
+      const cleanDigest = digest.startsWith("0x") ? digest.slice(2) : digest;
       return cleanDigest.length === 64 && /^[0-9a-fA-F]+$/.test(cleanDigest);
     } catch {
       return false;
@@ -134,13 +134,13 @@ export class SuiNetworkFactory {
    */
   formatAddress(address: string, startChars: number = 8, endChars: number = 6): string {
     if (!this.isValidAddress(address)) {
-      return 'Invalid Address';
+      return "Invalid Address";
     }
-    
+
     if (address.length <= startChars + endChars + 3) {
       return address;
     }
-    
+
     return `${address.slice(0, startChars)}...${address.slice(-endChars)}`;
   }
 
@@ -169,14 +169,14 @@ export class SuiNetworkFactory {
    * Check if the network is a testnet
    */
   isTestnet(): boolean {
-    return this.network === 'testnet' || this.network === 'devnet' || this.network === 'localnet';
+    return this.network === "testnet" || this.network === "devnet" || this.network === "localnet";
   }
 
   /**
    * Check if the network is mainnet
    */
   isMainnet(): boolean {
-    return this.network === 'mainnet';
+    return this.network === "mainnet";
   }
 
   /**
@@ -204,13 +204,13 @@ export class SuiNetworkFactory {
    * Create a network factory for all supported networks
    */
   static createAllNetworks(): Map<SuiNetwork, SuiNetworkFactory> {
-    const networks: SuiNetwork[] = ['mainnet', 'testnet', 'devnet', 'localnet'];
+    const networks: SuiNetwork[] = ["mainnet", "testnet", "devnet", "localnet"];
     const factories = new Map<SuiNetwork, SuiNetworkFactory>();
-    
+
     networks.forEach(network => {
       factories.set(network, this.getInstance(network));
     });
-    
+
     return factories;
   }
 
@@ -221,13 +221,13 @@ export class SuiNetworkFactory {
     try {
       const latestCheckpoint = await this.client.getLatestCheckpointSequenceNumber();
       const chainId = await this.client.getChainIdentifier();
-      
+
       return {
         network: this.network,
         chainId,
         latestCheckpoint,
         rpcUrl: this.getRpcUrl(),
-        status: 'healthy',
+        status: "healthy",
         timestamp: Date.now(),
       };
     } catch (error) {
@@ -236,8 +236,8 @@ export class SuiNetworkFactory {
         chainId: null,
         latestCheckpoint: null,
         rpcUrl: this.config.rpcUrl,
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        status: "error",
+        error: error instanceof Error ? error.message : "Unknown error",
         timestamp: Date.now(),
       };
     }
@@ -287,9 +287,9 @@ export class SuiNetworkUtils {
    * Get token decimals by type
    */
   static getTokenDecimals(tokenType: string): number {
-    if (tokenType.includes('sui::SUI')) return 9;
-    if (tokenType.includes('usdc::USDC') || tokenType.includes('usdt::USDT')) return 6;
-    if (tokenType.includes('weth::WETH')) return 18;
+    if (tokenType.includes("sui::SUI")) return 9;
+    if (tokenType.includes("usdc::USDC") || tokenType.includes("usdt::USDT")) return 6;
+    if (tokenType.includes("weth::WETH")) return 18;
     return 9; // Default to SUI decimals
   }
 
@@ -297,12 +297,12 @@ export class SuiNetworkUtils {
    * Extract token symbol from type
    */
   static getTokenSymbol(tokenType: string): string {
-    if (tokenType.includes('sui::SUI')) return 'SUI';
-    if (tokenType.includes('usdc::USDC')) return 'USDC';
-    if (tokenType.includes('usdt::USDT')) return 'USDT';
-    if (tokenType.includes('weth::WETH')) return 'WETH';
-    if (tokenType.includes('cetus::CETUS')) return 'CETUS';
-    return 'Unknown';
+    if (tokenType.includes("sui::SUI")) return "SUI";
+    if (tokenType.includes("usdc::USDC")) return "USDC";
+    if (tokenType.includes("usdt::USDT")) return "USDT";
+    if (tokenType.includes("weth::WETH")) return "WETH";
+    if (tokenType.includes("cetus::CETUS")) return "CETUS";
+    return "Unknown";
   }
 
   /**
@@ -310,7 +310,7 @@ export class SuiNetworkUtils {
    */
   static isValidTokenType(tokenType: string): boolean {
     // Basic validation for Sui token type format
-    return tokenType.startsWith('0x') && tokenType.includes('::');
+    return tokenType.startsWith("0x") && tokenType.includes("::");
   }
 
   /**
@@ -335,7 +335,7 @@ export class SuiNetworkUtils {
   static generateOrderId(): string {
     const timestamp = Date.now().toString(16);
     const random = Math.random().toString(16).slice(2, 10);
-    return `0x${timestamp}${random}`.padEnd(66, '0');
+    return `0x${timestamp}${random}`.padEnd(66, "0");
   }
 
   /**

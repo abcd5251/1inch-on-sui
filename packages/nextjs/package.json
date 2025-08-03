@@ -16,7 +16,7 @@
     "vercel:yolo": "vercel --build-env BUN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true --build-env VERCEL_TELEMETRY_DISABLED=1"
   },
   "dependencies": {
-    "@1inch/fusion-sdk": "^2.3.6",
+    "@1inch/sui-fusion-sdk": "workspace:*",
     "@heroicons/react": "~2.1.5",
     "@mysten/dapp-kit": "^0.17.2",
     "@mysten/sui": "^1.37.1",
@@ -46,6 +46,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "4.0.15",
     "@trivago/prettier-plugin-sort-imports": "~4.3.0",
+    "@types/minimatch": "^6.0.0",
     "@types/node": "~18.19.50",
     "@types/react": "~19.0.7",
     "abitype": "1.0.6",

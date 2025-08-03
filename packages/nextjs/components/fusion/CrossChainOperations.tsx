@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useCrossChainWallet } from "~~/hooks/cross-chain/useCrossChainWallet";
-import { useCoins } from "~~/hooks/fusion/useCoins";
-import { useFusionSDK } from "~~/hooks/fusion/useFusionSDK";
+
+// TODO: Implement useCoins and useFusionSDK hooks
+// import { useCoins } from "~~/hooks/fusion/useCoins";
+// import { useFusionSDK } from "~~/hooks/fusion/useFusionSDK";
 
 export interface CrossChainSwapData {
   id: string;
@@ -44,8 +46,24 @@ export const CrossChainOperations = ({
   className = "",
 }: CrossChainOperationsProps) => {
   const { state, isFullyConnected, getCrossChainReadiness } = useCrossChainWallet();
-  const { initiateCrossChainSwap, confirmCrossChainSwap, isInitialized: sdkInitialized, address } = useFusionSDK();
-  const { selectCoinsForAmount, hasEnoughBalance, formatBalance, parseAmount, suiBalance } = useCoins();
+  // TODO: Implement useFusionSDK and useCoins hooks
+  // const { initiateCrossChainSwap, confirmCrossChainSwap, isInitialized: sdkInitialized, address } = useFusionSDK();
+  // const { selectCoinsForAmount, hasEnoughBalance, formatBalance, parseAmount, suiBalance } = useCoins();
+
+  // Temporary mock implementations
+  const initiateCrossChainSwap = async () => {
+    throw new Error("Not implemented");
+  };
+  const confirmCrossChainSwap = async () => {
+    throw new Error("Not implemented");
+  };
+  const sdkInitialized = false;
+  const address = "";
+  const selectCoinsForAmount = () => [];
+  const hasEnoughBalance = useCallback(() => false, []);
+  const formatBalance = useCallback((amount: string) => amount, []);
+  const parseAmount = useCallback((amount: string) => amount, []);
+  const suiBalance = "0";
 
   const [activeTab, setActiveTab] = useState<"initiate" | "monitor" | "history">("initiate");
   const [isLoading, setIsLoading] = useState(false);
@@ -133,12 +151,12 @@ export const CrossChainOperations = ({
 
     // 检查余额（假设从 SUI 发起）
     if (newSwap.sourceChain === "sui" && newSwap.sourceToken === "SUI") {
-      const sourceAmountWei = parseAmount(newSwap.sourceAmount, 9);
-      const safetyDepositWei = parseAmount(newSwap.safetyDeposit, 9);
+      const sourceAmountWei = parseAmount(newSwap.sourceAmount);
+      const safetyDepositWei = parseAmount(newSwap.safetyDeposit);
       const totalRequired = BigInt(sourceAmountWei) + BigInt(safetyDepositWei);
 
-      if (!hasEnoughBalance("0x2::sui::SUI", totalRequired.toString())) {
-        return `Insufficient SUI balance. Required: ${formatBalance(totalRequired.toString(), 9)} SUI (including safety deposit)`;
+      if (!hasEnoughBalance()) {
+        return `Insufficient SUI balance. Required: ${formatBalance(totalRequired.toString())} SUI (including safety deposit)`;
       }
     }
 
@@ -159,26 +177,26 @@ export const CrossChainOperations = ({
 
     try {
       // 选择代币对象
-      const sourceAmountWei = parseAmount(newSwap.sourceAmount, 9);
-      const safetyDepositWei = parseAmount(newSwap.safetyDeposit, 9);
+      const sourceAmountWei = parseAmount(newSwap.sourceAmount);
+      const safetyDepositWei = parseAmount(newSwap.safetyDeposit);
 
-      const sourceCoins = selectCoinsForAmount("0x2::sui::SUI", sourceAmountWei);
-      const safetyDepositCoins = selectCoinsForAmount("0x2::sui::SUI", safetyDepositWei);
+      const sourceCoins = selectCoinsForAmount();
+      const safetyDepositCoins = selectCoinsForAmount();
 
       if (sourceCoins.length === 0 || safetyDepositCoins.length === 0) {
         throw new Error("No suitable SUI coins found");
       }
 
       // 使用第一个代币对象
-      const sourceCoinId = sourceCoins[0].coinObjectId;
-      const safetyDepositId = safetyDepositCoins[0].coinObjectId;
+      // const sourceCoinId = sourceCoins[0].coinObjectId;
+      // const safetyDepositId = safetyDepositCoins[0].coinObjectId;
 
       // 构建跨链交换参数
       const swapParams = {
         sourceChain: newSwap.sourceChain,
         targetChain: newSwap.targetChain,
         sourceAmount: sourceAmountWei,
-        targetAmount: parseAmount(newSwap.targetAmount, 6), // 假设 USDC 6位小数
+        targetAmount: parseAmount(newSwap.targetAmount), // 假设 USDC 6位小数
         sourceToken: newSwap.sourceToken,
         targetToken: newSwap.targetToken,
         safetyDepositAmount: safetyDepositWei,
@@ -199,15 +217,15 @@ export const CrossChainOperations = ({
       };
 
       console.log("Initiating cross-chain swap with params:", swapParams);
-      const result = await initiateCrossChainSwap(swapParams);
+      const result = await initiateCrossChainSwap();
       console.log("Cross-chain swap initiated successfully:", result);
 
       if (result) {
-        setSubmitSuccess(`Cross-chain swap initiated successfully! Transaction: ${result.digest}`);
+        setSubmitSuccess(`Cross-chain swap initiated successfully!`);
 
         // 创建本地交换记录
         const newSwapData: CrossChainSwapData = {
-          id: result.digest || Date.now().toString(),
+          id: Date.now().toString(),
           status: "initiated",
           sourceChain: newSwap.sourceChain,
           targetChain: newSwap.targetChain,
@@ -216,7 +234,7 @@ export const CrossChainOperations = ({
           sourceToken: newSwap.sourceToken,
           targetToken: newSwap.targetToken,
           txHashes: {
-            initiation: result.digest,
+            initiation: undefined,
           },
           createdAt: Date.now(),
           updatedAt: Date.now(),
@@ -411,7 +429,7 @@ export const CrossChainOperations = ({
               <h3 className="font-semibold">Available Balance</h3>
               <div className="text-right">
                 <div className="text-sm text-gray-600 dark:text-gray-400">SUI Balance</div>
-                <div className="font-medium">{formatBalance(suiBalance, 9)} SUI</div>
+                <div className="font-medium">{formatBalance(suiBalance)} SUI</div>
               </div>
             </div>
           </div>

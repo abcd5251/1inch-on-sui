@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
-import { useEthereumFusionSDK, ETHEREUM_TOKENS } from "~~/hooks/fusion/useEthereumFusionSDK";
-import Web3, { TransactionReceipt } from "web3";
+// import Web3, { TransactionReceipt } from "web3";
+import { ETHEREUM_TOKENS, useEthereumFusionSDK } from "~~/hooks/fusion/useEthereumFusionSDK";
 
 interface TokenApprovalProps {
   onApprovalComplete?: (txHash: string) => void;
@@ -23,7 +23,7 @@ interface ApprovalStatus {
  */
 export const EthereumTokenApproval = ({ onApprovalComplete, onError }: TokenApprovalProps) => {
   const { approveToken, isInitialized, address, error: sdkError } = useEthereumFusionSDK();
-  
+
   const [selectedToken, setSelectedToken] = useState<string>("");
   const [approvalAmount, setApprovalAmount] = useState<string>("");
   const [isApproving, setIsApproving] = useState(false);
@@ -38,90 +38,96 @@ export const EthereumTokenApproval = ({ onApprovalComplete, onError }: TokenAppr
   ];
 
   // 处理代币授权
-  const handleApproval = useCallback(async (amount: string, tokenAddress: string) => {
-    if (!tokenAddress || !amount) {
-      setError("请选择代币和输入授权数量");
-      return;
-    }
+  const handleApproval = useCallback(
+    async (amount: string, tokenAddress: string) => {
+      if (!tokenAddress || !amount) {
+        setError("请选择代币和输入授权数量");
+        return;
+      }
 
-    if (!isInitialized) {
-      setError("以太坊 SDK 未初始化");
-      return;
-    }
+      if (!isInitialized) {
+        setError("以太坊 SDK 未初始化");
+        return;
+      }
 
-    setIsApproving(true);
-    setError(null);
+      setIsApproving(true);
+      setError(null);
 
-    try {
-      const txHash = await approveToken({
-        tokenAddress,
-        amount,
-      });
+      try {
+        const txHash = await approveToken({
+          tokenAddress,
+          amount,
+        });
 
-      // 更新授权状态
-      setApprovalStatuses(prev => [
-        ...prev.filter(status => status.token !== tokenAddress),
-        {
-          token: tokenAddress,
-          spender: "1inch Fusion Protocol",
-          allowance: amount,
-          isApproved: true,
-          isLoading: false,
-        }
-      ]);
+        // 更新授权状态
+        setApprovalStatuses(prev => [
+          ...prev.filter(status => status.token !== tokenAddress),
+          {
+            token: tokenAddress,
+            spender: "1inch Fusion Protocol",
+            allowance: amount,
+            isApproved: true,
+            isLoading: false,
+          },
+        ]);
 
-      // 重置表单
-      setSelectedToken("");
-      setApprovalAmount("");
+        // 重置表单
+        setSelectedToken("");
+        setApprovalAmount("");
 
-      // 调用回调
-      onApprovalComplete?.(txHash);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "授权失败";
-      setError(errorMessage);
-      onError?.(errorMessage);
-    } finally {
-      setIsApproving(false);
-    }
-  }, [isInitialized, approveToken, onApprovalComplete, onError]);
+        // 调用回调
+        onApprovalComplete?.(txHash);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "授权失败";
+        setError(errorMessage);
+        onError?.(errorMessage);
+      } finally {
+        setIsApproving(false);
+      }
+    },
+    [isInitialized, approveToken, onApprovalComplete, onError],
+  );
 
   // 快速授权预设金额
-  const handleQuickApproval = useCallback(async (tokenAddress: string, amount: string) => {
-    if (!isInitialized) {
-      setError("以太坊 SDK 未初始化");
-      return;
-    }
+  const handleQuickApproval = useCallback(
+    async (tokenAddress: string, amount: string) => {
+      if (!isInitialized) {
+        setError("以太坊 SDK 未初始化");
+        return;
+      }
 
-    setIsApproving(true);
-    setError(null);
+      setIsApproving(true);
+      setError(null);
 
-    try {
-      const txHash = await approveToken({
-        tokenAddress,
-        amount,
-      });
+      try {
+        const txHash = await approveToken({
+          tokenAddress,
+          amount,
+        });
 
-      // 更新授权状态
-      setApprovalStatuses(prev => [
-        ...prev.filter(status => status.token !== tokenAddress),
-        {
-          token: tokenAddress,
-          spender: "1inch Fusion Protocol",
-          allowance: amount,
-          isApproved: true,
-          isLoading: false,
-        }
-      ]);
+        // 更新授权状态
+        setApprovalStatuses(prev => [
+          ...prev.filter(status => status.token !== tokenAddress),
+          {
+            token: tokenAddress,
+            spender: "1inch Fusion Protocol",
+            allowance: amount,
+            isApproved: true,
+            isLoading: false,
+          },
+        ]);
 
-      onApprovalComplete?.(txHash);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "授权失败";
-      setError(errorMessage);
-      onError?.(errorMessage);
-    } finally {
-      setIsApproving(false);
-    }
-  }, [isInitialized, approveToken, onApprovalComplete, onError]);
+        onApprovalComplete?.(txHash);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "授权失败";
+        setError(errorMessage);
+        onError?.(errorMessage);
+      } finally {
+        setIsApproving(false);
+      }
+    },
+    [isInitialized, approveToken, onApprovalComplete, onError],
+  );
 
   // 获取代币符号
   const getTokenSymbol = (address: string) => {
@@ -138,19 +144,19 @@ export const EthereumTokenApproval = ({ onApprovalComplete, onError }: TokenAppr
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">以太坊代币授权</h2>
-      
+
       {/* 网络状态 */}
       <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              以太坊网络状态: 
-            </span>
-            <span className={`ml-2 px-2 py-1 rounded text-xs ${
-              isInitialized 
-                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-            }`}>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">以太坊网络状态:</span>
+            <span
+              className={`ml-2 px-2 py-1 rounded text-xs ${
+                isInitialized
+                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                  : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+              }`}
+            >
               {isInitialized ? "已连接" : "未连接"}
             </span>
           </div>
@@ -168,7 +174,7 @@ export const EthereumTokenApproval = ({ onApprovalComplete, onError }: TokenAppr
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">快速授权</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {tokenOptions.map((token) => (
+              {tokenOptions.map(token => (
                 <div key={token.value} className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
                   <div className="text-center mb-3">
                     <h4 className="font-medium text-gray-900 dark:text-white">{token.symbol}</h4>
@@ -190,7 +196,12 @@ export const EthereumTokenApproval = ({ onApprovalComplete, onError }: TokenAppr
                       授权 10,000
                     </button>
                     <button
-                      onClick={() => handleQuickApproval(token.value, "115792089237316195423570985008687907853269984665640564039457584007913129639935")}
+                      onClick={() =>
+                        handleQuickApproval(
+                          token.value,
+                          "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                        )
+                      }
                       disabled={isApproving}
                       className="w-full py-2 px-3 bg-purple-500 text-white rounded text-sm hover:bg-purple-600 disabled:opacity-50"
                     >
@@ -207,36 +218,32 @@ export const EthereumTokenApproval = ({ onApprovalComplete, onError }: TokenAppr
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">自定义授权</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  选择代币
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">选择代币</label>
                 <select
                   value={selectedToken}
-                  onChange={(e) => setSelectedToken(e.target.value)}
+                  onChange={e => setSelectedToken(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <option value="">选择要授权的代币</option>
-                  {tokenOptions.map((token) => (
+                  {tokenOptions.map(token => (
                     <option key={token.value} value={token.value}>
                       {token.symbol} - {token.label}
                     </option>
                   ))}
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  授权数量
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">授权数量</label>
                 <input
                   type="text"
                   value={approvalAmount}
-                  onChange={(e) => setApprovalAmount(e.target.value)}
+                  onChange={e => setApprovalAmount(e.target.value)}
                   placeholder="输入授权数量（如：1000）"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
               </div>
-              
+
               <button
                 onClick={() => handleApproval(approvalAmount, selectedToken)}
                 disabled={isApproving || !selectedToken || !approvalAmount}
@@ -256,24 +263,20 @@ export const EthereumTokenApproval = ({ onApprovalComplete, onError }: TokenAppr
                   <div key={index} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">
-                          {getTokenSymbol(status.token)}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {getTokenLabel(status.token)}
-                        </p>
+                        <h4 className="font-medium text-gray-900 dark:text-white">{getTokenSymbol(status.token)}</h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{getTokenLabel(status.token)}</p>
                       </div>
                       <div className="text-right">
-                        <div className={`px-2 py-1 rounded text-xs ${
-                          status.isApproved
-                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                        }`}>
+                        <div
+                          className={`px-2 py-1 rounded text-xs ${
+                            status.isApproved
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                          }`}
+                        >
                           {status.isApproved ? "已授权" : "待授权"}
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          数量: {status.allowance}
-                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">数量: {status.allowance}</p>
                       </div>
                     </div>
                   </div>
@@ -284,12 +287,8 @@ export const EthereumTokenApproval = ({ onApprovalComplete, onError }: TokenAppr
         </>
       ) : (
         <div className="text-center py-8">
-          <div className="text-gray-500 dark:text-gray-400 mb-4">
-            请先连接以太坊钱包
-          </div>
-          <p className="text-sm text-gray-400 dark:text-gray-500">
-            需要连接 MetaMask 或其他以太坊钱包才能进行代币授权
-          </p>
+          <div className="text-gray-500 dark:text-gray-400 mb-4">请先连接以太坊钱包</div>
+          <p className="text-sm text-gray-400 dark:text-gray-500">需要连接 MetaMask 或其他以太坊钱包才能进行代币授权</p>
         </div>
       )}
 

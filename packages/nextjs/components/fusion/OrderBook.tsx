@@ -5,8 +5,7 @@ import {
   ArrowTrendingDownIcon,
   ArrowTrendingUpIcon,
   BookOpenIcon,
-  ClockIcon,
-  EyeIcon,
+  ClockIcon, // EyeIcon,
 } from "@heroicons/react/24/outline";
 
 interface OrderBookEntry {

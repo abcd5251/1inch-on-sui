@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { NetworkType, NETWORK_CONFIG, useUnifiedFusionSDK } from "~~/hooks/fusion/useUnifiedFusionSDK";
+import { NETWORK_CONFIG, NetworkType, useUnifiedFusionSDK } from "~~/hooks/fusion/useUnifiedFusionSDK";
 
 interface NetworkSelectorProps {
   onNetworkChange?: (network: NetworkType) => void;
@@ -48,11 +48,7 @@ export const NetworkSelector = ({ onNetworkChange, className = "" }: NetworkSele
                     ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                     : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
                 }
-                ${
-                  hasError
-                    ? "border-red-300 bg-red-50 dark:bg-red-900/20"
-                    : ""
-                }
+                ${hasError ? "border-red-300 bg-red-50 dark:bg-red-900/20" : ""}
               `}
               onClick={() => handleNetworkChange(network)}
             >
@@ -145,16 +141,12 @@ export const NetworkSelector = ({ onNetworkChange, className = "" }: NetworkSele
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">当前网络:</span>
           <span className="text-lg">{NETWORK_CONFIG[activeNetwork].icon}</span>
-          <span className="font-semibold text-gray-900 dark:text-white">
-            {NETWORK_CONFIG[activeNetwork].name}
-          </span>
+          <span className="font-semibold text-gray-900 dark:text-white">{NETWORK_CONFIG[activeNetwork].name}</span>
         </div>
       </div>
 
       {/* 网络切换提示 */}
-      <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-        💡 点击上方网络卡片可切换到对应网络
-      </div>
+      <div className="text-xs text-gray-500 dark:text-gray-400 text-center">💡 点击上方网络卡片可切换到对应网络</div>
     </div>
   );
 };

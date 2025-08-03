@@ -1,13 +1,13 @@
 export const suiFusionConfig = {
   // Default package ID for Sui Move contracts
   defaultPackageId: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-  
+
   // Supported networks
-  supportedNetworks: ['mainnet', 'testnet', 'devnet', 'localnet'] as const,
-  
+  supportedNetworks: ["mainnet", "testnet", "devnet", "localnet"] as const,
+
   // Default network
-  defaultNetwork: 'testnet' as const,
-  
+  defaultNetwork: "testnet" as const,
+
   // Network-specific configurations
   networks: {
     mainnet: {
@@ -59,7 +59,7 @@ export const suiFusionConfig = {
       },
     },
   },
-  
+
   // Gas limits for different operations
   gasLimits: {
     createOrder: 1000000,
@@ -67,13 +67,13 @@ export const suiFusionConfig = {
     cancelOrder: 500000,
     approve: 300000,
   },
-  
+
   // Default slippage tolerance (in basis points)
   defaultSlippage: 50, // 0.5%
-  
+
   // Default order expiration time (in milliseconds)
   defaultOrderExpiration: 24 * 60 * 60 * 1000, // 24 hours
-  
+
   // Minimum order amounts for different tokens
   minOrderAmounts: {
     SUI: "100000000", // 0.1 SUI
@@ -81,38 +81,32 @@ export const suiFusionConfig = {
     USDT: "1000000", // 1 USDT
     WETH: "1000000000000000", // 0.001 WETH
   },
-  
+
   // Fee structure
   fees: {
     protocolFee: 30, // 0.3% in basis points
     resolverFee: 10, // 0.1% in basis points
   },
-  
+
   // Supported DEX protocols
-  supportedDexes: [
-    'Cetus',
-    'Turbos',
-    'Aftermath',
-    'Kriya',
-    'FlowX',
-  ],
-  
+  supportedDexes: ["Cetus", "Turbos", "Aftermath", "Kriya", "FlowX"],
+
   // Move module names
   modules: {
-    fusionSwap: 'fusion_swap',
-    orderBook: 'order_book',
-    escrow: 'escrow',
-    resolver: 'resolver',
+    fusionSwap: "fusion_swap",
+    orderBook: "order_book",
+    escrow: "escrow",
+    resolver: "resolver",
   },
-  
+
   // Event types
   eventTypes: {
-    OrderCreated: 'OrderCreated',
-    OrderFilled: 'OrderFilled',
-    OrderCancelled: 'OrderCancelled',
-    OrderExpired: 'OrderExpired',
+    OrderCreated: "OrderCreated",
+    OrderFilled: "OrderFilled",
+    OrderCancelled: "OrderCancelled",
+    OrderExpired: "OrderExpired",
   },
 };
 
 export type SuiFusionConfig = typeof suiFusionConfig;
-export type SuiNetwork = typeof suiFusionConfig.supportedNetworks[number];
+export type SuiNetwork = (typeof suiFusionConfig.supportedNetworks)[number];
