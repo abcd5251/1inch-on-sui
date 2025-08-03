@@ -2,6 +2,7 @@
 
 const { ethers } = require('ethers');
 const fs = require('fs');
+const express = require('express'); // ✅ Fixed: Moved to top level
 require('dotenv').config();
 
 class FusionResolverManager {
@@ -319,7 +320,6 @@ class FusionResolverManager {
      * Start HTTP API for external integration
      */
     async startAPI() {
-        const express = require('express');
         const app = express();
         app.use(express.json());
 
@@ -442,7 +442,7 @@ const config = {
     rpcUrl: process.env.SEPOLIA_RPC_URL || process.env.BASE_SEPOLIA_RPC_URL || 'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
     privateKey: process.env.PRIVATE_KEY,
     usdcAddress: process.env.TARGET_CHAIN === 'baseSepolia' ? '0x036CbD53842c5426634e7929541eC2318f3dCF7e' : '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
-    settlementAddress: '0x1111111254eeb25477b68fb85ed929f73a960582', // Real 1inch Fusion+ settlement
+    settlementAddress: '0xa88800cd213da5ae406ce248380802bd53b47647', // Real 1inch Fusion+ settlement
     chainName: process.env.TARGET_CHAIN === 'baseSepolia' ? 'Base Sepolia' : 'Ethereum Sepolia'
 };
 

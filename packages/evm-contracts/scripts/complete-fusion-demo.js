@@ -10,7 +10,7 @@ class SimpleFusionDemo {
             rpcUrl: process.env.SEPOLIA_RPC_URL || process.env.BASE_SEPOLIA_RPC_URL || 'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
             privateKey: process.env.PRIVATE_KEY,
             usdcAddress: process.env.TARGET_CHAIN === 'baseSepolia' ? '0x036CbD53842c5426634e7929541eC2318f3dCF7e' : '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
-            settlementAddress: '0x1111111254eeb25477b68fb85ed929f73a960582'
+            settlementAddress: '0xa88800cd213da5ae406ce248380802bd53b47647'
         };
         
         this.resolverManager = new FusionResolverManager(this.config);

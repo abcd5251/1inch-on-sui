@@ -24,7 +24,7 @@ module.exports = {
         }
       },
       // 1inch Fusion settlement address for Sepolia
-      fusionSettlement: "0x1111111254eeb25477b68fb85ed929f73a960582"
+      fusionSettlement: "0xa88800cd213da5ae406ce248380802bd53b47647"
     },
     baseSepolia: {
       url: process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org",
@@ -35,7 +35,7 @@ module.exports = {
         }
       },
       // 1inch Fusion settlement address for Base Sepolia
-      fusionSettlement: "0x1111111254eeb25477b68fb85ed929f73a960582"
+      fusionSettlement: "0xa88800cd213da5ae406ce248380802bd53b47647"
     }
   }
 };
